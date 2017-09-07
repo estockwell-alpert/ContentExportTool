@@ -782,7 +782,25 @@ namespace ContentExportTool
             var fileContents = File.ReadAllText(_settingsFilePath);
             // convert into a list of settings
             var settingsList = serializer.Deserialize<SettingsList>(fileContents);
+
+            // get settings that belong to current user
+            var userId = GetUserId();
+            if (userId != null)
+            {
+                settingsList.Settings = settingsList.Settings.Where(x => String.IsNullOrEmpty(x.UserId) || x.UserId == userId).ToList();
+            }
+
             return settingsList;
+        }
+
+        protected string GetUserId()
+        {
+            var user = Sitecore.Security.Accounts.User.Current;
+            if (user != null && user.Profile != null)
+            {
+                return user.Profile.UserName;
+            }
+            return null;
         }
 
         protected void btnSaveSettings_OnClick(object sender, EventArgs e)
@@ -812,7 +830,8 @@ namespace ContentExportTool
             var settingsObject = new ExportSettings()
             {
                 Name = saveName,
-                Data = settingsData
+                Data = settingsData,
+                UserId = GetUserId()
             };
 
             var serializer = new JavaScriptSerializer();
@@ -853,6 +872,7 @@ namespace ContentExportTool
 
         public class ExportSettings
         {
+            public string UserId;
             public string Name;
             public ExportSettingsData Data;
         }
