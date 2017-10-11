@@ -319,6 +319,42 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.CheckBox chkIncludeRawHtml;
         
         /// <summary>
+        /// chkDateCreated control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkDateCreated;
+        
+        /// <summary>
+        /// chkCreatedBy control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkCreatedBy;
+        
+        /// <summary>
+        /// chkDateModified control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkDateModified;
+        
+        /// <summary>
+        /// chkModifiedBy control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkModifiedBy;
+        
+        /// <summary>
         /// chkWorkflowName control.
         /// </summary>
         /// <remarks>
@@ -353,14 +389,5 @@ namespace ContentExportTool {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnRunExportDupe;
-        
-        /// <summary>
-        /// btnWebformsExport control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnWebformsExport;
     }
 }

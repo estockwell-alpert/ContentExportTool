@@ -266,6 +266,12 @@ namespace ContentExportTool
                 var includeRawHtml = chkIncludeRawHtml.Checked;
                 var includeTemplate = chkIncludeTemplate.Checked;
 
+                var includeDateCreated = chkDateCreated.Checked;
+                var includeCreatedBy = chkCreatedBy.Checked;
+                var includeDateModified = chkDateModified.Checked;
+                var includeModifiedBy = chkModifiedBy.Checked;
+
+
                 var allLanguages = chkAllLanguages.Checked;
 
                 var templateString = inputTemplates.Value;
@@ -317,6 +323,10 @@ namespace ContentExportTool
                     + (includeIds ? "Item ID\t" : string.Empty)
                     + (includeTemplate ? "Template\t" : string.Empty)
                     + (allLanguages ? "Language\t" : string.Empty)
+                    + (includeDateCreated ? "Created\t" : string.Empty)
+                    + (includeCreatedBy ? "Created By\t": string.Empty)
+                    + (includeDateModified ? "Modified\t" : string.Empty)
+                    + (includeModifiedBy ? "Modified By\t" : string.Empty)
                     + GetExcelHeaderForFields(fields, includeLinkedIds, includeRawHtml)
                     + (includeworkflowName ? "Workflow\t" : string.Empty)
                     + (includeWorkflowState ? "Workflow State\t" : string.Empty);
@@ -361,6 +371,23 @@ namespace ContentExportTool
                             if (allLanguages)
                             {
                                 itemLine += item.Language.GetDisplayName() + "\t";
+                            }
+
+                            if (includeDateCreated)
+                            {
+                                itemLine += item.Statistics.Created.ToString("d") + "\t";
+                            }
+                            if (includeCreatedBy)
+                            {
+                                itemLine += item.Statistics.CreatedBy + "\t";
+                            }
+                            if (includeDateModified)
+                            {
+                                itemLine += item.Statistics.Updated.ToString("d") + "\t";
+                            }
+                            if (includeModifiedBy)
+                            {
+                                itemLine += item.Statistics.UpdatedBy + "\t";
                             }
 
                             foreach (var field in fields)

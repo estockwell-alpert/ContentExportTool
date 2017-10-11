@@ -611,8 +611,17 @@
 
                             <asp:CheckBox runat="server" ID="chkIncludeLinkedIds" /><span class="header">Include linked item IDs </span><span class="notes">(images, links, droplists, multilists)</span><br />
                             <asp:CheckBox runat="server" ID="chkIncludeRawHtml" /><span class="header">Include raw HTML </span><span class="notes">(images and links)</span><br />
+                            
+                            <br />
+                            
+                            <asp:CheckBox runat="server" ID="chkDateCreated"/><span class="header">Date Created</span>
+                            <asp:CheckBox runat="server" ID="chkCreatedBy"/><span class="header">Created By</span><br />
+                            <asp:CheckBox runat="server" ID="chkDateModified"/><span class="header">Date Modified</span>
+                            <asp:CheckBox runat="server" ID="chkModifiedBy"/><span class="header">Modified By</span><br />
+                            
+                            <br/>
 
-                            <asp:CheckBox runat="server" CssClass="workflowBox" ID="chkWorkflowName" /><span class="header">Workflow</span><br />
+                            <asp:CheckBox runat="server" CssClass="workflowBox" ID="chkWorkflowName" /><span class="header">Workflow</span>
                             <asp:CheckBox runat="server" CssClass="workflowBox" ID="chkWorkflowState" /><span class="header">Workflow State</span>
                             <br />
                             <span class="notes">Workflow options require the database to be set to master</span>
