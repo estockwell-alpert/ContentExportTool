@@ -57,9 +57,12 @@ namespace ContentExportTool
             var database = ddDatabase.SelectedValue;
             SetDatabase(database);
             var sitecoreTreeHtml = "<ul>";
-            var startNode = _db.GetItem("/sitecore/content");
+            var contentRoot = _db.GetItem("/sitecore/content");
+            var mediaRoot = _db.GetItem("/sitecore/media library");
 
-            sitecoreTreeHtml += GetItemAndChildren(startNode);
+            sitecoreTreeHtml += GetItemAndChildren(contentRoot);
+
+            sitecoreTreeHtml += GetItemAndChildren(mediaRoot);
 
             sitecoreTreeHtml += "</ul>";
 
