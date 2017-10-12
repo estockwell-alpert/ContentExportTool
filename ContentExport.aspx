@@ -593,6 +593,9 @@
                     <asp:CheckBox runat="server" ID="chkIncludeTemplate" />
                     <span class="header">Include Template Name</span><br />
                     <span class="notes">Check this box to include the template name with each item</span><br />
+                    <asp:CheckBox runat="server" ID="chkIncludeInheritance" />
+                    <span class="header">Include Templates that Inherit Selected Templates</span><br />
+                    <span class="notes">Check this box toinclude any templates that inherit selected templates</span><br />
                     <br />
 
 

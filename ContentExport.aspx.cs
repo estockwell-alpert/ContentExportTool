@@ -274,11 +274,52 @@ namespace ContentExportTool
                 var includeDateModified = chkDateModified.Checked;
                 var includeModifiedBy = chkModifiedBy.Checked;
 
-
                 var allLanguages = chkAllLanguages.Checked;
 
                 var templateString = inputTemplates.Value;
-                var templates = templateString.ToLower().Split(',').Select(x => x.Trim());
+                var templates = templateString.ToLower().Split(',').Select(x => x.Trim()).ToList();
+
+                if (chkIncludeInheritance.Checked)
+                {
+                    var inheritors = new List<string>();
+                    var templateRoot = _db.GetItem("/sitecore/templates");
+                    var templateItems = templateRoot.Axes.GetDescendants().Where(x => x.TemplateName == "Template");
+                    var templateItems1 = templateItems as Item[] ?? templateItems.ToArray();
+                    var enumerable = templateItems as Item[] ?? templateItems1.ToArray();
+                    foreach (var template in templates)
+                    {
+                        // get all template items that include template in base templates
+                        
+                        var templateItem =
+                            enumerable.FirstOrDefault(
+                                x =>
+                                    x.Name.ToLower() == template.ToLower() ||
+                                    x.ID.ToString().ToLower().Replace("{", string.Empty).Replace("}", string.Empty) ==
+                                    template.Replace("{", string.Empty).Replace("}", string.Empty));
+
+                        if (templateItem != null)
+                        {
+                            foreach (var item in templateItems1)
+                            {
+                                var baseTemplatesField = item.Fields["__Base template"];
+                                if (baseTemplatesField != null)
+                                {
+                                    if (FieldTypeManager.GetField(baseTemplatesField) is MultilistField)
+                                    {
+                                        MultilistField field = FieldTypeManager.GetField(baseTemplatesField) as MultilistField;
+                                        var inheritedTemplates = field.TargetIDs.ToList();
+                                        if (inheritedTemplates.Any(x => x == templateItem.ID))
+                                        {
+                                            inheritors.Add(item.ID.ToString().ToLower());
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                    templates.AddRange(inheritors);
+                }
 
                 var startNode = inputStartitem.Value;
                 if (String.IsNullOrEmpty(startNode)) startNode = "/sitecore/content";
