@@ -560,9 +560,12 @@
                     <span class="notes">Select database. Defaults to web</span><br />
                     <br />
 
-                    <asp:CheckBox runat="server" ID="chkIncludeIds" /><span class="header">Include IDs</span><br />
-                    <span class="notes">Check this box to include item IDs (guid) in the exported file. Item paths are already included.</span><br />
-                    <br />
+                    <asp:CheckBox runat="server" ID="chkIncludeIds" /><span class="header">Include ID</span><br />
+                    <span class="notes">Check this box to include item IDs (guid) in the exported file.</span><br />
+
+                    <asp:CheckBox runat="server" ID="chkIncludeName"/><span class="header">Include Name</span><br/>
+                    <span class="notes">Check this box to include the item name</span><br/>
+                    <br/>
 
                     <span class="header">Start Item</span><a class="clear-btn" data-id="inputStartitem">clear</a><br />
                     <span class="notes">Enter the path or ID of the starting node, or use Browse* to select.<br/> Only content beneath and including this node will be exported. If field is left blank, the starting node will be /sitecore/content.<br/>*Browse might take a while to load</span><br />
@@ -611,6 +614,13 @@
                     <div class="advanced">
                         <a class="advanced-btn">Advanced Options</a>
                         <div class="advanced-inner">
+                            
+                            <span class="header">Multiple Start Items</span><a class="clear-btn" data-id="inputMultiStartItem">clear</a><br/>
+                            <span class="notes">Enter multiple start paths or item IDs separated by comma to include items under separate starting nodes; can be used in tandem with Start Item/ fast query</span><br/>
+                            <textarea cols="60" row="5" runat="server" id="inputMultiStartItem"></textarea><br/><br/>
+                            
+                            <asp:CheckBox runat="server" ID="chkItemsWithLayout"/><span class="header">Only include items with layout</span><br/>
+                            <span class="notes">Check this box to only include items that have a layout, i.e. template pages and not components</span><br/><br/>
 
                             <asp:CheckBox runat="server" ID="chkIncludeLinkedIds" /><span class="header">Include linked item IDs </span><span class="notes">(images, links, droplists, multilists)</span><br />
                             <asp:CheckBox runat="server" ID="chkIncludeRawHtml" /><span class="header">Include raw HTML </span><span class="notes">(images and links)</span><br />
@@ -621,6 +631,7 @@
                             <asp:CheckBox runat="server" ID="chkCreatedBy"/><span class="header">Created By</span><br />
                             <asp:CheckBox runat="server" ID="chkDateModified"/><span class="header">Date Modified</span>
                             <asp:CheckBox runat="server" ID="chkModifiedBy"/><span class="header">Modified By</span><br />
+                            <asp:CheckBox runat="server" ID="chkNeverPublish"/><span class="header">Never Publish?</span><br
                             
                             <br/>
 
@@ -635,9 +646,10 @@
                             <span class="notes">This will get the selected field values for all languages that each item has an existing version for</span>
                             <br />
                             <br />
-
+                            
                             <asp:Button runat="server" ID="btnRunExportDupe" OnClick="btnRunExport_OnClick" Text="Run Export" /><br />
                             <br />
+                                                       
                         </div>
                     </div>
                     <br />

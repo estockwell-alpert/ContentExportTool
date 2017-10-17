@@ -6,6 +6,7 @@ using System.Web.Script.Serialization;
 using Sitecore.Data;
 using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
+using Sitecore.Links;
 
 namespace ContentExportTool
 {
@@ -266,6 +267,7 @@ namespace ContentExportTool
 
                 var includeIds = chkIncludeIds.Checked;
                 var includeLinkedIds = chkIncludeLinkedIds.Checked;
+                var includeName = chkIncludeName.Checked;
                 var includeRawHtml = chkIncludeRawHtml.Checked;
                 var includeTemplate = chkIncludeTemplate.Checked;
 
@@ -273,6 +275,7 @@ namespace ContentExportTool
                 var includeCreatedBy = chkCreatedBy.Checked;
                 var includeDateModified = chkDateModified.Checked;
                 var includeModifiedBy = chkModifiedBy.Checked;
+                var neverPublish = chkNeverPublish.Checked;
 
                 var allLanguages = chkAllLanguages.Checked;
 
@@ -320,7 +323,7 @@ namespace ContentExportTool
                     }
                     templates.AddRange(inheritors);
                 }
-
+              
                 var startNode = inputStartitem.Value;
                 if (String.IsNullOrEmpty(startNode)) startNode = "/sitecore/content";
 
@@ -341,6 +344,21 @@ namespace ContentExportTool
                     exportItems.AddRange(descendants);
                 }
 
+                if (!String.IsNullOrEmpty(inputMultiStartItem.Value))
+                {
+                    var startItems = inputMultiStartItem.Value.Split(',');
+                    foreach (var startItem in startItems)
+                    {
+                        Item item = _db.GetItem(startNode);
+                        if (item != null)
+                        {
+                            var descendants = item.Axes.GetDescendants();
+                            exportItems.Add(item);
+                            exportItems.AddRange(descendants);
+                        }
+                    }
+                }
+
                 List<Item> items = new List<Item>();
                 if (!String.IsNullOrEmpty(templateString))
                 {
@@ -355,6 +373,11 @@ namespace ContentExportTool
                     items = exportItems.ToList();
                 }
 
+                if (chkItemsWithLayout.Checked)
+                {
+                    items = items.Where(DoesItemHasPresentationDetails).ToList();
+                }
+
                 Response.Clear();
                 Response.Buffer = true;
                 Response.AddHeader("content-disposition", String.Format("attachment;filename={0}.xls", "ContentExport"));
@@ -364,6 +387,7 @@ namespace ContentExportTool
                 using (StringWriter sw = new StringWriter())
                 {
                     var headingString = "Item Path\t"
+                    + (includeName ? "Name\t" : string.Empty)
                     + (includeIds ? "Item ID\t" : string.Empty)
                     + (includeTemplate ? "Template\t" : string.Empty)
                     + (allLanguages ? "Language\t" : string.Empty)
@@ -371,6 +395,7 @@ namespace ContentExportTool
                     + (includeCreatedBy ? "Created By\t": string.Empty)
                     + (includeDateModified ? "Modified\t" : string.Empty)
                     + (includeModifiedBy ? "Modified By\t" : string.Empty)
+                    + (neverPublish ? "Never Publish\t" : string.Empty)
                     + GetExcelHeaderForFields(fields, includeLinkedIds, includeRawHtml)
                     + (includeworkflowName ? "Workflow\t" : string.Empty)
                     + (includeWorkflowState ? "Workflow State\t" : string.Empty);
@@ -399,7 +424,12 @@ namespace ContentExportTool
                         foreach (var item in itemVersions)
                         {
                             var itemPath = item.Paths.ContentPath;
-                            var itemLine = itemPath + "\t";                            
+                            var itemLine = itemPath + "\t";
+
+                            if (includeName)
+                            {
+                                itemLine += item.Name + "\t";
+                            }                     
 
                             if (includeIds)
                             {
@@ -432,6 +462,11 @@ namespace ContentExportTool
                             if (includeModifiedBy)
                             {
                                 itemLine += item.Statistics.UpdatedBy + "\t";
+                            }
+                            if (neverPublish)
+                            {
+                                var neverPublishVal = item.Publishing.NeverPublish;
+                                itemLine += neverPublishVal.ToString() + "\t";
                             }
 
                             foreach (var field in fields)
@@ -719,6 +754,16 @@ namespace ContentExportTool
             }
         }
 
+        public bool DoesItemHasPresentationDetails(Item item)
+        {
+            if (item != null)
+            {
+                return item.Fields[Sitecore.FieldIDs.LayoutField] != null
+                       && !String.IsNullOrEmpty(item.Fields[Sitecore.FieldIDs.LayoutField].Value);
+            }
+            return false;
+        }
+
         public string GetFieldNameIfGuid(string field)
         {
             Guid guid;
@@ -895,7 +940,16 @@ namespace ContentExportTool
                 IncludeRaw = chkIncludeRawHtml.Checked,
                 Workflow = chkWorkflowName.Checked,
                 WorkflowState = chkWorkflowState.Checked,
-                GetAllLanguages = chkAllLanguages.Checked
+                GetAllLanguages = chkAllLanguages.Checked,
+                IncludeName = chkIncludeName.Checked,
+                IncludeInheritance = chkIncludeInheritance.Checked,
+                MultipleStartPaths = inputMultiStartItem.Value,
+                DateCreated = chkDateCreated.Checked,
+                DateModified = chkDateModified.Checked,
+                CreatedBy = chkCreatedBy.Checked,
+                ModifiedBy = chkModifiedBy.Checked,
+                NeverPublish = chkNeverPublish.Checked,
+                RequireLayout = chkItemsWithLayout.Checked
             };
 
             var settingsObject = new ExportSettings()
@@ -962,6 +1016,15 @@ namespace ContentExportTool
             public bool Workflow;
             public bool WorkflowState;
             public bool GetAllLanguages;
+            public bool IncludeName;
+            public string MultipleStartPaths;
+            public bool IncludeInheritance;
+            public bool NeverPublish;
+            public bool DateCreated;
+            public bool DateModified;
+            public bool CreatedBy;
+            public bool ModifiedBy;
+            public bool RequireLayout;
         }
 
         protected void ddSavedSettings_OnSelectedIndexChanged(object sender, EventArgs e)
@@ -994,6 +1057,15 @@ namespace ContentExportTool
             chkWorkflowName.Checked = settings.Workflow;
             chkWorkflowState.Checked = settings.WorkflowState;
             chkAllLanguages.Checked = settings.GetAllLanguages;
+            chkIncludeName.Checked = settings.IncludeName;
+            chkIncludeInheritance.Checked = settings.IncludeInheritance;
+            inputMultiStartItem.Value = settings.MultipleStartPaths;
+            chkDateCreated.Checked = settings.DateCreated;
+            chkDateModified.Checked = settings.DateModified;
+            chkCreatedBy.Checked = settings.CreatedBy;
+            chkModifiedBy.Checked = settings.ModifiedBy;
+            chkNeverPublish.Checked = settings.NeverPublish;
+            chkItemsWithLayout.Checked = settings.RequireLayout;
         }
 
         protected void btnClearAll_OnClick(object sender, EventArgs e)
@@ -1016,6 +1088,14 @@ namespace ContentExportTool
             chkAllLanguages.Checked = false;
             txtSaveSettingsName.Value = string.Empty;
             ddSavedSettings.SelectedIndex = 0;
+            chkItemsWithLayout.Checked = false;
+            chkIncludeInheritance.Checked = false;
+            chkDateCreated.Checked = false;
+            chkDateModified.Checked = false;
+            chkCreatedBy.Checked = false;
+            chkModifiedBy.Checked = false;
+            inputMultiStartItem.Value = string.Empty;
+            chkIncludeName.Checked = false;
         }
 
         protected IEnumerable<string> LineParser(string line)
@@ -1051,7 +1131,16 @@ namespace ContentExportTool
                 IncludeRaw = chkIncludeRawHtml.Checked,
                 Workflow = chkWorkflowName.Checked,
                 WorkflowState = chkWorkflowState.Checked,
-                GetAllLanguages = chkAllLanguages.Checked
+                GetAllLanguages = chkAllLanguages.Checked,
+                IncludeName  = chkIncludeName.Checked,
+                IncludeInheritance = chkIncludeInheritance.Checked,
+                MultipleStartPaths = inputMultiStartItem.Value,
+                DateCreated = chkDateCreated.Checked,
+                DateModified = chkDateModified.Checked,
+                CreatedBy = chkCreatedBy.Checked,
+                ModifiedBy = chkModifiedBy.Checked,
+                NeverPublish = chkNeverPublish.Checked,
+                RequireLayout = chkItemsWithLayout.Checked
             };
 
             var serializer = new JavaScriptSerializer();

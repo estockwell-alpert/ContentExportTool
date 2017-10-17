@@ -211,6 +211,15 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.CheckBox chkIncludeIds;
         
         /// <summary>
+        /// chkIncludeName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkIncludeName;
+        
+        /// <summary>
         /// inputStartitem control.
         /// </summary>
         /// <remarks>
@@ -310,6 +319,24 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.Button btnBrowseFields;
         
         /// <summary>
+        /// inputMultiStartItem control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlTextArea inputMultiStartItem;
+        
+        /// <summary>
+        /// chkItemsWithLayout control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkItemsWithLayout;
+        
+        /// <summary>
         /// chkIncludeLinkedIds control.
         /// </summary>
         /// <remarks>
@@ -362,6 +389,15 @@ namespace ContentExportTool {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.CheckBox chkModifiedBy;
+        
+        /// <summary>
+        /// chkNeverPublish control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkNeverPublish;
         
         /// <summary>
         /// chkWorkflowName control.
