@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web.Script.Serialization;
+using Sitecore;
 using Sitecore.Data;
 using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
@@ -276,6 +277,7 @@ namespace ContentExportTool
                 var includeDateModified = chkDateModified.Checked;
                 var includeModifiedBy = chkModifiedBy.Checked;
                 var neverPublish = chkNeverPublish.Checked;
+                var includeReferrers = chkReferrers.Checked;
 
                 var allLanguages = chkAllLanguages.Checked;
 
@@ -398,7 +400,8 @@ namespace ContentExportTool
                     + (neverPublish ? "Never Publish\t" : string.Empty)
                     + GetExcelHeaderForFields(fields, includeLinkedIds, includeRawHtml)
                     + (includeworkflowName ? "Workflow\t" : string.Empty)
-                    + (includeWorkflowState ? "Workflow State\t" : string.Empty);
+                    + (includeWorkflowState ? "Workflow State\t" : string.Empty)
+                    + (includeReferrers ? "Referrers\t" + string.Empty);
 
                     var dataLines = new List<string>();
 
@@ -714,6 +717,28 @@ namespace ContentExportTool
                                         }
                                     }
                                 }
+                            }
+
+                            if (includeReferrers)
+                            {
+                                var referrers = Globals.LinkDatabase.GetReferrers(item).ToList().Select(x => x.GetSourceItem());
+
+                                var first = true;
+                                var data = "";
+                                foreach (var referrer in referrers)
+                                {
+                                    if (referrer != null)
+                                    {
+                                        if (!first)
+                                        {
+                                            data += ";\n";
+                                        }
+                                        data += referrer.Paths.ContentPath;
+                                        first = false;
+                                    }
+                                }
+                                itemLine += "\"" + data + "\"\t";
+
                             }
 
                             dataLines.Add(itemLine);
