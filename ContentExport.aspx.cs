@@ -401,7 +401,7 @@ namespace ContentExportTool
                     + GetExcelHeaderForFields(fields, includeLinkedIds, includeRawHtml)
                     + (includeworkflowName ? "Workflow\t" : string.Empty)
                     + (includeWorkflowState ? "Workflow State\t" : string.Empty)
-                    + (includeReferrers ? "Referrers\t" + string.Empty);
+                    + (includeReferrers ? "Referrers\t" : string.Empty);
 
                     var dataLines = new List<string>();
 
