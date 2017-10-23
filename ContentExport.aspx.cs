@@ -150,7 +150,7 @@ namespace ContentExportTool
         {
             var children = item.GetChildren().Cast<Item>();
 
-            var nodeHtml = "<li data-name='" + item.Name.ToLower() + "'>";
+            var nodeHtml = "<li data-name='" + item.Name.ToLower() + "' data-id='" + item.ID + "'>";
 
             if (children.Any())
             {
@@ -160,16 +160,6 @@ namespace ContentExportTool
             nodeHtml += string.Format("<a class='sitecore-node' href='javascript:void(0)' onclick='selectNode($(this));' data-path='{0}'>{1}</a>", item.Paths.Path, item.Name);
 
 
-            if (children.Any())
-            {
-                nodeHtml += "<ul>";
-                foreach (Item child in children)
-                {
-                    nodeHtml += GetItemAndChildren(child);
-                }
-                nodeHtml += "</ul>";
-            }
-
             nodeHtml += "</li>";
             return nodeHtml;
         }
@@ -178,7 +168,7 @@ namespace ContentExportTool
         {
             var children = item.GetChildren();
 
-            var nodeHtml = "<li data-name='" + item.Name.ToLower() + "'>";
+            var nodeHtml = "<li data-name='" + item.Name.ToLower() + "' data-id='" + item.ID + "'>";
 
             if (item.TemplateName == "Template")
             {
@@ -195,16 +185,6 @@ namespace ContentExportTool
                 }
 
                 nodeHtml += string.Format("<span>{0}</span>", item.Name);
-
-                if (children.Any())
-                {
-                    nodeHtml += "<ul>";
-                    foreach (Item child in children)
-                    {
-                        nodeHtml += GetTemplateTree(child);
-                    }
-                    nodeHtml += "</ul>";
-                }
 
             }
 

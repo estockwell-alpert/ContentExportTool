@@ -65,6 +65,14 @@
 });
 
 function expandNode(node) {
+
+    if (!($(node).parent().hasClass("loaded"))) {
+        // load children
+        var itemId = $(node).parent().attr("data-id");
+
+        loadChildren(itemId, $(node).parent());
+    }
+
     if ($(node).parent().hasClass("expanded")) {
 
         var children = $(node).parent().find("li");
@@ -78,6 +86,49 @@ function expandNode(node) {
         $(node).parent().addClass("expanded");
         $(node).html("-");
     }
+}
+
+function loadChildren(id, parentNode) {
+    var xhr = new XMLHttpRequest();
+    var apiUrl = window.location.protocol + "//" + window.location.hostname + "/-/item/v1/?sc_itemid=" + id + "&scope=c";
+    xhr.open("GET", apiUrl);
+    xhr.onreadystatechange = function () {
+        if (this.readyState == 4) {
+            console.log(this.responseText);
+
+            var innerHtml = "<ul>";
+
+            var json = JSON.parse(this.responseText);
+
+            if (json.statusCode === 200) {
+                var children = json.result.items;
+
+                for (var i = 0; i < children.length; i++) {
+                    var child = children[i];
+
+                    var hasChildren = child.HasChildren;
+                    var id = child.ID;
+                    var name = child.DisplayName;
+                    var path = child.Path;
+
+                    var childNode = "<li data-name='" + name + "' data-id='" + id + "'>";
+                    if (hasChildren) {
+                        childNode += "<a class='browse-expand' onclick='expandNode($(this))'>+</a>";
+                    }
+                    childNode += "<a class='sitecore-node' href='javascript:void(0)' onclick='selectNode($(this));' data-path='" + path + "'>" + name + "</a>";
+
+                    childNode += "</li>";
+                    innerHtml += childNode;
+                }
+
+                innerHtml += "</ul>";
+                $(parentNode).append(innerHtml);
+
+                $(parentNode).addClass("loaded");
+            }
+        }
+    };
+    xhr.send(null);
 }
 
 function selectNode(node) {
