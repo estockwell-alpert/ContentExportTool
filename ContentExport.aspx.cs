@@ -974,7 +974,8 @@ namespace ContentExportTool
                 CreatedBy = chkCreatedBy.Checked,
                 ModifiedBy = chkModifiedBy.Checked,
                 NeverPublish = chkNeverPublish.Checked,
-                RequireLayout = chkItemsWithLayout.Checked
+                RequireLayout = chkItemsWithLayout.Checked,
+                Referrers = chkReferrers.Checked
             };
 
             var settingsObject = new ExportSettings()
@@ -1050,6 +1051,7 @@ namespace ContentExportTool
             public bool CreatedBy;
             public bool ModifiedBy;
             public bool RequireLayout;
+            public bool Referrers;
         }
 
         protected void ddSavedSettings_OnSelectedIndexChanged(object sender, EventArgs e)
@@ -1091,6 +1093,7 @@ namespace ContentExportTool
             chkModifiedBy.Checked = settings.ModifiedBy;
             chkNeverPublish.Checked = settings.NeverPublish;
             chkItemsWithLayout.Checked = settings.RequireLayout;
+            chkReferrers.Checked = settings.Referrers;
         }
 
         protected void btnClearAll_OnClick(object sender, EventArgs e)
@@ -1121,6 +1124,7 @@ namespace ContentExportTool
             chkModifiedBy.Checked = false;
             inputMultiStartItem.Value = string.Empty;
             chkIncludeName.Checked = false;
+            chkReferrers.Checked = false;
         }
 
         protected IEnumerable<string> LineParser(string line)
@@ -1165,7 +1169,8 @@ namespace ContentExportTool
                 CreatedBy = chkCreatedBy.Checked,
                 ModifiedBy = chkModifiedBy.Checked,
                 NeverPublish = chkNeverPublish.Checked,
-                RequireLayout = chkItemsWithLayout.Checked
+                RequireLayout = chkItemsWithLayout.Checked,
+                Referrers = chkReferrers.Checked
             };
 
             var serializer = new JavaScriptSerializer();
