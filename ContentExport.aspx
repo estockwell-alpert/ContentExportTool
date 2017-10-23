@@ -627,6 +627,8 @@
                             
                             <br />
                             
+                            <asp:CheckBox runat="server" ID="chkReferrers"/><span class="header">Referrers</span><br/><span class="notes">Include the paths of all items that refer to each item</span><br/><br/>
+
                             <asp:CheckBox runat="server" ID="chkDateCreated"/><span class="header">Date Created</span>
                             <asp:CheckBox runat="server" ID="chkCreatedBy"/><span class="header">Created By</span><br />
                             <asp:CheckBox runat="server" ID="chkDateModified"/><span class="header">Date Modified</span>
