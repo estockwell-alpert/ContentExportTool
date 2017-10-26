@@ -49,6 +49,15 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.Literal litFeedback;
         
         /// <summary>
+        /// PhApiMessage control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder PhApiMessage;
+        
+        /// <summary>
         /// btnRunExport control.
         /// </summary>
         /// <remarks>
@@ -139,6 +148,15 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.PlaceHolder PhBrowseTree;
         
         /// <summary>
+        /// PhApiMessageBrowse control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder PhApiMessageBrowse;
+        
+        /// <summary>
         /// litSitecoreContentTree control.
         /// </summary>
         /// <remarks>
@@ -155,6 +173,15 @@ namespace ContentExportTool {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.PlaceHolder PhBrowseTemplates;
+        
+        /// <summary>
+        /// PhApiMessageTempaltes control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder PhApiMessageTempaltes;
         
         /// <summary>
         /// litBrowseTemplates control.

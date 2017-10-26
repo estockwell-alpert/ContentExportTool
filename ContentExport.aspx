@@ -423,6 +423,28 @@
         .clear-selections {
             float: left;
         }
+
+        span.api-message {
+            margin-bottom: 10px;
+            display: block;
+            font-size: 16px;
+        }
+
+        .modal span.api-message {
+            margin: 0;
+            border-bottom: 1px solid #ccc;
+            padding: 4px;
+            font-size: 14px;
+        }
+
+        .modal span.api-message a {
+            color: blue;
+            text-decoration: underline;
+        }
+
+        .modal span.api-message a:hover {
+            font-weight: normal;
+        }
     </style>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="ContentExportScripts.js"></script>
@@ -448,6 +470,10 @@
             </div>
 
             <div class="controls">
+            
+                <asp:Placeholder runat="server" ID="PhApiMessage" Visible="False">
+                    <span class="api-message">The Sitecore Item API is not enabled in your site. To improve browsing performance, turn on the  <a target="_blank" href="https://sdn.sitecore.net/upload/sdn5/modules/sitecore%20item%20web%20api/sitecore_item_web_api_developer_guide_sc65-66-usletter.pdf#page=12">Sitecore Item API</a></span>
+                </asp:Placeholder>
 
 
 
@@ -486,6 +512,11 @@
 
                     <asp:PlaceHolder runat="server" ID="PhBrowseTree">
                         <div class="modal browse-modal">
+                            <asp:PlaceHolder runat="server" ID="PhApiMessageBrowse" Visible="False">
+                                <div>
+                                    <span class="api-message">To improve performance, enable the <a target="_blank" href="https://sdn.sitecore.net/upload/sdn5/modules/sitecore%20item%20web%20api/sitecore_item_web_api_developer_guide_sc65-66-usletter.pdf#page=12">Sitecore Item API</a>.</span>
+                                </div>
+                            </asp:PlaceHolder>
                             <div class="selector-box left">
                                 <input class="field-search" type="text" placeholder="search" onkeyup="browseSearch($(this))"/>
                                 <a class="clear-search" href="javascript:void(0)" onclick="clearSearch($(this))">X</a>
@@ -506,6 +537,11 @@
 
                     <asp:PlaceHolder runat="server" ID="PhBrowseTemplates">
                         <div class="modal browse-modal templates">
+                            <asp:PlaceHolder runat="server" ID="PhApiMessageTempaltes" Visible="False">
+                                <div>
+                                    <span class="api-message">To improve performance, enable the <a target="_blank" href="https://sdn.sitecore.net/upload/sdn5/modules/sitecore%20item%20web%20api/sitecore_item_web_api_developer_guide_sc65-66-usletter.pdf#page=12">Sitecore Item API</a></span>
+                                </div>
+                            </asp:PlaceHolder>
                             <div class="select-box left">
                                 <input class="field-search" type="text" placeholder="search" onkeyup="browseSearch($(this))"/>
                                 <a class="clear-search" href="javascript:void(0)" onclick="clearSearch($(this))">X</a>

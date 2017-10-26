@@ -1,12 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Web;
 using System.Web.Script.Serialization;
 using Sitecore;
 using Sitecore.Data;
 using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
+using Sitecore.ItemWebApi.Configuration;
 using Sitecore.Links;
 
 namespace ContentExportTool
@@ -15,9 +19,14 @@ namespace ContentExportTool
     {
         private Database _db;
         private string _settingsFilePath = AppDomain.CurrentDomain.BaseDirectory + @"\sitecore\admin\ContentExportSettings.txt";
+        private bool _sitecoreItemApiEnabled;
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            CheckSitecoreItemApiEnabled();
+            PhApiMessage.Visible = !_sitecoreItemApiEnabled;
+            PhApiMessageBrowse.Visible = !_sitecoreItemApiEnabled;
+            PhApiMessageTempaltes.Visible = !_sitecoreItemApiEnabled;
             litSavedMessage.Text = String.Empty;
             phOverwriteScript.Visible = false;
             litFastQueryTest.Text = String.Empty;
@@ -159,6 +168,19 @@ namespace ContentExportTool
 
             nodeHtml += string.Format("<a class='sitecore-node' href='javascript:void(0)' onclick='selectNode($(this));' data-path='{0}'>{1}</a>", item.Paths.Path, item.Name);
 
+            if (!_sitecoreItemApiEnabled)
+            {
+                // turn on notification message
+                if (children.Any())
+                {
+                    nodeHtml += "<ul>";
+                    foreach (Item child in children)
+                    {
+                        nodeHtml += GetItemAndChildren(child);
+                    }
+                    nodeHtml += "</ul>";
+                }
+            }
 
             nodeHtml += "</li>";
             return nodeHtml;
@@ -185,6 +207,20 @@ namespace ContentExportTool
                 }
 
                 nodeHtml += string.Format("<span>{0}</span>", item.Name);
+
+                if (!_sitecoreItemApiEnabled)
+                {
+                    // turn on notification message
+                    if (children.Any())
+                    {
+                        nodeHtml += "<ul>";
+                        foreach (Item child in children)
+                        {
+                            nodeHtml += GetTemplateTree(child);
+                        }
+                        nodeHtml += "</ul>";
+                    }
+                }
 
             }
 
@@ -858,6 +894,45 @@ namespace ContentExportTool
                 litFastQueryTest.Text = "Error: " + ex.Message;
             }
 
+        }
+
+        public class SitecoreItemApiResponse
+        {
+            public int statusCode { get; set; }
+        }
+
+        protected void CheckSitecoreItemApiEnabled()
+        {
+            _sitecoreItemApiEnabled = false;
+            try
+            {
+                var current = HttpContext.Current.Request.Url;
+                var root = current.Scheme + "://" + current.Host;
+                var apiUrl = root + "/-/item/v1/?sc_itemid={00000000-0000-0000-0000-000000000000}";
+                WebRequest request = WebRequest.Create(apiUrl);
+                var response = (HttpWebResponse) request.GetResponse();
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    using (var reader = new StreamReader(response.GetResponseStream()))
+                    {
+                        JavaScriptSerializer js = new JavaScriptSerializer();
+                        var obj = reader.ReadToEnd();
+                        SitecoreItemApiResponse apiResponse =
+                            (SitecoreItemApiResponse) js.Deserialize(obj, typeof (SitecoreItemApiResponse));
+
+                        if (apiResponse.statusCode == 200)
+                        {
+                            _sitecoreItemApiEnabled = true;
+                        }
+                    }
+                }
+                response.Close();
+            }
+            catch (Exception ex)
+            {
+                
+            }
+                     
         }
 
         protected void HideModals(bool hideBrowse, bool hideTemplates, bool hideFields)
