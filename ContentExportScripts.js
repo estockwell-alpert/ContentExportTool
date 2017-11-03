@@ -94,8 +94,6 @@ function loadChildren(id, parentNode) {
     xhr.open("GET", apiUrl);
     xhr.onreadystatechange = function () {
         if (this.readyState == 4) {
-            console.log(this.responseText);
-
             var innerHtml = "<ul>";
 
             var json = JSON.parse(this.responseText);
@@ -132,9 +130,16 @@ function loadChildren(id, parentNode) {
 }
 
 function selectNode(node) {
-    $(".select-node-btn").removeClass("disabled");
-    var nodePath = $(node).attr("data-path");
-    $(".selected-node").html(nodePath);
+
+    // if link is in the template model:
+    var templateParent = $(node).parents("#templateLinks");
+    if (templateParent.length > 0) {
+        selectBrowseNode(node);
+    } else {
+        $(".select-node-btn").removeClass("disabled");
+        var nodePath = $(node).attr("data-path");
+        $(".selected-node").html(nodePath);
+    }
 }
 
 function confirmSelection() {
