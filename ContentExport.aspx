@@ -157,7 +157,7 @@
         }
 
         .modal.browse-modal .sitecore-node {
-            margin-left: 12px;
+            margin-left: 12px !important;
             display: block;
         }
 
@@ -542,7 +542,7 @@
                                     <span class="api-message">To improve performance, enable the <a target="_blank" href="https://sdn.sitecore.net/upload/sdn5/modules/sitecore%20item%20web%20api/sitecore_item_web_api_developer_guide_sc65-66-usletter.pdf#page=12">Sitecore Item API</a></span>
                                 </div>
                             </asp:PlaceHolder>
-                            <div class="select-box left">
+                            <div class="select-box left" id="templateLinks">
                                 <input class="field-search" type="text" placeholder="search" onkeyup="browseSearch($(this))"/>
                                 <a class="clear-search" href="javascript:void(0)" onclick="clearSearch($(this))">X</a>
                                 <asp:Literal runat="server" ID="litBrowseTemplates"></asp:Literal>

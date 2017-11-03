@@ -98,6 +98,8 @@ function loadChildren(id, parentNode) {
 
             var json = JSON.parse(this.responseText);
 
+            var templates = isTemplate(parentNode);
+
             if (json.statusCode === 200) {
                 var children = json.result.items;
 
@@ -110,11 +112,22 @@ function loadChildren(id, parentNode) {
                     var path = child.Path;
 
                     var childNode = "<li data-name='" + name + "' data-id='" + id + "'>";
+
                     if (hasChildren) {
                         childNode += "<a class='browse-expand' onclick='expandNode($(this))'>+</a>";
                     }
-                    childNode += "<a class='sitecore-node' href='javascript:void(0)' onclick='selectNode($(this));' data-path='" + path + "'>" + name + "</a>";
 
+                    if (templates) {
+                        var itemTemplate = child.Template.split('/')[child.Template.split('/').length - 1];
+                        if (itemTemplate === "Template") {
+                            childNode += getClickableBrowseItem(path,name);
+                        } else {
+                            childNode += "<span class='sitecore-node'>" + name + "</span>";
+                        }
+                    } else {
+                        childNode += getClickableBrowseItem(path, name);
+                    }
+                   
                     childNode += "</li>";
                     innerHtml += childNode;
                 }
@@ -129,11 +142,22 @@ function loadChildren(id, parentNode) {
     xhr.send(null);
 }
 
+function getClickableBrowseItem(path, name) {
+    return "<a class='sitecore-node' href='javascript:void(0)' onclick='selectNode($(this));' data-path='" + path + "'>" + name + "</a>";
+}
+
+function isTemplate(node) {
+    var templateParent = $(node).parents("#templateLinks");
+    if (templateParent.length > 0) {
+        return true;
+    }
+    return false;
+}
+
 function selectNode(node) {
 
     // if link is in the template model:
-    var templateParent = $(node).parents("#templateLinks");
-    if (templateParent.length > 0) {
+    if (isTemplate(node)) {
         selectBrowseNode(node);
     } else {
         $(".select-node-btn").removeClass("disabled");
