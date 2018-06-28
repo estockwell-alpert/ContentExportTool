@@ -1,15 +1,18 @@
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Script.Serialization;
+using System.Web.UI.WebControls;
 using Sitecore;
 using Sitecore.Data;
 using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
+using Sitecore.Data.Managers;
+using Sitecore.Globalization;
+using ImageField = Sitecore.Data.Fields.ImageField;
 
 namespace ContentExportTool
 {
@@ -45,8 +48,22 @@ namespace ContentExportTool
                 ddDatabase.DataSource = databaseNames;
                 ddDatabase.DataBind();
 
+                var languages = GetSiteLanguages().Select(x => x.GetDisplayName()).OrderBy(x => x).ToList();
+                languages.Insert(0, "");
+                ddLanguages.DataSource = languages;
+                ddLanguages.DataBind(); 
+
                 SetSavedSettingsDropdown();
             }
+        }
+
+        protected List<Language> GetSiteLanguages()
+        {
+            var database = ddDatabase.SelectedValue;
+            SetDatabase(database);
+            var installedLanguages = LanguageManager.GetLanguages(_db);
+
+            return installedLanguages.ToList();
         }
 
         protected void SetSavedSettingsDropdown()
@@ -294,6 +311,7 @@ namespace ContentExportTool
                 var includeReferrers = chkReferrers.Checked;
 
                 var allLanguages = chkAllLanguages.Checked;
+                var selectedLanguage = ddLanguages.SelectedValue;
 
                 var templateString = inputTemplates.Value;
                 var templates = templateString.ToLower().Split(',').Select(x => x.Trim()).ToList();
@@ -396,7 +414,8 @@ namespace ContentExportTool
 
                 Response.Clear();
                 Response.Buffer = true;
-                Response.AddHeader("content-disposition", String.Format("attachment;filename={0}.xls", "ContentExport"));
+                var fileName = !String.IsNullOrEmpty(txtFileName.Value) ? txtFileName.Value : "ContentExport";
+                Response.AddHeader("content-disposition", String.Format("attachment;filename={0}.xls", fileName));
                 Response.Charset = "";
                 Response.ContentType = "application/vnd.ms-excel";
 
@@ -406,7 +425,7 @@ namespace ContentExportTool
                     + (includeName ? "Name\t" : string.Empty)
                     + (includeIds ? "Item ID\t" : string.Empty)
                     + (includeTemplate ? "Template\t" : string.Empty)
-                    + (allLanguages ? "Language\t" : string.Empty)
+                    + (allLanguages || !String.IsNullOrEmpty(selectedLanguage) ? "Language\t" : string.Empty)
                     + (includeDateCreated ? "Created\t" : string.Empty)
                     + (includeCreatedBy ? "Created By\t": string.Empty)
                     + (includeDateModified ? "Modified\t" : string.Empty)
@@ -430,6 +449,19 @@ namespace ContentExportTool
                                 if (languageItem.Versions.Count > 0)
                                 {
                                     itemVersions.Add(languageItem);
+                                }
+                            }
+                        }else if (!String.IsNullOrEmpty(selectedLanguage))
+                        {
+                            foreach (var language in baseItem.Languages)
+                            {
+                                if (language.GetDisplayName() == selectedLanguage)
+                                {
+                                    var languageItem = baseItem.Database.GetItem(baseItem.ID, language);
+                                    if (languageItem.Versions.Count > 0)
+                                    {
+                                        itemVersions.Add(languageItem);
+                                    }
                                 }
                             }
                         }
@@ -459,7 +491,7 @@ namespace ContentExportTool
                                 itemLine += template + "\t";
                             }
 
-                            if (allLanguages)
+                            if (allLanguages || !String.IsNullOrEmpty(selectedLanguage))
                             {
                                 itemLine += item.Language.GetDisplayName() + "\t";
                             }
@@ -1018,6 +1050,7 @@ namespace ContentExportTool
                 IncludeRaw = chkIncludeRawHtml.Checked,
                 Workflow = chkWorkflowName.Checked,
                 WorkflowState = chkWorkflowState.Checked,
+                SelectedLanguage = ddLanguages.SelectedValue,
                 GetAllLanguages = chkAllLanguages.Checked,
                 IncludeName = chkIncludeName.Checked,
                 IncludeInheritance = chkIncludeInheritance.Checked,
@@ -1028,7 +1061,8 @@ namespace ContentExportTool
                 ModifiedBy = chkModifiedBy.Checked,
                 NeverPublish = chkNeverPublish.Checked,
                 RequireLayout = chkItemsWithLayout.Checked,
-                Referrers = chkReferrers.Checked
+                Referrers = chkReferrers.Checked,
+                FileName = txtFileName.Value
             };
 
             var settingsObject = new ExportSettings()
@@ -1094,6 +1128,7 @@ namespace ContentExportTool
             public bool IncludeRaw;
             public bool Workflow;
             public bool WorkflowState;
+            public string SelectedLanguage;
             public bool GetAllLanguages;
             public bool IncludeName;
             public string MultipleStartPaths;
@@ -1105,6 +1140,7 @@ namespace ContentExportTool
             public bool ModifiedBy;
             public bool RequireLayout;
             public bool Referrers;
+            public string FileName;
         }
 
         protected void ddSavedSettings_OnSelectedIndexChanged(object sender, EventArgs e)
@@ -1136,6 +1172,12 @@ namespace ContentExportTool
             chkIncludeRawHtml.Checked = settings.IncludeRaw;
             chkWorkflowName.Checked = settings.Workflow;
             chkWorkflowState.Checked = settings.WorkflowState;
+
+            var languages = GetSiteLanguages();
+            if (languages.Any(x => x.GetDisplayName() == settings.SelectedLanguage))
+            {
+                ddLanguages.SelectedValue = settings.SelectedLanguage;
+            }
             chkAllLanguages.Checked = settings.GetAllLanguages;
             chkIncludeName.Checked = settings.IncludeName;
             chkIncludeInheritance.Checked = settings.IncludeInheritance;
@@ -1147,6 +1189,7 @@ namespace ContentExportTool
             chkNeverPublish.Checked = settings.NeverPublish;
             chkItemsWithLayout.Checked = settings.RequireLayout;
             chkReferrers.Checked = settings.Referrers;
+            txtFileName.Value = settings.FileName;
         }
 
         protected void btnClearAll_OnClick(object sender, EventArgs e)
@@ -1166,6 +1209,7 @@ namespace ContentExportTool
             chkIncludeRawHtml.Checked = false;
             chkWorkflowName.Checked = false;
             chkWorkflowState.Checked = false;
+            ddLanguages.SelectedIndex = 0;
             chkAllLanguages.Checked = false;
             txtSaveSettingsName.Value = string.Empty;
             ddSavedSettings.SelectedIndex = 0;
@@ -1178,6 +1222,7 @@ namespace ContentExportTool
             inputMultiStartItem.Value = string.Empty;
             chkIncludeName.Checked = false;
             chkReferrers.Checked = false;
+            txtFileName.Value = string.Empty;
         }
 
         protected IEnumerable<string> LineParser(string line)
@@ -1213,6 +1258,7 @@ namespace ContentExportTool
                 IncludeRaw = chkIncludeRawHtml.Checked,
                 Workflow = chkWorkflowName.Checked,
                 WorkflowState = chkWorkflowState.Checked,
+                SelectedLanguage = ddLanguages.SelectedValue,
                 GetAllLanguages = chkAllLanguages.Checked,
                 IncludeName  = chkIncludeName.Checked,
                 IncludeInheritance = chkIncludeInheritance.Checked,
@@ -1223,7 +1269,8 @@ namespace ContentExportTool
                 ModifiedBy = chkModifiedBy.Checked,
                 NeverPublish = chkNeverPublish.Checked,
                 RequireLayout = chkItemsWithLayout.Checked,
-                Referrers = chkReferrers.Checked
+                Referrers = chkReferrers.Checked,
+                FileName = txtFileName.Value
             };
 
             var serializer = new JavaScriptSerializer();

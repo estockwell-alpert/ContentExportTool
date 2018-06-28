@@ -454,6 +454,15 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.CheckBox chkWorkflowState;
         
         /// <summary>
+        /// ddLanguages control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddLanguages;
+        
+        /// <summary>
         /// chkAllLanguages control.
         /// </summary>
         /// <remarks>
@@ -461,6 +470,15 @@ namespace ContentExportTool {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.CheckBox chkAllLanguages;
+        
+        /// <summary>
+        /// txtFileName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputText txtFileName;
         
         /// <summary>
         /// btnRunExportDupe control.

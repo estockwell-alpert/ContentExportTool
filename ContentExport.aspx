@@ -669,7 +669,7 @@
                             <asp:CheckBox runat="server" ID="chkCreatedBy"/><span class="header">Created By</span><br />
                             <asp:CheckBox runat="server" ID="chkDateModified"/><span class="header">Date Modified</span>
                             <asp:CheckBox runat="server" ID="chkModifiedBy"/><span class="header">Modified By</span><br />
-                            <asp:CheckBox runat="server" ID="chkNeverPublish"/><span class="header">Never Publish?</span><br
+                            <asp:CheckBox runat="server" ID="chkNeverPublish"/><span class="header">Never Publish?</span><br />
                             
                             <br/>
 
@@ -678,12 +678,24 @@
                             <br />
                             <span class="notes">Workflow options require the database to be set to master</span>
                             <br />
-                            <br />
+                            <br />  
+                            
+                            <span class="header">Language</span>
+                            <%--<asp:ListBox runat="server" ID="lstLanguages" SelectionMode="multiple" Width="200">
+                            </asp:ListBox>--%>
+                            <asp:DropDownList runat="server" ID="ddLanguages"/>
+                            
+                            <br/><br/>
 
                             <asp:CheckBox runat="server" ID="chkAllLanguages" /><span class="header">Get All Language Versions</span><br />
                             <span class="notes">This will get the selected field values for all languages that each item has an existing version for</span>
                             <br />
                             <br />
+                            
+                            <span class="header">Download File Name</span><br/>
+                            <input runat="server" id="txtFileName" />
+                            
+                            <br/><br/>
                             
                             <asp:Button runat="server" ID="btnRunExportDupe" OnClick="btnRunExport_OnClick" Text="Run Export" /><br />
                             <br />
