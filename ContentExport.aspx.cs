@@ -12,6 +12,7 @@ using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
 using Sitecore.Data.Managers;
 using Sitecore.Globalization;
+using Sitecore.Mvc.Extensions;
 using ImageField = Sitecore.Data.Fields.ImageField;
 
 namespace ContentExportTool
@@ -812,11 +813,15 @@ namespace ContentExportTool
                         sw.WriteLine(newLine);
                     }
 
+                    var downloadToken = txtDownloadToken.Value;     
+                    var responseCookie = new HttpCookie("DownloadToken");
+                    responseCookie.Value = downloadToken;
+                    responseCookie.Expires = DateTime.Now.AddDays(1);
+                    Response.Cookies.Add(responseCookie);   
+
                     Response.Output.Write(sw.ToString());
                     Response.Flush();
-                    Response.End();
-
-                    litFeedback.Text = "";
+                    Response.End();                
                 }
             }
             catch (Exception ex)

@@ -1,5 +1,39 @@
 ﻿$(document).ready(function () {
 
+    var loadingModalHtml = "<div class='loading-modal'><div class='loading-box'><div class='loader'></div></div></div>";
+
+    function checkIfFileDownloaded(downloadToken) {
+        var token = getCookie("DownloadToken");
+
+        if ((token == downloadToken)) {
+            //$("#loading-text").html("");
+            $(".loading-modal").hide();
+            expireCookie("DownloadToken");
+        } else {
+            setTimeout(function() {
+                checkIfFileDownloaded(downloadToken)
+            }, 1000)              
+        }
+    }
+
+    function getCookie(name) {
+        var parts = document.cookie.split(name + "=");
+        if (parts.length == 2) return parts.pop().split(";").shift();
+    }
+
+    function expireCookie(cName) {
+        document.cookie =
+            encodeURIComponent(cName) + "=deleted; expires=" + new Date(0).toUTCString();
+    }
+
+    $("#btnRunExport, #btnRunExportDupe").on("click", function () {
+        $(".loading-modal").show();
+        //$("#loading-text").html(loadingModalHtml);
+        var downloadToken = new Date().getTime();
+        $("#txtDownloadToken").val(downloadToken)
+        checkIfFileDownloaded(downloadToken);
+    });
+
     $(".advanced-btn").on("click", function () {
         if ($(this).parent().hasClass("open")) {
             $(this).parent().removeClass("open");

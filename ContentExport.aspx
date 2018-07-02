@@ -445,6 +445,38 @@
         .modal span.api-message a:hover {
             font-weight: normal;
         }
+
+        .loader {
+    border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 2s linear infinite;
+}
+
+        .loading-modal {
+            display: none;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    background: rgba(0,0,0,.2);
+    top: 0;
+    left: 0;
+}
+
+.loading-box {
+    position: absolute;
+    top: 40%;
+    padding: 40px;
+    left: 42%;
+    border-radius: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
     </style>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="ContentExportScripts.js"></script>
@@ -462,6 +494,17 @@
     </script>
 </asp:PlaceHolder>
     <form id="form1" runat="server">
+        <div class="loading-modal">
+            <div class="loading-box">
+                <div class="loader"></div>
+            </div>       
+        </div>
+       <%-- <div id="loading-text">
+            <asp:Literal ID="litLoadingText" runat="server"></asp:Literal>
+        </div>--%>
+        
+        <input runat="server" id="txtDownloadToken" style="display: none;"/>
+
         <div>
             <h2 id="headline" runat="server">Content Export Tool</h2>
 
