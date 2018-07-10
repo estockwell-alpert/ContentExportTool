@@ -279,8 +279,7 @@ namespace ContentExportTool
 
             try
             {
-                var fieldString = inputFields.Value;
-
+               
                 var includeWorkflowState = chkWorkflowState.Checked;
                 var includeworkflowName = chkWorkflowName.Checked;
 
@@ -360,6 +359,7 @@ namespace ContentExportTool
                                   
                 List<Item> items = GetItems();
 
+                var fieldString = inputFields.Value;
                 var fields = fieldString.Split(',').Select(x => x.Trim()).Where(x => !String.IsNullOrEmpty(x)).ToList();
 
                 if (chkAllFields.Checked)
@@ -1359,6 +1359,9 @@ namespace ContentExportTool
 
             var items = GetItems();
 
+            var fieldString = inputFields.Value;
+            var fields = fieldString.Split(',').Select(x => x.Trim()).Where(x => !String.IsNullOrEmpty(x)).ToList();
+
             using (StringWriter sw = new StringWriter())
             {
                 var headingString = "Item Path\tField";
@@ -1383,7 +1386,7 @@ namespace ContentExportTool
                     {
                         // check for string in all fields
                         // if string is found, add to export with field where it exists
-                        var fieldsWithText = CheckAllFields(version, searchText);
+                        var fieldsWithText = CheckAllFields(version, searchText, fields);
                         if (!String.IsNullOrEmpty(fieldsWithText))
                         {
                             var dataLine = baseItem.Paths.ContentPath + "\t" + fieldsWithText;
@@ -1419,8 +1422,10 @@ namespace ContentExportTool
             }
         }
 
-        protected string CheckAllFields(Item dataItem, string searchText)
+        protected string CheckAllFields(Item dataItem, string searchText, List<string> fields)
         {
+            var fieldsSelected = fields.Any(x => !string.IsNullOrEmpty(x));
+
             searchText = searchText.ToLower();
             //Force all the fields to load.
             dataItem.Fields.ReadAll();
@@ -1430,10 +1435,15 @@ namespace ContentExportTool
             //Loop through all of the fields in the datasource item looking for
             //text in non system fields
             foreach (Field field in dataItem.Fields)
-            {
+            {                
                 //If a field starts with __ it means it is a sitecore system
                 //field which we do not want to index.
                 if (field.Name.StartsWith("__"))
+                {
+                    continue;
+                }
+
+                if (fieldsSelected && fields.All(x => x != field.Name))
                 {
                     continue;
                 }
