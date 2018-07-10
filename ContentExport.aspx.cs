@@ -1392,6 +1392,7 @@ namespace ContentExportTool
                                 dataLine += "\t" + version.Language.GetDisplayName();
                                 if (!addedLangToHeading)
                                 {
+                                    addedLangToHeading = true;
                                     headingString += "\tLanguage";
                                 }
                             }
