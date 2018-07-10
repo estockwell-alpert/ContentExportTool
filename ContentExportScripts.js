@@ -26,7 +26,7 @@
             encodeURIComponent(cName) + "=deleted; expires=" + new Date(0).toUTCString();
     }
 
-    $("#btnRunExport, #btnRunExportDupe").on("click", function () {
+    $("#btnRunExport, #btnRunExportDupe, #btnAdvancedSearch").on("click", function () {
         $(".loading-modal").show();
         //$("#loading-text").html(loadingModalHtml);
         var downloadToken = new Date().getTime();

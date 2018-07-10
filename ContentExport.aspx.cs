@@ -13,6 +13,7 @@ using Sitecore.Data.Items;
 using Sitecore.Data.Managers;
 using Sitecore.Globalization;
 using Sitecore.Mvc.Extensions;
+using Sitecore.Services.Core.ComponentModel;
 using ImageField = Sitecore.Data.Fields.ImageField;
 
 namespace ContentExportTool
@@ -294,9 +295,7 @@ namespace ContentExportTool
                 {
                     litFeedback.Text = "Invalid database. Selected database does not exist.";
                     return;
-                }
-
-                var fields = fieldString.Split(',').Select(x => x.Trim()).Where(x => !String.IsNullOrEmpty(x));
+                }                
 
                 var includeIds = chkIncludeIds.Checked;
                 var includeLinkedIds = chkIncludeLinkedIds.Checked;
@@ -358,59 +357,14 @@ namespace ContentExportTool
                     }
                     templates.AddRange(inheritors);
                 }
-              
-                var startNode = inputStartitem.Value;
-                if (String.IsNullOrEmpty(startNode)) startNode = "/sitecore/content";
+                                  
+                List<Item> items = GetItems();
 
-                var fastQuery = txtFastQuery.Value;
+                var fields = fieldString.Split(',').Select(x => x.Trim()).Where(x => !String.IsNullOrEmpty(x)).ToList();
 
-                var exportItems = new List<Item>() { };
-
-                if (!String.IsNullOrEmpty(fastQuery))
+                if (chkAllFields.Checked)
                 {
-                    var queryItems = _db.SelectItems(fastQuery);
-                    exportItems = queryItems.ToList();
-                }
-                else
-                {
-                    Item startItem = _db.GetItem(startNode);
-                    var descendants = startItem.Axes.GetDescendants();
-                    exportItems.Add(startItem);
-                    exportItems.AddRange(descendants);
-                }
-
-                if (!String.IsNullOrEmpty(inputMultiStartItem.Value))
-                {
-                    var startItems = inputMultiStartItem.Value.Split(',');
-                    foreach (var startItem in startItems)
-                    {
-                        Item item = _db.GetItem(startNode);
-                        if (item != null)
-                        {
-                            var descendants = item.Axes.GetDescendants();
-                            exportItems.Add(item);
-                            exportItems.AddRange(descendants);
-                        }
-                    }
-                }
-
-                List<Item> items = new List<Item>();
-                if (!String.IsNullOrEmpty(templateString))
-                {
-                    foreach (var template in templates)
-                    {
-                        var templateItems = exportItems.Where(x => x.TemplateName.ToLower() == template || x.TemplateID.ToString().ToLower().Replace("{", string.Empty).Replace("}", string.Empty) == template.Replace("{", string.Empty).Replace("}", string.Empty));
-                        items.AddRange(templateItems);
-                    }
-                }
-                else
-                {
-                    items = exportItems.ToList();
-                }
-
-                if (chkItemsWithLayout.Checked)
-                {
-                    items = items.Where(DoesItemHasPresentationDetails).ToList();
+                    fields = new List<string>();
                 }
 
                 Response.Clear();
@@ -423,19 +377,21 @@ namespace ContentExportTool
                 using (StringWriter sw = new StringWriter())
                 {
                     var headingString = "Item Path\t"
-                    + (includeName ? "Name\t" : string.Empty)
-                    + (includeIds ? "Item ID\t" : string.Empty)
-                    + (includeTemplate ? "Template\t" : string.Empty)
-                    + (allLanguages || !String.IsNullOrEmpty(selectedLanguage) ? "Language\t" : string.Empty)
-                    + (includeDateCreated ? "Created\t" : string.Empty)
-                    + (includeCreatedBy ? "Created By\t": string.Empty)
-                    + (includeDateModified ? "Modified\t" : string.Empty)
-                    + (includeModifiedBy ? "Modified By\t" : string.Empty)
-                    + (neverPublish ? "Never Publish\t" : string.Empty)
-                    + GetExcelHeaderForFields(fields, includeLinkedIds, includeRawHtml)
-                    + (includeworkflowName ? "Workflow\t" : string.Empty)
-                    + (includeWorkflowState ? "Workflow State\t" : string.Empty)
-                    + (includeReferrers ? "Referrers\t" : string.Empty);
+                                        + (includeName ? "Name\t" : string.Empty)
+                                        + (includeIds ? "Item ID\t" : string.Empty)
+                                        + (includeTemplate ? "Template\t" : string.Empty)
+                                        +
+                                        (allLanguages || !String.IsNullOrEmpty(selectedLanguage)
+                                            ? "Language\t"
+                                            : string.Empty)
+                                        + (includeDateCreated ? "Created\t" : string.Empty)
+                                        + (includeCreatedBy ? "Created By\t" : string.Empty)
+                                        + (includeDateModified ? "Modified\t" : string.Empty)
+                                        + (includeModifiedBy ? "Modified By\t" : string.Empty)
+                                        + (neverPublish ? "Never Publish\t" : string.Empty)
+                                        + (includeworkflowName ? "Workflow\t" : string.Empty)
+                                        + (includeWorkflowState ? "Workflow State\t" : string.Empty)
+                                        + (includeReferrers ? "Referrers\t" : string.Empty);
 
                     var dataLines = new List<string>();
 
@@ -517,6 +473,81 @@ namespace ContentExportTool
                             {
                                 var neverPublishVal = item.Publishing.NeverPublish;
                                 itemLine += neverPublishVal.ToString() + "\t";
+                            }
+
+                            if (chkAllFields.Checked)
+                            {
+                                item.Fields.ReadAll();
+                                foreach (Field field in item.Fields)
+                                {
+                                    if (field.Name.StartsWith("__")) continue;
+                                    if (fields.All(x => x != field.Name))
+                                    {
+                                        fields.Add(field.Name);
+                                    }
+                                }
+                            }
+
+                            if (includeWorkflowState || includeworkflowName)
+                            {
+                                var workflowProvider = item.Database.WorkflowProvider;
+                                if (workflowProvider == null)
+                                {
+                                    if (includeworkflowName && includeWorkflowState)
+                                    {
+                                        itemLine += "\t";
+                                    }
+                                    itemLine += "\t";
+                                }
+                                else
+                                {
+                                    var workflow = workflowProvider.GetWorkflow(item);
+                                    if (workflow == null)
+                                    {
+                                        if (includeworkflowName && includeWorkflowState)
+                                        {
+                                            itemLine += "\t";
+                                        }
+                                        else
+                                        {
+                                            itemLine += "\t";
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (includeworkflowName)
+                                        {
+                                            itemLine += workflow + "\t";
+                                        }
+                                        if (includeWorkflowState)
+                                        {
+                                            var workflowState = workflow.GetState(item);
+                                            itemLine += workflowState.DisplayName + "\t";
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (includeReferrers)
+                            {
+                                var referrers = Globals.LinkDatabase.GetReferrers(item).ToList().Select(x => x.GetSourceItem());
+
+                                var first = true;
+                                var data = "";
+                                foreach (var referrer in referrers)
+                                {
+                                    if (referrer != null)
+                                    {
+                                        if (!first)
+                                        {
+                                            data += ";\n";
+                                        }
+                                        data += referrer.Paths.ContentPath;
+                                        first = false;
+                                    }
+                                }
+                                itemLine += "\"" + data + "\"\t";
+
                             }
 
                             foreach (var field in fields)
@@ -724,73 +755,14 @@ namespace ContentExportTool
                                         }
                                     }
                                 }
-                            }
-
-                            if (includeWorkflowState || includeworkflowName)
-                            {
-                                var workflowProvider = item.Database.WorkflowProvider;
-                                if (workflowProvider == null)
-                                {
-                                    if (includeworkflowName && includeWorkflowState)
-                                    {
-                                        itemLine += "\t";
-                                    }
-                                    itemLine += "\t";
-                                }
-                                else
-                                {
-                                    var workflow = workflowProvider.GetWorkflow(item);
-                                    if (workflow == null)
-                                    {
-                                        if (includeworkflowName && includeWorkflowState)
-                                        {
-                                            itemLine += "\t";
-                                        }
-                                        else
-                                        {
-                                            itemLine += "\t";
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (includeworkflowName)
-                                        {
-                                            itemLine += workflow + "\t";
-                                        }
-                                        if (includeWorkflowState)
-                                        {
-                                            var workflowState = workflow.GetState(item);
-                                            itemLine += workflowState.DisplayName + "\t";
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (includeReferrers)
-                            {
-                                var referrers = Globals.LinkDatabase.GetReferrers(item).ToList().Select(x => x.GetSourceItem());
-
-                                var first = true;
-                                var data = "";
-                                foreach (var referrer in referrers)
-                                {
-                                    if (referrer != null)
-                                    {
-                                        if (!first)
-                                        {
-                                            data += ";\n";
-                                        }
-                                        data += referrer.Paths.ContentPath;
-                                        first = false;
-                                    }
-                                }
-                                itemLine += "\"" + data + "\"\t";
-
-                            }
+                            }                            
 
                             dataLines.Add(itemLine);
                         }
                     }
+
+                    headingString += (!chkAllFields.Checked ? GetExcelHeaderForFields(fields, includeLinkedIds, includeRawHtml) : GetExcelHeaderForFields(fields, false, false));
+
 
                     // remove any field-ID and field-RAW from header that haven't been replaced (i.e. non-existent field)
                     foreach (var field in fields)
@@ -828,6 +800,64 @@ namespace ContentExportTool
             {
                 litFeedback.Text = ex.Message;
             }
+        }
+
+        public List<Item> GetItems()
+        {
+            var startNode = inputStartitem.Value;
+            if (String.IsNullOrEmpty(startNode)) startNode = "/sitecore/content";
+
+            var templateString = inputTemplates.Value;
+            var templates = templateString.ToLower().Split(',').Select(x => x.Trim()).ToList();
+            var fastQuery = txtFastQuery.Value;
+
+            var exportItems = new List<Item>();
+            if (!String.IsNullOrEmpty(fastQuery))
+            {
+                var queryItems = _db.SelectItems(fastQuery);
+                exportItems = queryItems.ToList();
+            }
+            else
+            {
+                Item startItem = _db.GetItem(startNode);
+                var descendants = startItem.Axes.GetDescendants();
+                exportItems.Add(startItem);
+                exportItems.AddRange(descendants);
+            }
+
+            if (!String.IsNullOrEmpty(inputMultiStartItem.Value))
+            {
+                var startItems = inputMultiStartItem.Value.Split(',');
+                foreach (var startItem in startItems)
+                {
+                    Item item = _db.GetItem(startItem);
+                    if (item != null)
+                    {
+                        var descendants = item.Axes.GetDescendants();
+                        exportItems.Add(item);
+                        exportItems.AddRange(descendants);
+                    }
+                }
+            } 
+            var items = new List<Item>();
+            if (!String.IsNullOrEmpty(templateString))
+            {
+                foreach (var template in templates)
+                {
+                    var templateItems = exportItems.Where(x => x.TemplateName.ToLower() == template || x.TemplateID.ToString().ToLower().Replace("{", string.Empty).Replace("}", string.Empty) == template.Replace("{", string.Empty).Replace("}", string.Empty));
+                    items.AddRange(templateItems);
+                }
+            }
+            else
+            {
+                items = exportItems.ToList();
+            }
+
+            if (chkItemsWithLayout.Checked)
+            {
+                items = items.Where(DoesItemHasPresentationDetails).ToList();
+            }
+            return items;
         }
 
         public bool DoesItemHasPresentationDetails(Item item)
@@ -1067,7 +1097,8 @@ namespace ContentExportTool
                 NeverPublish = chkNeverPublish.Checked,
                 RequireLayout = chkItemsWithLayout.Checked,
                 Referrers = chkReferrers.Checked,
-                FileName = txtFileName.Value
+                FileName = txtFileName.Value,
+                AllFields = chkAllFields.Checked
             };
 
             var settingsObject = new ExportSettings()
@@ -1146,6 +1177,7 @@ namespace ContentExportTool
             public bool RequireLayout;
             public bool Referrers;
             public string FileName;
+            public bool AllFields;
         }
 
         protected void ddSavedSettings_OnSelectedIndexChanged(object sender, EventArgs e)
@@ -1195,6 +1227,7 @@ namespace ContentExportTool
             chkItemsWithLayout.Checked = settings.RequireLayout;
             chkReferrers.Checked = settings.Referrers;
             txtFileName.Value = settings.FileName;
+            chkAllFields.Checked = settings.AllFields;
         }
 
         protected void btnClearAll_OnClick(object sender, EventArgs e)
@@ -1228,6 +1261,7 @@ namespace ContentExportTool
             chkIncludeName.Checked = false;
             chkReferrers.Checked = false;
             txtFileName.Value = string.Empty;
+            chkAllFields.Checked = false;
         }
 
         protected IEnumerable<string> LineParser(string line)
@@ -1308,6 +1342,179 @@ namespace ContentExportTool
                 File.WriteAllText(_settingsFilePath, settingsListJson);
                 SetSavedSettingsDropdown();
             }
+        }
+
+        protected void btnAdvancedSearch_OnClick(object sender, EventArgs e)
+        {
+            HideModals(false, false, false);
+            if (!SetDatabase()) SetDatabase("web");
+
+            var searchText = txtAdvancedSearch.Value;
+            Response.Clear();
+            Response.Buffer = true;
+            var fileName = !String.IsNullOrEmpty(txtFileName.Value) ? txtFileName.Value : "ContentSearch - " + searchText;
+            Response.AddHeader("content-disposition", String.Format("attachment;filename={0}.xls", fileName));
+            Response.Charset = "";
+            Response.ContentType = "application/vnd.ms-excel";
+
+            var items = GetItems();
+
+            using (StringWriter sw = new StringWriter())
+            {
+                var headingString = "Item Path\tField";
+                var addedLangToHeading = false;
+                                    
+
+                var dataLines = new List<string>();
+
+                foreach (var baseItem in items)
+                {
+                    var itemVersions = new List<Item>();
+                    foreach (var language in baseItem.Languages)
+                    {
+                        var languageItem = baseItem.Database.GetItem(baseItem.ID, language);
+                        if (languageItem.Versions.Count > 0)
+                        {
+                            itemVersions.Add(languageItem);
+                        }
+                    }
+
+                    foreach (var version in itemVersions)
+                    {
+                        // check for string in all fields
+                        // if string is found, add to export with field where it exists
+                        var fieldsWithText = CheckAllFields(version, searchText);
+                        if (!String.IsNullOrEmpty(fieldsWithText))
+                        {
+                            var dataLine = baseItem.Paths.ContentPath + "\t" + fieldsWithText;
+                            if (version.Language.Name != LanguageManager.DefaultLanguage.Name)
+                            {
+                                dataLine += "\t" + version.Language.GetDisplayName();
+                                if (!addedLangToHeading)
+                                {
+                                    headingString += "\tLanguage";
+                                }
+                            }
+                            dataLines.Add(dataLine);
+                        }
+                    }
+                }
+
+                sw.WriteLine(headingString);
+                foreach (var line in dataLines)
+                {
+                    sw.WriteLine(line);
+                }
+
+                var downloadToken = txtDownloadToken.Value;
+                var responseCookie = new HttpCookie("DownloadToken");
+                responseCookie.Value = downloadToken;
+                responseCookie.Expires = DateTime.Now.AddDays(1);
+                Response.Cookies.Add(responseCookie);
+
+                Response.Output.Write(sw.ToString());
+                Response.Flush();
+                Response.End();
+            }
+        }
+
+        protected string CheckAllFields(Item dataItem, string searchText)
+        {
+            searchText = searchText.ToLower();
+            //Force all the fields to load.
+            dataItem.Fields.ReadAll();
+
+            var fieldsWithText = "";
+
+            //Loop through all of the fields in the datasource item looking for
+            //text in non system fields
+            foreach (Field field in dataItem.Fields)
+            {
+                //If a field starts with __ it means it is a sitecore system
+                //field which we do not want to index.
+                if (field.Name.StartsWith("__"))
+                {
+                    continue;
+                }
+
+                //Only add text based fields.
+                if (FieldTypeManager.GetField(field) is HtmlField)
+                {
+                    var html = field.Value.ToLower();
+                    if (html.Contains(searchText))
+                    {
+                        if (!String.IsNullOrEmpty(fieldsWithText)) fieldsWithText += "; ";
+                        fieldsWithText += field.Name;
+                    }
+                }
+
+                //Add the field text to the overall searchable text.
+                if (FieldTypeManager.GetField(field) is TextField)
+                {
+                    if (field.Value.ToLower().Contains(searchText))
+                    {
+                        if (!String.IsNullOrEmpty(fieldsWithText)) fieldsWithText += "; ";
+                        fieldsWithText += field.Name;
+                    }
+                }
+
+                // droplist, treelist
+                if (FieldTypeManager.GetField(field) is LookupField)
+                {
+                    var lookupField = (LookupField)field;
+                    var tagName = GetTagName(lookupField.TargetItem);
+                    if (!String.IsNullOrEmpty(tagName) && tagName.ToLower().Contains(searchText))
+                    {
+                        if (!String.IsNullOrEmpty(fieldsWithText)) fieldsWithText += "; ";
+                        fieldsWithText += field.Name;
+                    }
+                }
+
+                else if (field.Type == "TreelistEx")
+                {
+                    var treelistField = (MultilistField)field;
+                    var fieldItems = treelistField.GetItems();
+
+                    foreach (var item in fieldItems)
+                    {
+                        var tagName = GetTagName(item);
+                        if (!String.IsNullOrEmpty(tagName) && tagName.ToLower().Contains(searchText))
+                        {
+                            if (!String.IsNullOrEmpty(fieldsWithText)) fieldsWithText += "; ";
+                            fieldsWithText += field.Name;
+                        }
+                    }
+                }
+
+                else
+                {
+                    var ids = field.Value?.Split('|').Where(x => !String.IsNullOrEmpty(x)).ToList();
+                    if (ids.Any())
+                    {
+                        foreach (var id in ids)
+                        {
+                            var item = _db.GetItem(id);
+                            if (item != null)
+                            {
+                                var tagName = GetTagName(item);
+                                if (tagName.ToLower().Contains(searchText))
+                                {
+                                    if (!String.IsNullOrEmpty(fieldsWithText)) fieldsWithText += "; ";
+                                    fieldsWithText += field.Name;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return fieldsWithText;
+        }
+
+        public string GetTagName(Item item)
+        {
+            return !String.IsNullOrEmpty(item?.Fields["Title"]?.Value)
+                                ? item.Fields["Title"].Value
+                                : item?.Name;
         }
     }
 }

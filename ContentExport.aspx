@@ -477,6 +477,13 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+.advanced-search {
+    width: 50%;
+    background: #eee;
+    border-radius: 4px;
+    padding: 20px;
+}
     </style>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="ContentExportScripts.js"></script>
@@ -685,7 +692,11 @@
                     <span class="notes">Enter field names or IDs separated by commas, or use Browse to select fields.</span><br />
                     <textarea runat="server" id="inputFields" cols="60" row="5"></textarea><asp:Button runat="server" ID="btnBrowseFields" OnClick="btnBrowseFields_OnClick" CssClass="browse-btn" Text="Browse" />
                     <br />
+                    <asp:CheckBox runat="server" ID="chkAllFields"/>
+                    <span class="header"><b>All Fields</b></span><br/>
+                    <span class="notes">This will export the values of <b>all fields</b> of every included item. <b>This may take a while.</b></span>
                     <br />
+                    <br/>
 
 
 
@@ -693,6 +704,14 @@
                     <div class="advanced">
                         <a class="advanced-btn">Advanced Options</a>
                         <div class="advanced-inner">
+                            
+                            <div class="advanced-search">
+                                <span class="header">Advanced Search:</span><span class="notes">Export all items that contain the search text in a field. 
+                                    <br/>By default, this will check ALL fields on each item; if fields are specified in the Fields box, only those fields will be searched
+                                    <br/>Advanced search will use the starting node specified in the Start Item box
+                                                                            </span><br/>
+                                <input runat="server" id="txtAdvancedSearch"/><asp:Button runat="server" ID="btnAdvancedSearch" OnClick="btnAdvancedSearch_OnClick" Text="Go"/>
+                            </div><br/>
                             
                             <span class="header">Multiple Start Items</span><a class="clear-btn" data-id="inputMultiStartItem">clear</a><br/>
                             <span class="notes">Enter multiple start paths or item IDs separated by comma to include items under separate starting nodes; can be used in tandem with Start Item/ fast query</span><br/>
