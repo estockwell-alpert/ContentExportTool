@@ -646,6 +646,17 @@ namespace ContentExportTool
                 bool idField = false;
                 if (itemField == null)
                 {
+                    if (_fieldsList.All(x => x.fieldName != field))
+                    {
+                        _fieldsList.Add(new FieldData()
+                        {
+                            field = null,
+                            fieldName = fieldName,
+                            fieldType = null,
+                            rawHtml = false,
+                            linkedId = false
+                        });
+                    }
                     itemLine += String.Format("n/a\t{0}-ID{0}-HTML", fieldName);
                 }
                 else
@@ -686,7 +697,7 @@ namespace ContentExportTool
                         lineAndHeading = ParseDefaultField(itemField, itemLine, headingString, fieldName);
                     }
 
-                    if (_fieldsList.All(x => x.fieldName != field))
+                    if (_fieldsList.All(x => x.fieldName != fieldName))
                     {
                         _fieldsList.Add(new FieldData()
                         {
@@ -696,6 +707,18 @@ namespace ContentExportTool
                             rawHtml = rawField,
                             linkedId = idField
                         });
+                    }
+                    else
+                    {
+                        // check for nulls
+                        var fieldItem = _fieldsList.FirstOrDefault(x => x.fieldName == fieldName && x.field == null);
+                        if (fieldItem != null)
+                        {
+                            fieldItem.field = itemField;
+                            fieldItem.fieldType = itemField.Type;
+                            fieldItem.rawHtml = rawField;
+                            fieldItem.linkedId = idField;
+                        }
                     }
 
                     itemLine = lineAndHeading.Item1;
@@ -958,12 +981,12 @@ namespace ContentExportTool
 
                 if (includeId && field.linkedId)
                 {
-                    header += String.Format("{0} ID", fieldName);
+                    header += String.Format("{0} ID", fieldName) + "\t";
                 }
 
                 if (includeRaw && field.rawHtml)
                 {
-                    header += String.Format("{0} HTML", fieldName);
+                    header += String.Format("{0} HTML", fieldName) + "\t";
                 }
             }
             return header;
