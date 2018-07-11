@@ -40,24 +40,6 @@ namespace ContentExportTool {
         protected global::System.Web.UI.HtmlControls.HtmlInputText txtDownloadToken;
         
         /// <summary>
-        /// headline control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlGenericControl headline;
-        
-        /// <summary>
-        /// litFeedback control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal litFeedback;
-        
-        /// <summary>
         /// PhApiMessage control.
         /// </summary>
         /// <remarks>
@@ -67,22 +49,13 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.PlaceHolder PhApiMessage;
         
         /// <summary>
-        /// btnRunExport control.
+        /// litFeedback control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnRunExport;
-        
-        /// <summary>
-        /// btnClearAll control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnClearAll;
+        protected global::System.Web.UI.WebControls.Literal litFeedback;
         
         /// <summary>
         /// txtSaveSettingsName control.
@@ -200,6 +173,24 @@ namespace ContentExportTool {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Literal litBrowseFields;
+        
+        /// <summary>
+        /// btnRunExport control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnRunExport;
+        
+        /// <summary>
+        /// btnClearAll control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnClearAll;
         
         /// <summary>
         /// ddDatabase control.

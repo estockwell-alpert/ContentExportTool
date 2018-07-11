@@ -568,10 +568,6 @@
                <div class="loader"></div>
            </div>       
        </div>
-       <%-- <div id="loading-text">
-            <asp:Literal ID="litLoadingText" runat="server"></asp:Literal>
-        </div>--%>
-        
         <input runat="server" id="txtDownloadToken" style="display: none;"/>
 
         <div>
