@@ -19,12 +19,16 @@
     function getCookie(name) {
         var parts = document.cookie.split(name + "=");
         if (parts.length == 2) return parts.pop().split(";").shift();
-    }
+    }  
 
     function expireCookie(cName) {
         document.cookie =
             encodeURIComponent(cName) + "=deleted; expires=" + new Date(0).toUTCString();
     }
+
+    $(".browse-btn").on("click", function () {
+        $(".loading-modal").show();
+    });
 
     $("#btnRunExport, #btnRunExportDupe, #btnAdvancedSearch").on("click", function () {
         $(".loading-modal").show();

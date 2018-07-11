@@ -6,31 +6,52 @@
     <title>Content Export Tool</title>
     <style>
         body {
-            background: white !important;
-            padding: 10px;
+            background-color: rgb(240, 240, 240) !important;
+            font-family: 'Open Sans', Arial, sans-serif;
+            font-size: 12px;
+            color: #131313;
         }
 
         .header {
-            color: brown;
+            display: block;
+            margin-bottom: 7px;
         }
 
-        .notes {
+        .notes, .border-notes {
             color: GrayText;
             font-size: 12px;
+        }
+
+        .border-notes { 
+            border-width: 0 1px 1px 1px; 
+            border-style: solid; 
+            border-color: #aaa; 
+            padding: 6px; 
+            width: 470px; 
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        textarea {
+             width: 480px;
         }
 
         .container {
             margin-bottom: 10px;
             font-family: Arial;
+            width: 600px; 
+            padding: 10px;
+            font-size: 12px;
         }
 
+        .controls { padding: 10px;}
         .advanced .advanced-inner {
             display: none;
             margin-top: 10px;
         }
 
         .advanced .advanced-btn {
-            color: brown;
+            color: rgb(38, 148, 192);
             font-weight: bold;
             padding-bottom: 10px;
             cursor: pointer;
@@ -61,7 +82,7 @@
         }
 
         .include-ids {
-            color: brown;
+            color: rgb(38, 148, 192);
             font-size: 14px;
         }
 
@@ -72,10 +93,15 @@
 
         a.clear-btn, .show-hints {
             cursor: pointer;
-            color: brown;
+            color: rgb(38, 148, 192);
             font-size: 11px;
-            margin-left: 6px;
+            margin: 10px 0;
+            text-transform: capitalize;
+            display: block;
         }
+
+        input[type="checkbox"],
+        .notes { vertical-align: middle; margin: 2px; }
 
         .show-hints {
             margin-left: 0;
@@ -83,7 +109,7 @@
         }
 
         .lit-fast-query {
-            color: brown;
+            color: rgb(38, 148, 192);
             font-size: 12px;
         }
 
@@ -102,7 +128,7 @@
             z-index: 999;
             position: absolute;
             background: white;
-            border: 2px solid brown;
+            border: 2px solid rgb(38, 148, 192);
             width: 700px;
             margin-left: 20%;
             height: 60%;
@@ -152,7 +178,7 @@
         }
 
         .modal.browse-modal .browse-expand {
-            color: brown;
+            color: rgb(38, 148, 192);
             position: absolute;
         }
 
@@ -176,10 +202,12 @@
             }
 
         .save-settings-box {
-            border: 1px solid;
+            border: 1px solid #aaa;
             background: #eee;
             padding: 5px;
-            left: 20%;
+            right: 20px;
+            top: 75px;
+            position: fixed;
         }
 
             .save-settings-box input[type="text"] {
@@ -208,19 +236,19 @@
             }
 
         span.save-message {
-            color: brown;
+            color: rgb(38, 148, 192);
             margin-left: 2px;
             display: inline-block;
         }
 
         .row:not(:last-child) {
-            margin-bottom: 5px;
+            margin-bottom: 20px;
         }
 
         .btn-clear-all {
             background: none;
             border: none;
-            color: brown;
+            color: rgb(38, 148, 192);
             margin-top: 10px;
             font-size: 14px;
             padding: 0;
@@ -355,7 +383,7 @@
         .modal.browse-modal a.select-all {
             font-size: 12px;
             margin-left: 5px;
-            color: brown;
+            color: rgb(38, 148, 192);
             cursor: pointer;
         }
 
@@ -447,65 +475,99 @@
         }
 
         .loader {
-    border: 16px solid #f3f3f3; /* Light grey */
-    border-top: 16px solid #3498db; /* Blue */
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 2s linear infinite;
-}
+            border: 16px solid #f3f3f3; /* Light grey */
+            border-top: 16px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+        }
 
         .loading-modal {
             display: none;
-    width: 100%;
-    height: 100%;
-    position: fixed;
-    background: rgba(0,0,0,.2);
-    top: 0;
-    left: 0;
-}
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            background: rgba(0,0,0,.2);
+            top: 0;
+            left: 0;
+        }
 
-.loading-box {
-    position: absolute;
-    top: 40%;
-    padding: 40px;
-    left: 42%;
-    border-radius: 10px;
-}
+        .loading-box {
+            position: absolute;
+            top: 40%;
+            padding: 40px;
+            left: 42%;
+            border-radius: 10px;
+        }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-.advanced-search {
-    width: 50%;
-    background: #eee;
-    border-radius: 4px;
-    padding: 20px;
-}
+        .advanced-search {
+            background: #eee;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+
+        .scMessageBar.scWarning,
+        .scMessageBar.scWarning a {
+             background-color: #FCE99C;
+             color: #897B2F;
+        }
+
+        .scMessageBar {
+            font-size: 12px;
+            display: -ms-flexbox;
+            display: flex;
+            align-items: center;
+        }
+
+        .scMessageBar.scWarning .scMessageBarIcon {
+            background-image: url(/sitecore/shell/themes/standard/Images/warning_yellow.png);
+            background-color: #E0B406;
+        }
+
+        .scMessageBar .scMessageBarIcon {
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 32px;
+            min-width: 50px;
+            min-height: 50px;
+            align-self: stretch;
+        }
+
+        .scMessageBar .scMessageBarTextContainer {
+            padding: 11px 14px;
+        }
+
+        .scMessageBar .scMessageBarTextContainer .scMessageBarTitle {
+            display: block;
+            font-weight: 600;
+        }
     </style>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="ContentExportScripts.js"></script>
-
 </head>
 <body>
-<asp:PlaceHolder runat="server" ID="phOverwriteScript" Visible="False">
-    <script>
-        $(document).ready(function() {
-            var overwrite = confirm("There are already settings saved with this name. Do you want to overwrite?");
-            if (overwrite) {
-                $(".btn-overwrite").click();
-            }
-        });
-    </script>
-</asp:PlaceHolder>
+    <asp:PlaceHolder runat="server" ID="phOverwriteScript" Visible="False">
+        <script>
+            $(document).ready(function() {
+                var overwrite = confirm("There are already settings saved with this name. Do you want to overwrite?");
+                if (overwrite) {
+                    $(".btn-overwrite").click();
+                }
+            });
+        </script>
+    </asp:PlaceHolder>
     <form id="form1" runat="server">
-        <div class="loading-modal">
-            <div class="loading-box">
-                <div class="loader"></div>
-            </div>       
-        </div>
+       <div class="loading-modal">
+           <div class="loading-box">
+               <div class="loader"></div>
+           </div>       
+       </div>
        <%-- <div id="loading-text">
             <asp:Literal ID="litLoadingText" runat="server"></asp:Literal>
         </div>--%>
@@ -513,60 +575,42 @@
         <input runat="server" id="txtDownloadToken" style="display: none;"/>
 
         <div>
-            <h2 id="headline" runat="server">Content Export Tool</h2>
-
-            <div class="container" style="background-color: brown; border-width: 1px; color: white; width: 600px; padding: 2px 4px; font-size: 12px">
-                <asp:Literal runat="server" ID="litFeedback"></asp:Literal>
-            </div>
-
-            <div class="controls">
-            
-                <asp:Placeholder runat="server" ID="PhApiMessage" Visible="False">
-                    <span class="api-message">The Sitecore Item API is not enabled in your site. To improve browsing performance, turn on the  <a target="_blank" href="https://sdn.sitecore.net/upload/sdn5/modules/sitecore%20item%20web%20api/sitecore_item_web_api_developer_guide_sc65-66-usletter.pdf#page=12">Sitecore Item API</a></span>
-                </asp:Placeholder>
-
-
-
-                <div class="main-btns">
-                    <div class="left">
-                        <asp:Button runat="server" ID="btnRunExport" OnClick="btnRunExport_OnClick" Text="Run Export" /><br />
-                        <asp:Button runat="server" ID="btnClearAll" Text="Clear All" OnClick="btnClearAll_OnClick" CssClass="btn-clear-all" />
-                    </div>
-
-                    <div class="right">
-                        <div class="save-settings-box">
-                            <div class="row">
-                                <span class="header">Enter a name to save: </span>
-                                <input runat="server" id="txtSaveSettingsName" />
-                                <input type="button" class="save-btn-decoy" value="Save Settings" />
-                                <asp:Button runat="server" ID="btnSaveSettings" OnClick="btnSaveSettings_OnClick" Text="Save Settings" /><span class="save-message">
-                                    <asp:Literal runat="server" ID="litSavedMessage"></asp:Literal></span>
-                                <asp:Button runat="server" ID="btnOverWriteSettings" OnClick="btnOverWriteSettings_OnClick" CssClass="hidden btn-overwrite"/>
-
-                                <span class="error-message">You must enter a name for this configuration<br />
-                                </span>
-                            </div>
-                            <div class="row">
-                                <span class="header">Saved settings: </span>
-                                <asp:DropDownList runat="server" ID="ddSavedSettings" AutoPostBack="True" OnSelectedIndexChanged="ddSavedSettings_OnSelectedIndexChanged" />
-                                <a runat="server" Visible="False" ID="btnDeletePrompt" class="btn" onclick="confirmDelete()">Delete</a>
-                                <asp:Button runat="server" ID="btnDeleteSavedSetting" OnClick="btnDeleteSavedSetting_OnClick" CssClass="hidden btn-delete"/><br />
-                            </div>
-                        </div>
+            <asp:Placeholder runat="server" ID="PhApiMessage" Visible="False">
+                <div class="scMessageBar scWarning">
+                    <div class="scMessageBarIcon"></div>
+                    <div class="scMessageBarTextContainer">
+                        <div class="scMessageBarTitle">The Sitecore Item API is not enabled in your site.</div>
+                        <div class="scMessageBarText">To improve browsing performance, turn on the  <a target="_blank" href="https://sdn.sitecore.net/upload/sdn5/modules/sitecore%20item%20web%20api/sitecore_item_web_api_developer_guide_sc65-66-usletter.pdf#page=12">Sitecore Item API</a></div>
                     </div>
                 </div>
-                <br />
-                <br />
+            </asp:Placeholder>
+            <div class="container">
+                <asp:Literal runat="server" ID="litFeedback"></asp:Literal>
+            </div>
+            <div class="controls">
+                <div class="save-settings-box">
+                    <div class="row">
+                        <span class="header">Enter a name to save: </span>
+                        <input runat="server" id="txtSaveSettingsName" />
+                        <input type="button" class="save-btn-decoy" value="Save Settings" />
+                        <asp:Button runat="server" ID="btnSaveSettings" OnClick="btnSaveSettings_OnClick" Text="Save Settings" /><span class="save-message">
+                            <asp:Literal runat="server" ID="litSavedMessage"></asp:Literal></span>
+                        <asp:Button runat="server" ID="btnOverWriteSettings" OnClick="btnOverWriteSettings_OnClick" CssClass="hidden btn-overwrite"/>
 
+                        <span class="error-message">You must enter a name for this configuration<br />
+                        </span>
+                    </div>
+                    <div class="row">
+                        <span class="header">Saved settings: </span>
+                        <asp:DropDownList runat="server" ID="ddSavedSettings" AutoPostBack="True" OnSelectedIndexChanged="ddSavedSettings_OnSelectedIndexChanged" />
+                        <a runat="server" Visible="False" ID="btnDeletePrompt" class="btn" onclick="confirmDelete()">Delete</a>
+                        <asp:Button runat="server" ID="btnDeleteSavedSetting" OnClick="btnDeleteSavedSetting_OnClick" CssClass="hidden btn-delete"/><br />
+                    </div>
+                </div>
                 <div class="container">
 
                     <asp:PlaceHolder runat="server" ID="PhBrowseTree">
                         <div class="modal browse-modal">
-                            <asp:PlaceHolder runat="server" ID="PhApiMessageBrowse" Visible="False">
-                                <div>
-                                    <span class="api-message">To improve performance, enable the <a target="_blank" href="https://sdn.sitecore.net/upload/sdn5/modules/sitecore%20item%20web%20api/sitecore_item_web_api_developer_guide_sc65-66-usletter.pdf#page=12">Sitecore Item API</a>.</span>
-                                </div>
-                            </asp:PlaceHolder>
                             <div class="selector-box left">
                                 <input class="field-search" type="text" placeholder="search" onkeyup="browseSearch($(this))"/>
                                 <a class="clear-search" href="javascript:void(0)" onclick="clearSearch($(this))">X</a>
@@ -587,11 +631,6 @@
 
                     <asp:PlaceHolder runat="server" ID="PhBrowseTemplates">
                         <div class="modal browse-modal templates">
-                            <asp:PlaceHolder runat="server" ID="PhApiMessageTempaltes" Visible="False">
-                                <div>
-                                    <span class="api-message">To improve performance, enable the <a target="_blank" href="https://sdn.sitecore.net/upload/sdn5/modules/sitecore%20item%20web%20api/sitecore_item_web_api_developer_guide_sc65-66-usletter.pdf#page=12">Sitecore Item API</a></span>
-                                </div>
-                            </asp:PlaceHolder>
                             <div class="select-box left" id="templateLinks">
                                 <input class="field-search" type="text" placeholder="search" onkeyup="browseSearch($(this))"/>
                                 <a class="clear-search" href="javascript:void(0)" onclick="clearSearch($(this))">X</a>
@@ -639,138 +678,165 @@
                             </div>
                         </div>
                     </asp:PlaceHolder>
-
-                    <span class="header">Database</span>
-                    <asp:DropDownList runat="server" ID="ddDatabase" CssClass="ddDatabase" /><input runat="server" class="txtCustomDatabase" id="txtCustomDatabase" style="display: none" />
-                    <br />
-                    <span class="notes">Select database. Defaults to web</span><br />
-                    <br />
-
-                    <asp:CheckBox runat="server" ID="chkIncludeIds" /><span class="header">Include ID</span><br />
-                    <span class="notes">Check this box to include item IDs (guid) in the exported file.</span><br />
-
-                    <asp:CheckBox runat="server" ID="chkIncludeName"/><span class="header">Include Name</span><br/>
-                    <span class="notes">Check this box to include the item name</span><br/>
-                    <br/>
-
-                    <span class="header">Start Item</span><a class="clear-btn" data-id="inputStartitem">clear</a><br />
-                    <span class="notes">Enter the path or ID of the starting node, or use Browse* to select.<br/> Only content beneath and including this node will be exported. If field is left blank, the starting node will be /sitecore/content.<br/>*Browse might take a while to load</span><br />
                     
-                    <input runat="server" id="inputStartitem" /><asp:Button runat="server" ID="btnBrowse" OnClick="btnBrowse_OnClick" CssClass="browse-btn" Text="Browse" />
-                    <br />
-                    <span>OR</span><br />
-                    <span class="header">Fast Query</span><a class="clear-btn" id="clear-fast-query" data-id="txtFastQuery">clear</a><br />
-                    <span class="notes">Enter a fast query to run a filtered export. You can use the Templates box as well.<br />
-                        Example: fast:/sitecore/content/Home//*[@__Updated >= '20140610' and @__Updated <'20140611']</span><br />
-                    <input runat="server" id="txtFastQuery" />
-                    <asp:Button runat="server" ID="btnTestFastQuery" OnClick="btnTestFastQuery_OnClick" Text="Test" />
-                    <span class="lit-fast-query">
-                        <asp:Literal runat="server" ID="litFastQueryTest"></asp:Literal></span>
-                    <br />
-                    <br />
-
-                    <span class="header">Templates</span><a class="clear-btn" data-id="inputTemplates">clear</a><br />
-                    <span class="notes">Enter template names and/or IDs separated by commas, or use Browse to select. <br/>Items will only be exported if their template is in this list. If this field is left blank, all templates will be included.</span><br />
-                    <textarea runat="server" id="inputTemplates" cols="60" row="5"></textarea><asp:Button runat="server" ID="btnBrowseTemplates" OnClick="btnBrowseTemplates_OnClick" CssClass="browse-btn" Text="Browse" />
-                    <br />
-
-                    <div class="hints">
-                        <a class="show-hints">Hints</a>
-                        <span class="notes">Example: Standard Page, {12345678-901-2345-6789-012345678901}
+                    <div class="row">
+                        <asp:Button runat="server" ID="btnRunExport" OnClick="btnRunExport_OnClick" Text="Run Export" /><br />
+                        <asp:Button runat="server" ID="btnClearAll" Text="Clear All" OnClick="btnClearAll_OnClick" CssClass="btn-clear-all" />
+                    </div>
+                    <div class="row">
+                        <span class="header">Database</span>
+                        <asp:DropDownList runat="server" ID="ddDatabase" CssClass="ddDatabase" />
+                        <input runat="server" class="txtCustomDatabase" id="txtCustomDatabase" style="display: none" />
+                        <span class="notes">Select database. Defaults to web</span>                        
+                    </div>
+                    <div class="row">
+                        <span class="header">Include ID</span>
+                        <asp:CheckBox runat="server" ID="chkIncludeIds" /> 
+                        <span class="notes">Check this box to include item IDs (guid) in the exported file.</span>
+                    </div>
+                    <div class="row">
+                        <span class="header">Include Name</span>
+                        <asp:CheckBox runat="server" ID="chkIncludeName"/>
+                        <span class="notes">Check this box to include the item name</span>
+                    </div>
+                    <div class="row">
+                        <span class="header">Start Item</span>
+                        <a class="clear-btn" data-id="inputStartitem">clear</a>
+                        <input runat="server" id="inputStartitem" /><asp:Button runat="server" ID="btnBrowse" OnClick="btnBrowse_OnClick" CssClass="browse-btn" Text="Browse" />
+                        <span class="border-notes">Enter the path or ID of the starting node, or use Browse* to select.<br/> Only content beneath and including this node will be exported. If field is left blank, the starting node will be /sitecore/content.<br/>*Browse might take a while to load</span>
+                    </div>
+                    <div class="row">
+                        <span>OR</span>
+                    </div>
+                    <div class="row">
+                        <span class="header">Fast Query</span>
+                        <a class="clear-btn" id="clear-fast-query" data-id="txtFastQuery">clear</a>
+                        <input runat="server" id="txtFastQuery" />
+                        <asp:Button runat="server" ID="btnTestFastQuery" OnClick="btnTestFastQuery_OnClick" Text="Test" />
+                        <span class="border-notes">Enter a fast query to run a filtered export. You can use the Templates box as well.<br />
+                            Example: fast:/sitecore/content/Home//*[@__Updated >= '20140610' and @__Updated <'20140611']</span><br />
+                        <span class="lit-fast-query">
+                            <asp:Literal runat="server" ID="litFastQueryTest"></asp:Literal>
                         </span>
                     </div>
-                    <asp:CheckBox runat="server" ID="chkIncludeTemplate" />
-                    <span class="header">Include Template Name</span><br />
-                    <span class="notes">Check this box to include the template name with each item</span><br />
-                    <asp:CheckBox runat="server" ID="chkIncludeInheritance" />
-                    <span class="header">Include Templates that Inherit Selected Templates</span><br />
-                    <span class="notes">Check this box toinclude any templates that inherit selected templates</span><br />
-                    <br />
-
-
-                    <span class="header">Fields</span><a class="clear-btn" data-id="inputFields">clear</a><br />
-                    <span class="notes">Enter field names or IDs separated by commas, or use Browse to select fields.</span><br />
-                    <textarea runat="server" id="inputFields" cols="60" row="5"></textarea><asp:Button runat="server" ID="btnBrowseFields" OnClick="btnBrowseFields_OnClick" CssClass="browse-btn" Text="Browse" />
-                    <br />
-                    <asp:CheckBox runat="server" ID="chkAllFields"/>
-                    <span class="header"><b>All Fields</b></span><br/>
-                    <span class="notes">This will export the values of <b>all fields</b> of every included item. <b>This may take a while.</b></span>
-                    <br />
-                    <br/>
-
-
-
+                    <div class="row">
+                        <span class="header">Templates</span>
+                        <a class="clear-btn" data-id="inputTemplates">clear</a>
+                        <textarea runat="server" id="inputTemplates" cols="60" row="5"></textarea><asp:Button runat="server" ID="btnBrowseTemplates" OnClick="btnBrowseTemplates_OnClick" CssClass="browse-btn" Text="Browse" />
+                        <span class="border-notes">Enter template names and/or IDs separated by commas, or use Browse to select. <br/>Items will only be exported if their template is in this list. If this field is left blank, all templates will be included.</span><br />
+                        <br />
+                        <div class="hints">
+                            <a class="show-hints">Hints</a>
+                            <span class="notes">Example: Standard Page, {12345678-901-2345-6789-012345678901}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <span class="header">Include Template Name</span>
+                        <asp:CheckBox runat="server" ID="chkIncludeTemplate" />
+                        <span class="notes">Check this box to include the template name with each item</span>
+                    </div>
+                    <div class="row">
+                        <span class="header">Include Templates that Inherit Selected Templates</span>
+                        <asp:CheckBox runat="server" ID="chkIncludeInheritance" />
+                        <span class="notes">Check this box toinclude any templates that inherit selected templates</span>
+                    </div>
+                    <div class="row">
+                        <span class="header">Fields</span>
+                        <a class="clear-btn" data-id="inputFields">clear</a>
+                        <textarea runat="server" id="inputFields" cols="60" row="5"></textarea><asp:Button runat="server" ID="btnBrowseFields" OnClick="btnBrowseFields_OnClick" CssClass="browse-btn" Text="Browse" />
+                        <span class="border-notes">Enter field names or IDs separated by commas, or use Browse to select fields.</span>
+                        <asp:CheckBox runat="server" ID="chkAllFields"/>
+                        <span class="notes">All Fields - This will export the values of <b>all fields</b> of every included item. <b>This may take a while.</b></span>
+                    </div>
 
                     <div class="advanced">
                         <a class="advanced-btn">Advanced Options</a>
                         <div class="advanced-inner">
-                            
-                            <div class="advanced-search">
-                                <span class="header">Advanced Search:</span><span class="notes">Export all items that contain the search text in a field. 
-                                    <br/>By default, this will check ALL fields on each item; if fields are specified in the Fields box, only those fields will be searched
-                                    <br/>Advanced search will use the starting node specified in the Start Item box
-                                                                            </span><br/>
+                            <div class="row advanced-search">
+                                <span class="header">Advanced Search:</span>
                                 <input runat="server" id="txtAdvancedSearch"/><asp:Button runat="server" ID="btnAdvancedSearch" OnClick="btnAdvancedSearch_OnClick" Text="Go"/>
-                            </div><br/>
-                            
-                            <span class="header">Multiple Start Items</span><a class="clear-btn" data-id="inputMultiStartItem">clear</a><br/>
-                            <span class="notes">Enter multiple start paths or item IDs separated by comma to include items under separate starting nodes; can be used in tandem with Start Item/ fast query</span><br/>
-                            <textarea cols="60" row="5" runat="server" id="inputMultiStartItem"></textarea><br/><br/>
-                            
-                            <asp:CheckBox runat="server" ID="chkItemsWithLayout"/><span class="header">Only include items with layout</span><br/>
-                            <span class="notes">Check this box to only include items that have a layout, i.e. template pages and not components</span><br/><br/>
-
-                            <asp:CheckBox runat="server" ID="chkIncludeLinkedIds" /><span class="header">Include linked item IDs </span><span class="notes">(images, links, droplists, multilists)</span><br />
-                            <asp:CheckBox runat="server" ID="chkIncludeRawHtml" /><span class="header">Include raw HTML </span><span class="notes">(images and links)</span><br />
-                            
-                            <br />
-                            
-                            <asp:CheckBox runat="server" ID="chkReferrers"/><span class="header">Referrers</span><br/><span class="notes">Include the paths of all items that refer to each item</span><br/><br/>
-
-                            <asp:CheckBox runat="server" ID="chkDateCreated"/><span class="header">Date Created</span>
-                            <asp:CheckBox runat="server" ID="chkCreatedBy"/><span class="header">Created By</span><br />
-                            <asp:CheckBox runat="server" ID="chkDateModified"/><span class="header">Date Modified</span>
-                            <asp:CheckBox runat="server" ID="chkModifiedBy"/><span class="header">Modified By</span><br />
-                            <asp:CheckBox runat="server" ID="chkNeverPublish"/><span class="header">Never Publish?</span><br />
-                            
-                            <br/>
-
-                            <asp:CheckBox runat="server" CssClass="workflowBox" ID="chkWorkflowName" /><span class="header">Workflow</span>
-                            <asp:CheckBox runat="server" CssClass="workflowBox" ID="chkWorkflowState" /><span class="header">Workflow State</span>
-                            <br />
-                            <span class="notes">Workflow options require the database to be set to master</span>
-                            <br />
-                            <br />  
-                            
-                            <span class="header">Language</span>
-                            <%--<asp:ListBox runat="server" ID="lstLanguages" SelectionMode="multiple" Width="200">
-                            </asp:ListBox>--%>
-                            <asp:DropDownList runat="server" ID="ddLanguages"/>
-                            
-                            <br/><br/>
-
-                            <asp:CheckBox runat="server" ID="chkAllLanguages" /><span class="header">Get All Language Versions</span><br />
-                            <span class="notes">This will get the selected field values for all languages that each item has an existing version for</span>
-                            <br />
-                            <br />
-                            
-                            <span class="header">Download File Name</span><br/>
-                            <input runat="server" id="txtFileName" />
-                            
-                            <br/><br/>
-                            
-                            <asp:Button runat="server" ID="btnRunExportDupe" OnClick="btnRunExport_OnClick" Text="Run Export" /><br />
-                            <br />
-                                                       
+                                <span class="border-notes">Export all items that contain the search text in a field. 
+                                    <br/>By default, this will check ALL fields on each item; if fields are specified in the Fields box, only those fields will be searched
+                                    <br/>Advanced search works with the Start Item, Templates, and Fields boxes
+                                </span>
+                            </div>
+                            <div class="row">
+                                <span class="header">Multiple Start Items</span>
+                                <a class="clear-btn" data-id="inputMultiStartItem">clear</a>
+                                <textarea cols="60" row="5" runat="server" id="inputMultiStartItem"></textarea>
+                                <span class="border-notes">Enter multiple start paths or item IDs separated by comma to include items under separate starting nodes; can be used in tandem with Start Item/ fast query</span><br/>
+                            </div>
+                            <div class="row">
+                                <span class="header">Only include items with layout</span>
+                                <asp:CheckBox runat="server" ID="chkItemsWithLayout"/>
+                                <span class="notes">Check this box to only include items that have a layout, i.e. template pages and not components</span>
+                            </div>
+                            <div class="row">
+                                <span class="header">Include linked item IDs </span>
+                                <asp:CheckBox runat="server" ID="chkIncludeLinkedIds" />
+                                <span class="notes">(images, links, droplists, multilists)</span>
+                            </div>
+                            <div class="row">
+                                <span class="header">Include raw HTML </span>
+                                <asp:CheckBox runat="server" ID="chkIncludeRawHtml" /><span class="notes">(images and links)</span>
+                            </div>
+                            <div class="row">
+                                <span class="header">Referrers</span>
+                                <asp:CheckBox runat="server" ID="chkReferrers"/>
+                                <span class="notes">Include the paths of all items that refer to each item</span>
+                            </div>
+                            <div class="row">
+                                <span class="header">Date Created</span>
+                                <asp:CheckBox runat="server" ID="chkDateCreated"/>
+                            </div>
+                            <div class="row">
+                                <span class="header">Created By</span>
+                                <asp:CheckBox runat="server" ID="chkCreatedBy"/>
+                            </div>
+                            <div class="row">
+                                <span class="header">Date Modified</span>
+                                <asp:CheckBox runat="server" ID="chkDateModified"/>
+                            </div>
+                            <div class="row">
+                                <span class="header">Modified By</span>
+                                <asp:CheckBox runat="server" ID="chkModifiedBy"/>
+                            </div>
+                            <div class="row">
+                                <span class="header">Never Publish?</span>
+                                <asp:CheckBox runat="server" ID="chkNeverPublish"/>
+                            </div>
+                            <div class="row">
+                                <span class="header">Workflow</span>
+                                <asp:CheckBox runat="server" CssClass="workflowBox" ID="chkWorkflowName" />
+                            </div>
+                            <div class="row">
+                                <span class="header">Workflow State</span>
+                                <asp:CheckBox runat="server" CssClass="workflowBox" ID="chkWorkflowState" />
+                                <span class="notes">Workflow options require the database to be set to master</span>
+                            </div>
+                            <div class="row">
+                                <span class="header">Language</span>
+                                <%--<asp:ListBox runat="server" ID="lstLanguages" SelectionMode="multiple" Width="200">
+                                </asp:ListBox>--%>
+                                <asp:DropDownList runat="server" ID="ddLanguages"/>
+                            </div>
+                            <div class="row">
+                                <span class="header">Get All Language Versions</span>
+                                <asp:CheckBox runat="server" ID="chkAllLanguages" />
+                                <span class="notes">This will get the selected field values for all languages that each item has an existing version for</span>
+                            </div>
+                            <div class="row">
+                                <span class="header">Download File Name</span><br/>
+                                <input runat="server" id="txtFileName" />
+                            </div>
+                            <div class="row"> 
+                                <asp:Button runat="server" ID="btnRunExportDupe" OnClick="btnRunExport_OnClick" Text="Run Export" />
+                            </div>   
                         </div>
                     </div>
-                    <br />
-
                 </div>
-
-
             </div>
-
         </div>
     </form>
 </body>
