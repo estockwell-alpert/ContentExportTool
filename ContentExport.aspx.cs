@@ -27,6 +27,7 @@ namespace ContentExportTool
         private Database _db;
         private string _settingsFilePath = AppDomain.CurrentDomain.BaseDirectory + @"\sitecore\admin\ContentExportSettings.txt";
         private bool _sitecoreItemApiEnabled;
+        private List<FieldData> _fieldsList;
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -391,6 +392,7 @@ namespace ContentExportTool
                                   
                 List<Item> items = GetItems();
 
+                _fieldsList = new List<FieldData>();
                 var fields = fieldString.Split(',').Select(x => x.Trim()).Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
 
                 if (chkAllFields.Checked)
@@ -525,7 +527,7 @@ namespace ContentExportTool
                         }
                     }
 
-                    headingString += (!chkAllFields.Checked ? GetExcelHeaderForFields(fields, includeLinkedIds, includeRawHtml) : GetExcelHeaderForFields(fields, false, false));
+                    headingString += (!chkAllFields.Checked ? GetExcelHeaderForFields(_fieldsList, includeLinkedIds, includeRawHtml) : GetExcelHeaderForFields(_fieldsList, false, false));
 
 
                     // remove any field-ID and field-RAW from header that haven't been replaced (i.e. non-existent field)
@@ -640,6 +642,8 @@ namespace ContentExportTool
             {
                 var fieldName = GetFieldNameIfGuid(field);
                 var itemField = item.Fields[field];
+                bool rawField = false;
+                bool idField = false;
                 if (itemField == null)
                 {
                     itemLine += String.Format("n/a\t{0}-ID{0}-HTML", fieldName);
@@ -652,21 +656,26 @@ namespace ContentExportTool
                     {
                         lineAndHeading = ParseImageField(itemField, itemLine, headingString, fieldName,
                             includeLinkedIds, includeRawHtml);
+                        rawField = true;
+                        idField = true;
                     }
                     else if (itemOfType is LinkField)
                     {
                         lineAndHeading = ParseLinkField(itemField, itemLine, headingString, fieldName,
                             includeLinkedIds, includeRawHtml);
+                        rawField = true;
                     }
                     else if (itemOfType is ReferenceField || itemOfType is GroupedDroplistField || itemOfType is LookupField)
                     {
                         lineAndHeading = ParseReferenceField(itemField, itemLine, headingString, fieldName,
                             includeLinkedIds, includeRawHtml);
+                        idField = true;
                     }
                     else if (itemOfType is MultilistField)
                     {
                         lineAndHeading = ParseMultilistField(itemField, itemLine, headingString, fieldName,
                             includeLinkedIds, includeRawHtml);
+                        idField = true;
                     }
                     else if (itemOfType is CheckboxField)
                     {
@@ -675,6 +684,18 @@ namespace ContentExportTool
                     else // default text field
                     {
                         lineAndHeading = ParseDefaultField(itemField, itemLine, headingString, fieldName);
+                    }
+
+                    if (_fieldsList.All(x => x.fieldName != field))
+                    {
+                        _fieldsList.Add(new FieldData()
+                        {
+                            field = itemField,
+                            fieldName = fieldName,
+                            fieldType = itemField.Type,
+                            rawHtml = rawField,
+                            linkedId = idField
+                        });
                     }
 
                     itemLine = lineAndHeading.Item1;
@@ -926,27 +947,29 @@ namespace ContentExportTool
             return inheritors;
         }
 
-        public string GetExcelHeaderForFields(IEnumerable<string> fields, bool includeId = false, bool includeRaw = false)
+        public string GetExcelHeaderForFields(IEnumerable<FieldData> fields, bool includeId, bool includeRaw)
         {
             var header = "";
             foreach (var field in fields)
             {
-                var fieldName = GetFieldNameIfGuid(field);
+                var fieldName = field.fieldName;
 
                 header += fieldName + "\t";
 
-                if (includeId)
+                if (includeId && field.linkedId)
                 {
-                    header += String.Format("{0}-ID", fieldName);
+                    header += String.Format("{0} ID", fieldName);
                 }
 
-                if (includeRaw)
+                if (includeRaw && field.rawHtml)
                 {
-                    header += String.Format("{0}-HTML", fieldName);
+                    header += String.Format("{0} HTML", fieldName);
                 }
             }
             return header;
         }
+
+
 
         public string RemoveLineEndings(string value)
         {
@@ -1634,6 +1657,22 @@ namespace ContentExportTool
         public string FileName;
         public bool AllFields;
         public string AdvancedSearch;
+    }
+
+    public class FieldData
+    {
+        public Field field;
+        public string fieldName;
+        public string fieldType;
+        public bool rawHtml;
+        public bool linkedId;
+    }
+
+    public class ItemLineData
+    {
+        public string itemLine;
+        public string headerLine;
+        public FieldData fieldData;
     }
 
     #endregion
