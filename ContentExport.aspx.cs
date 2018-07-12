@@ -6,7 +6,6 @@ using System.Net;
 using System.Text;
 using System.Web;
 using System.Web.Script.Serialization;
-using System.Web.UI.WebControls;
 using Sitecore;
 using Sitecore.Collections;
 using Sitecore.Data;
@@ -14,8 +13,6 @@ using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
 using Sitecore.Data.Managers;
 using Sitecore.Globalization;
-using Sitecore.Mvc.Extensions;
-using Sitecore.Services.Core.ComponentModel;
 using ImageField = Sitecore.Data.Fields.ImageField;
 
 namespace ContentExportTool
@@ -527,7 +524,7 @@ namespace ContentExportTool
                         }
                     }
 
-                    headingString += (!chkAllFields.Checked ? GetExcelHeaderForFields(_fieldsList, includeLinkedIds, includeRawHtml) : GetExcelHeaderForFields(_fieldsList, false, false));
+                    headingString += GetExcelHeaderForFields(_fieldsList, includeLinkedIds, includeRawHtml);
 
 
                     // remove any field-ID and field-RAW from header that haven't been replaced (i.e. non-existent field)
