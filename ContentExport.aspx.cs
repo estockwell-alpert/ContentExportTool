@@ -369,9 +369,10 @@ namespace ContentExportTool
                 var includeRawHtml = chkIncludeRawHtml.Checked;
                 var includeTemplate = chkIncludeTemplate.Checked;
 
-                var includeDateCreated = chkDateCreated.Checked;
+                var dateVal = new DateTime();
+                var includeDateCreated = chkDateCreated.Checked || (!String.IsNullOrEmpty(txtStartDateCr.Value) && DateTime.TryParse(txtStartDateCr.Value, out dateVal)) || (!String.IsNullOrEmpty(txtEndDateCr.Value) && DateTime.TryParse(txtEndDateCr.Value, out dateVal));
                 var includeCreatedBy = chkCreatedBy.Checked;
-                var includeDateModified = chkDateModified.Checked;
+                var includeDateModified = chkDateModified.Checked || (!String.IsNullOrEmpty(txtStartDatePb.Value) && DateTime.TryParse(txtStartDatePb.Value, out dateVal)) || (!String.IsNullOrEmpty(txtEndDatePu.Value) && DateTime.TryParse(txtEndDatePu.Value, out dateVal)); ;
                 var includeModifiedBy = chkModifiedBy.Checked;
                 var neverPublish = chkNeverPublish.Checked;
                 var includeReferrers = chkReferrers.Checked;
@@ -1520,6 +1521,29 @@ namespace ContentExportTool
                     exportItems.AddRange(descendants);
                 }
             }
+
+            // filter exportItems by date ranges
+            var dateValue = new DateTime();
+            if (!String.IsNullOrEmpty(txtStartDateCr.Value) && DateTime.TryParse(txtStartDateCr.Value, out dateValue))
+            {
+                exportItems = exportItems.Where(x => x.Statistics.Created >= dateValue).ToList();
+            }
+
+            if (!String.IsNullOrEmpty(txtEndDateCr.Value) && DateTime.TryParse(txtEndDateCr.Value, out dateValue))
+            {
+                exportItems = exportItems.Where(x => x.Statistics.Created <= dateValue).ToList();
+            }
+
+            if (!String.IsNullOrEmpty(txtStartDatePb.Value) && DateTime.TryParse(txtStartDatePb.Value, out dateValue))
+            {
+                exportItems = exportItems.Where(x => x.Statistics.Updated >= dateValue).ToList();
+            }
+
+            if (!String.IsNullOrEmpty(txtEndDatePu.Value) && DateTime.TryParse(txtEndDatePu.Value, out dateValue))
+            {
+                exportItems = exportItems.Where(x => x.Statistics.Updated <= dateValue).ToList();
+            }
+
             var items = new List<Item>();
             if (!string.IsNullOrWhiteSpace(templateString))
             {

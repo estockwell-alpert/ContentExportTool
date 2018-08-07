@@ -355,6 +355,42 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.Button btnAdvancedSearch;
         
         /// <summary>
+        /// txtStartDateCr control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputGenericControl txtStartDateCr;
+        
+        /// <summary>
+        /// txtEndDateCr control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputGenericControl txtEndDateCr;
+        
+        /// <summary>
+        /// txtStartDatePb control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputGenericControl txtStartDatePb;
+        
+        /// <summary>
+        /// txtEndDatePu control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputGenericControl txtEndDatePu;
+        
+        /// <summary>
         /// inputMultiStartItem control.
         /// </summary>
         /// <remarks>

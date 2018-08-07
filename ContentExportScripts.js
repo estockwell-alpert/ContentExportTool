@@ -1,5 +1,7 @@
 ﻿$(document).ready(function () {
 
+    $("#txtStartDateCr, #txtStartDatePb, #txtEndDateCr, #txtEndDatePu").datepicker();
+
     var loadingModalHtml = "<div class='loading-modal'><div class='loading-box'><div class='loader'></div></div></div>";
 
     function checkIfFileDownloaded(downloadToken) {

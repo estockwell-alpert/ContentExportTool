@@ -548,7 +548,9 @@
             font-weight: 600;
         }
     </style>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script   src="https://code.jquery.com/ui/1.11.3/jquery-ui.min.js"></script>
     <script src="ContentExportScripts.js"></script>
 </head>
 <body>
@@ -758,11 +760,21 @@
                                 </span>
                             </div>
                             <div class="row">
+                                <span class="header"><b>Created Date Range</b></span>
+                                Created between <input type="datetime" runat="server" id="txtStartDateCr"/> and <input type="datetime" runat="server" id="txtEndDateCr"/>
+                                <span class="border-notes">Only return items created between the selected time span</span>
+                            </div>
+                            <div class="row">
+                                <span class="header"><b>Published Date Range</b></span>
+                                Updated between <input type="datetime" runat="server" id="txtStartDatePb"/> and <input type="datetime" runat="server" id="txtEndDatePu"/>
+                                <span class="border-notes">Only return items last published between the selected time span</span>
+                            </div>
+                            <div class="row">
                                 <span class="header">Multiple Start Items</span>
                                 <a class="clear-btn" data-id="inputMultiStartItem">clear</a>
                                 <textarea cols="60" row="5" runat="server" id="inputMultiStartItem"></textarea>
                                 <span class="border-notes">Enter multiple start paths or item IDs separated by comma to include items under separate starting nodes; can be used in tandem with Start Item/ fast query</span><br/>
-                            </div>
+                            </div>                           
                             <div class="row">
                                 <span class="header">Only include items with layout</span>
                                 <asp:CheckBox runat="server" ID="chkItemsWithLayout"/>
