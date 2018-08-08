@@ -373,6 +373,24 @@ namespace ContentExportTool {
         protected global::System.Web.UI.HtmlControls.HtmlInputGenericControl txtEndDateCr;
         
         /// <summary>
+        /// radDateRangeOr control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputRadioButton radDateRangeOr;
+        
+        /// <summary>
+        /// radDateRangeAnd control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputRadioButton radDateRangeAnd;
+        
+        /// <summary>
         /// txtStartDatePb control.
         /// </summary>
         /// <remarks>

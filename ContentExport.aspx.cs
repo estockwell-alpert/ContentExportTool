@@ -59,6 +59,9 @@ namespace ContentExportTool
             ddLanguages.DataSource = languages;
             ddLanguages.DataBind();
 
+            radDateRangeAnd.Checked = false;
+            radDateRangeOr.Checked = true;
+
             SetSavedSettingsDropdown();
         }
 
@@ -428,6 +431,7 @@ namespace ContentExportTool
                         foreach (var item in itemVersions)
                         {
                             var itemPath = item.Paths.ContentPath;
+                            if (String.IsNullOrEmpty(itemPath)) continue;
                             var itemLine = itemPath + "\t";
 
                             if (includeName)
@@ -1074,7 +1078,12 @@ namespace ContentExportTool
                 Referrers = chkReferrers.Checked,
                 FileName = txtFileName.Value,
                 AllFields = chkAllFields.Checked,
-                AdvancedSearch = txtAdvancedSearch.Value
+                AdvancedSearch = txtAdvancedSearch.Value,
+                StartDateCr = txtStartDateCr.Value,
+                EndDateCr = txtEndDateCr.Value,
+                StartDatePb = txtStartDatePb.Value,
+                EndDatePb = txtEndDatePu.Value,
+                DateRangeAnd = radDateRangeAnd.Checked
             };
 
             var settingsObject = new ExportSettings()
@@ -1164,6 +1173,22 @@ namespace ContentExportTool
             txtFileName.Value = settings.FileName;
             chkAllFields.Checked = settings.AllFields;
             txtAdvancedSearch.Value = settings.AdvancedSearch;
+
+            txtStartDateCr.Value = settings.StartDateCr;
+            txtEndDateCr.Value = settings.EndDateCr;
+            txtStartDatePb.Value = settings.StartDatePb;
+            txtEndDatePu.Value = settings.EndDatePb;
+
+            if (settings.DateRangeAnd)
+            {
+                radDateRangeOr.Checked = false;
+                radDateRangeAnd.Checked = true;
+            }
+            else
+            {
+                radDateRangeOr.Checked = true;
+                radDateRangeAnd.Checked = false;
+            }
         }
 
         #endregion
@@ -1203,6 +1228,17 @@ namespace ContentExportTool
             txtFileName.Value = string.Empty;
             chkAllFields.Checked = false;
             txtAdvancedSearch.Value = string.Empty;
+            txtStartDatePb.Value = string.Empty;
+            txtEndDatePu.Value = string.Empty;
+            txtStartDateCr.Value = string.Empty;
+            txtEndDateCr.Value = string.Empty;
+            chkNeverPublish.Checked = false;
+            radDateRangeOr.Checked = true;
+            radDateRangeAnd.Checked = false;
+
+            PhBrowseTree.Visible = false;
+            PhBrowseTemplates.Visible = false;
+            PhBrowseFields.Visible = false;
         }
 
         #endregion
@@ -1522,27 +1558,8 @@ namespace ContentExportTool
                 }
             }
 
-            // filter exportItems by date ranges
-            var dateValue = new DateTime();
-            if (!String.IsNullOrEmpty(txtStartDateCr.Value) && DateTime.TryParse(txtStartDateCr.Value, out dateValue))
-            {
-                exportItems = exportItems.Where(x => x.Statistics.Created >= dateValue).ToList();
-            }
-
-            if (!String.IsNullOrEmpty(txtEndDateCr.Value) && DateTime.TryParse(txtEndDateCr.Value, out dateValue))
-            {
-                exportItems = exportItems.Where(x => x.Statistics.Created <= dateValue).ToList();
-            }
-
-            if (!String.IsNullOrEmpty(txtStartDatePb.Value) && DateTime.TryParse(txtStartDatePb.Value, out dateValue))
-            {
-                exportItems = exportItems.Where(x => x.Statistics.Updated >= dateValue).ToList();
-            }
-
-            if (!String.IsNullOrEmpty(txtEndDatePu.Value) && DateTime.TryParse(txtEndDatePu.Value, out dateValue))
-            {
-                exportItems = exportItems.Where(x => x.Statistics.Updated <= dateValue).ToList();
-            }
+            // created AND published filters
+            exportItems = FilterByDateRanges(exportItems);
 
             var items = new List<Item>();
             if (!string.IsNullOrWhiteSpace(templateString))
@@ -1563,6 +1580,89 @@ namespace ContentExportTool
                 items = items.Where(DoesItemHasPresentationDetails).ToList();
             }
             return items;
+        }
+
+        protected List<Item> FilterByDateRanges(List<Item> exportItems)
+        {
+            var startDateCr = new DateTime();
+            var startDatePb  = new DateTime();
+            var endDateCr = new DateTime();
+            var endDatePb = new DateTime();
+
+            //start dates
+            var validStartDateCr = !String.IsNullOrEmpty(txtStartDateCr.Value) &&
+                                   DateTime.TryParse(txtStartDateCr.Value, out startDateCr);
+            var validStartDatePb = !String.IsNullOrEmpty(txtStartDatePb.Value) &&
+                                   DateTime.TryParse(txtStartDatePb.Value, out startDatePb);
+
+            //end dates
+            var validEndDateCr = !String.IsNullOrEmpty(txtEndDateCr.Value) &&
+                                       DateTime.TryParse(txtEndDateCr.Value, out endDateCr);
+            var validEndDatePb = !String.IsNullOrEmpty(txtEndDatePu.Value) &&
+                                   DateTime.TryParse(txtEndDatePu.Value, out endDatePb);
+
+            var createdFilterItems = new List<Item>();
+            var updatedFilterItems = new List<Item>();
+
+            if (validEndDateCr)
+            {
+                endDateCr = new DateTime(endDateCr.Year, endDateCr.Month, endDateCr.Day, 23, 59, 59);
+            }
+            if (validEndDatePb)
+            {
+                endDatePb = new DateTime(endDatePb.Year, endDatePb.Month, endDatePb.Day, 23, 59, 59);
+            }
+
+            if (validStartDateCr || validEndDateCr)
+            {
+                if (validStartDateCr && validEndDateCr)
+                {
+                    createdFilterItems = exportItems.Where(x => (x.Statistics.Created >= startDateCr && x.Statistics.Created <= endDateCr && x.Statistics.Created != DateTime.MinValue && x.Statistics.Created != DateTime.MaxValue)).ToList();
+                }
+                else if (validStartDateCr)
+                {
+                    createdFilterItems =
+                        exportItems.Where(
+                            x =>
+                                (x.Statistics.Created >= startDateCr && x.Statistics.Created != DateTime.MinValue &&
+                                 x.Statistics.Created != DateTime.MaxValue)).ToList();
+                }
+                else
+                {
+                    createdFilterItems = exportItems.Where(x => (x.Statistics.Created <= endDateCr && x.Statistics.Created != DateTime.MinValue && x.Statistics.Created != DateTime.MaxValue)).ToList();
+                }
+            }
+
+            if (validStartDatePb || validEndDatePb)
+            {
+                if (validStartDatePb && validEndDatePb)
+                {
+                    updatedFilterItems = exportItems.Where(x => (x.Statistics.Updated >= startDatePb && x.Statistics.Updated <= endDatePb && x.Statistics.Updated != DateTime.MinValue && x.Statistics.Updated != DateTime.MaxValue)).ToList();
+                }
+                else if (validStartDatePb)
+                {
+                    updatedFilterItems =
+                        exportItems.Where(
+                            x =>
+                                (x.Statistics.Updated >= startDatePb && x.Statistics.Updated != DateTime.MinValue &&
+                                 x.Statistics.Updated != DateTime.MaxValue)).ToList();
+                }
+                else
+                {
+                    updatedFilterItems = exportItems.Where(x => (x.Statistics.Updated <= endDatePb && x.Statistics.Updated != DateTime.MinValue && x.Statistics.Updated != DateTime.MaxValue)).ToList();
+                }
+            }
+
+            if (radDateRangeOr.Checked)
+            {
+                exportItems = createdFilterItems.Union(updatedFilterItems).ToList();
+            }
+            else
+            {
+                exportItems = createdFilterItems.Intersect(updatedFilterItems).ToList();
+            }
+
+            return exportItems.OrderByDescending(x => x.Paths.ContentPath).ToList();
         }
 
         public bool DoesItemHasPresentationDetails(Item item)
@@ -1701,6 +1801,11 @@ namespace ContentExportTool
         public string FileName;
         public bool AllFields;
         public string AdvancedSearch;
+        public string StartDateCr;
+        public string EndDateCr;
+        public string StartDatePb;
+        public string EndDatePb;
+        public bool DateRangeAnd;
     }
 
     public class FieldData

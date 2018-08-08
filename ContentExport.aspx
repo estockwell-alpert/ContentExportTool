@@ -491,6 +491,7 @@
             background: rgba(0,0,0,.2);
             top: 0;
             left: 0;
+            z-index: 999;
         }
 
         .loading-box {
@@ -759,15 +760,20 @@
                                     <br/>Advanced search works with the Start Item, Templates, and Fields boxes
                                 </span>
                             </div>
-                            <div class="row">
-                                <span class="header"><b>Created Date Range</b></span>
-                                Created between <input type="datetime" runat="server" id="txtStartDateCr"/> and <input type="datetime" runat="server" id="txtEndDateCr"/>
-                                <span class="border-notes">Only return items created between the selected time span</span>
-                            </div>
-                            <div class="row">
-                                <span class="header"><b>Published Date Range</b></span>
-                                Updated between <input type="datetime" runat="server" id="txtStartDatePb"/> and <input type="datetime" runat="server" id="txtEndDatePu"/>
-                                <span class="border-notes">Only return items last published between the selected time span</span>
+                            <div class="row advanced-search">
+                                <div class="row">
+                                    <span class="header"><b>Created Date Range</b></span>
+                                    Created between <input type="datetime" runat="server" id="txtStartDateCr" autocomplete="off"/> and <input type="datetime" runat="server" id="txtEndDateCr" autocomplete="off"/>
+                                    <span class="border-notes">Only return items created between the selected time span</span>
+                                </div>
+                                <div class="row">
+                                    <input name="radDateRange" type="radio" runat="server" id="radDateRangeOr"/><span><b>OR</b></span> <input name="radDateRange" type="radio" runat="server" id="radDateRangeAnd"/><span><b>AND</b></span>
+                                </div>
+                                <div class="row">
+                                    <span class="header"><b>Published Date Range</b></span>
+                                    Updated between <input type="datetime" runat="server" id="txtStartDatePb" autocomplete="off"/> and <input type="datetime" runat="server" id="txtEndDatePu" autocomplete="off"/>
+                                    <span class="border-notes">Only return items last published between the selected time span</span>
+                                </div>
                             </div>
                             <div class="row">
                                 <span class="header">Multiple Start Items</span>
