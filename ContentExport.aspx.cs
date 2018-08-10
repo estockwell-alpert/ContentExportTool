@@ -849,7 +849,7 @@ namespace ContentExportTool
             }
             else
             {
-                itemLine += refField.TargetItem.DisplayName + "\t";
+                itemLine += refField.TargetItem.Paths.ContentPath + "\t";
                 if (includeLinkedIds)
                 {
                     itemLine += refField.TargetID + "\t";
@@ -1601,8 +1601,10 @@ namespace ContentExportTool
             var validEndDatePb = !String.IsNullOrEmpty(txtEndDatePu.Value) &&
                                    DateTime.TryParse(txtEndDatePu.Value, out endDatePb);
 
-            var createdFilterItems = new List<Item>();
-            var updatedFilterItems = new List<Item>();
+            if (!validStartDateCr && !validStartDatePb && !validEndDateCr && !validEndDatePb) return exportItems;
+
+            var createdFilterItems = exportItems;
+            var updatedFilterItems = exportItems;
 
             if (validEndDateCr)
             {
