@@ -1579,7 +1579,69 @@ namespace ContentExportTool
             {
                 items = items.Where(DoesItemHasPresentationDetails).ToList();
             }
+
+            if (!chkAdvancedSelectionOff.Checked &&
+                (!String.IsNullOrWhiteSpace(txtAdvFields.Value) || chkAdvAllLinkedItems.Checked))
+            {
+                items = GetLinkedItems(items);              
+            }
+
             return items;
+        }
+
+        protected List<Item> GetLinkedItems(List<Item> items)
+        {
+            List<Item> linkedItems = new ItemList();
+            foreach (var item in items)
+            {
+                var fields = new List<string>();
+                if (chkAdvAllLinkedItems.Checked)
+                {
+                    // get linked items from all fields
+                    item.Fields.ReadAll();
+                    foreach (Field field in item.Fields)
+                    {
+                        if (field.Name.StartsWith("__")) continue;
+                        if (fields.All(x => x != field.Name))
+                        {
+                            fields.Add(field.Name);
+                        }
+                    }
+                }
+                else
+                {
+                    fields = txtAdvFields.Value.ToLower().Split(',').Select(x => x.Trim()).ToList();
+                }
+
+                foreach (var field in fields)
+                {
+                    if (!string.IsNullOrWhiteSpace(field))
+                    {
+                        var itemField = item.Fields[field];
+                        if (itemField != null)
+                        {
+                            var itemOfType = FieldTypeManager.GetField(itemField);
+                            if (itemOfType is LinkField)
+                            {
+                                LinkField linkField = itemField;
+                                var linkedItem = linkField.TargetItem;
+                                if (linkedItem != null) linkedItems.Add(linkedItem);
+                            }else if (itemOfType is ReferenceField)
+                            {
+                                ReferenceField refField = itemField;
+                                var linkedItem = refField.TargetItem;
+                                if (linkedItem != null) linkedItems.Add(linkedItem);
+                            }else if (itemOfType is MultilistField)
+                            {
+                                MultilistField listField = itemField;
+                                var listItems = listField.GetItems();
+                                linkedItems.AddRange(listItems);
+                            }
+                        }
+                    }
+                }
+            }
+            return linkedItems;
         }
 
         protected List<Item> FilterByDateRanges(List<Item> exportItems)

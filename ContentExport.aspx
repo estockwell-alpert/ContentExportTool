@@ -371,6 +371,16 @@
             color: darkgray !important;
         }
 
+        .advanced-search.disabled {
+            pointer-events: initial;
+        }
+
+        .advanced-search.disabled input[type="text"], .advanced-search.disabled textarea {
+            pointer-events: none;
+            background-color: #ddd;
+            border: 1px solid #aaa;
+        }
+
         .browse-modal li span {
             margin-left: 10px;
             color: darkgray;
@@ -753,12 +763,23 @@
                         <a class="advanced-btn">Advanced Options</a>
                         <div class="advanced-inner">
                             <div class="row advanced-search">
-                                <span class="header">Advanced Search:</span>
+                                <span class="header"><b>Advanced Search:</b></span>
                                 <input runat="server" id="txtAdvancedSearch"/><asp:Button runat="server" ID="btnAdvancedSearch" OnClick="btnAdvancedSearch_OnClick" Text="Go"/>
                                 <span class="border-notes">Export all items that contain the search text in a field. 
                                     <br/>By default, this will check ALL fields on each item; if fields are specified in the Fields box, only those fields will be searched
                                     <br/>Advanced search works with the Start Item, Templates, and Fields boxes
                                 </span>
+                            </div>
+                            <div class="row advanced-search">
+                                <span class="header" style="display:inline-block"><b>Advanced Item Selection</b></span>
+                                <asp:CheckBox runat="server" ID="chkAdvancedSelectionOff"/><span>Off</span>
+                                <span class="header">Get items that are linked in the following fields: </span>
+                                <textarea runat="server" id="txtAdvFields" cols="60" row="5"></textarea><br/>
+                                <span class="border-notes">Use this field with the Start Item/Fast Query/Multiple Start Items fields, the Templates field, and/or any other filters. Rather than exporting the items selected by those filters, this will export the items <i>linked</i> in those items in the fields specified (or in all fields, if the checkbox below is checked)</span>
+                                <span class="header">Get all linked items</span>
+                                <asp:CheckBox runat="server" ID="chkAdvAllLinkedItems"/>
+                                <%--<span class="header">Include original items</span>
+                                <asp:CheckBox runat="server" ID="chkAdvOnlyLinkedItems"/><span class="notes">Export the items selected by the filters as well as the items they link to</span>--%>
                             </div>
                             <div class="row advanced-search">
                                 <div class="row">

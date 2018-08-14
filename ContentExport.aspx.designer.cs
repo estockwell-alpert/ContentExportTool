@@ -355,6 +355,33 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.Button btnAdvancedSearch;
         
         /// <summary>
+        /// chkAdvancedSelectionOff control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkAdvancedSelectionOff;
+        
+        /// <summary>
+        /// txtAdvFields control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlTextArea txtAdvFields;
+        
+        /// <summary>
+        /// chkAdvAllLinkedItems control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkAdvAllLinkedItems;
+        
+        /// <summary>
         /// txtStartDateCr control.
         /// </summary>
         /// <remarks>

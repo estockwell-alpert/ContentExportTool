@@ -102,6 +102,14 @@
     $("select").on("change", function () {
         removeSavedMessage();
     });
+
+    $("#chkAdvancedSelectionOn").on("change", function() {
+        if ($(this).prop("checked")) {
+            $(this).parent().addClass("disabled");
+        } else {
+            $(this).parent().removeClass("disabled");
+        }
+    });
 });
 
 function expandNode(node) {
