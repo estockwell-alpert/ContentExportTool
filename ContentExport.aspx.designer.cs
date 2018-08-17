@@ -337,6 +337,15 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.CheckBox chkAllFields;
         
         /// <summary>
+        /// chkComponentFields control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkComponentFields;
+        
+        /// <summary>
         /// txtAdvancedSearch control.
         /// </summary>
         /// <remarks>

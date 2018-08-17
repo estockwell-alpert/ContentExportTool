@@ -756,7 +756,9 @@
                         <textarea runat="server" id="inputFields" cols="60" row="5"></textarea><asp:Button runat="server" ID="btnBrowseFields" OnClick="btnBrowseFields_OnClick" CssClass="browse-btn" Text="Browse" />
                         <span class="border-notes">Enter field names or IDs separated by commas, or use Browse to select fields.</span>
                         <asp:CheckBox runat="server" ID="chkAllFields"/>
-                        <span class="notes">All Fields - This will export the values of <b>all fields</b> of every included item. <b>This may take a while.</b></span>
+                        <span class="notes"><b style="color:black">All Fields</b> - This will export the values of <b>all fields</b> of every included item. <b>This may take a while.</b></span><br/>
+                        <asp:CheckBox runat="server" ID="chkComponentFields"/>
+                        <span class="notes"><b style="color:black">Include Component Fields</b> - This will export the values of fields that are on a page's component items as well as on the page item itself</span>
                     </div>
 
                     <div class="advanced">

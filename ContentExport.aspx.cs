@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -694,6 +695,10 @@ namespace ContentExportTool
                     {
                         lineAndHeading = ParseCheckboxField(itemField, itemLine, headingString, fieldName);
                     }
+                    else if (itemOfType is DateField)
+                    {
+                        lineAndHeading = ParseDateField(itemField, itemLine, headingString);
+                    }
                     else // default text field
                     {
                         lineAndHeading = ParseDefaultField(itemField, itemLine, headingString, fieldName);
@@ -918,6 +923,16 @@ namespace ContentExportTool
             CheckboxField checkboxField = itemField;
             headingString = headingString.Replace(String.Format("{0}-ID", fieldName), string.Empty).Replace(String.Format("{0}-HTML", fieldName), string.Empty);
             itemLine += checkboxField.Checked.ToString() + "\t";
+            return new Tuple<string, string>(itemLine, headingString);
+        }
+
+        private Tuple<string, string> ParseDateField(Field itemField, string itemLine, string headingString)
+        {
+            DateField dateField = itemField;
+
+            itemLine += dateField.DateTime.ToString("d");
+
+            itemLine += "\t";
             return new Tuple<string, string>(itemLine, headingString);
         }
 
