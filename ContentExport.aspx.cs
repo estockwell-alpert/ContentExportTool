@@ -146,12 +146,10 @@ namespace ContentExportTool
         {
             var database = ddDatabase.SelectedValue;
             SetDatabase(database);
-            var contentRoot = _db.GetItem("/sitecore/content");
-            var mediaRoot = _db.GetItem("/sitecore/media library");
+            var contentRoot = _db.GetItem("/sitecore");
 
             var sitecoreTreeHtml = "<ul>";
             sitecoreTreeHtml += GetItemAndChildren(contentRoot);
-            sitecoreTreeHtml += GetItemAndChildren(mediaRoot);
             sitecoreTreeHtml += "</ul>";
 
             return sitecoreTreeHtml;
@@ -167,11 +165,13 @@ namespace ContentExportTool
             {
                 nodeHtml.Append("<a class='browse-expand' onclick='expandNode($(this))'>+</a>");
             }
-            nodeHtml.AppendFormat("<a class='sitecore-node' href='javascript:void(0)' onclick='selectNode($(this));' data-path='{0}'>{1}</a>", item.Paths.Path, item.Name);
+            nodeHtml.AppendFormat("<a class='sitecore-node' href='javascript:void(0)' ondblclick='selectNode($(this));addTemplate();' onclick='selectNode($(this));' data-path='{0}'>{1}</a>", item.Paths.Path, item.Name);
+
             if (!_sitecoreItemApiEnabled)
             {
                 nodeHtml.Append(GetChildList(children));
             }
+                
             nodeHtml.Append("</li>");
 
             return nodeHtml.ToString();
@@ -228,7 +228,7 @@ namespace ContentExportTool
             if (item.TemplateName == "Template")
             {
                 nodeHtml.AppendFormat(
-                        "<a data-id='{0}' data-name='{1}' class='template-link' href='javascript:void(0)' onclick='selectBrowseNode($(this));'>{1}</a>",
+                        "<a data-id='{0}' data-name='{1}' class='template-link' href='javascript:void(0)' onclick='selectBrowseNode($(this));' ondblclick='selectBrowseNode($(this));addTemplate();'>{1}</a>",
                         item.ID, item.Name);
             }
             else
@@ -325,7 +325,7 @@ namespace ContentExportTool
                     {
                         html +=
                             string.Format(
-                                "<li data-name='{2}'><a class='field-node' href='javascript:void(0)' onclick='selectBrowseNode($(this));' data-id='{0}' data-name='{1}'>{1}</a></li>",
+                                "<li data-name='{2}'><a class='field-node' href='javascript:void(0)' onclick='selectBrowseNode($(this));' ondblclick='selectBrowseNode($(this));addTemplate();' data-id='{0}' data-name='{1}'>{1}</a></li>",
                                 field.ID, field.Name, field.Name.ToLower());
                     }
                     html += "</ul>";

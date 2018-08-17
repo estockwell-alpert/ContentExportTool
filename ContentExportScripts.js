@@ -77,6 +77,11 @@
         removeSavedMessage();
     });
 
+    $(".clear-section-btn").on("click", function() {
+        $(this).parent().find("input").val("");
+        removeSavedMessage();
+    })
+
     $("#clear-fast-query").on("click", function () {
         $(".lit-fast-query").html("");
     });
@@ -191,7 +196,7 @@ function loadChildren(id, parentNode) {
 }
 
 function getClickableBrowseItem(path, name) {
-    return "<a class='sitecore-node' href='javascript:void(0)' onclick='selectNode($(this));' data-path='" + path + "'>" + name + "</a>";
+    return "<a class='sitecore-node' href='javascript:void(0)' ondblclick='selectNode($(this));addTemplate();' onclick='selectNode($(this));' data-path='" + path + "'>" + name + "</a>"; 
 }
 
 function isTemplate(node) {
@@ -238,7 +243,7 @@ function addTemplate() {
     var name = $(".temp-selected").html();
     var node = $(".select-box a[data-name='" + name + "']");
     $(node).addClass("disabled").removeClass("selected");
-    $(".selected-box-list").append("<li><a class='addedTemplate' href='javascript:void(0);' onclick='selectAddedTemplate($(this))' data-name='" + name + "' >" + name + "</a></li>");
+    $(".selected-box-list").append("<li><a class='addedTemplate' href='javascript:void(0);' onclick='selectAddedTemplate($(this))' ondblclick='selectAddedTemplate($(this));removeTemplate()' data-name='" + name + "' >" + name + "</a></li>");
     $(".temp-selected").html("");
 
     $(".selected-box .select-node-btn").removeClass("disabled");

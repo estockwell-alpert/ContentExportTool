@@ -770,20 +770,20 @@
                                     <br/>Advanced search works with the Start Item, Templates, and Fields boxes
                                 </span>
                             </div>
-                            <div class="row advanced-search">
+                            <div class="row advanced-search" style="display: none;">
                                 <span class="header" style="display:inline-block"><b>Advanced Item Selection</b></span>
                                 <asp:CheckBox runat="server" ID="chkAdvancedSelectionOff"/><span>Off</span>
                                 <span class="header">Get items that are linked in the following fields: </span>
+                                <a class="clear-section-btn clear-btn">clear</a>
                                 <textarea runat="server" id="txtAdvFields" cols="60" row="5"></textarea><br/>
                                 <span class="border-notes">Use this field with the Start Item/Fast Query/Multiple Start Items fields, the Templates field, and/or any other filters. Rather than exporting the items selected by those filters, this will export the items <i>linked</i> in those items in the fields specified (or in all fields, if the checkbox below is checked)</span>
                                 <span class="header">Get all linked items</span>
                                 <asp:CheckBox runat="server" ID="chkAdvAllLinkedItems"/>
-                                <%--<span class="header">Include original items</span>
-                                <asp:CheckBox runat="server" ID="chkAdvOnlyLinkedItems"/><span class="notes">Export the items selected by the filters as well as the items they link to</span>--%>
                             </div>
                             <div class="row advanced-search">
                                 <div class="row">
                                     <span class="header"><b>Created Date Range</b></span>
+                                    <a class="clear-section-btn clear-btn">Clear</a>
                                     Created between <input type="datetime" runat="server" id="txtStartDateCr" autocomplete="off"/> and <input type="datetime" runat="server" id="txtEndDateCr" autocomplete="off"/>
                                     <span class="border-notes">Only return items created between the selected time span</span>
                                 </div>
@@ -792,6 +792,7 @@
                                 </div>
                                 <div class="row">
                                     <span class="header"><b>Published Date Range</b></span>
+                                    <a class="clear-section-btn clear-btn">Clear</a>
                                     Updated between <input type="datetime" runat="server" id="txtStartDatePb" autocomplete="off"/> and <input type="datetime" runat="server" id="txtEndDatePu" autocomplete="off"/>
                                     <span class="border-notes">Only return items last published between the selected time span</span>
                                 </div>
