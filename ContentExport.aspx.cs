@@ -1680,8 +1680,8 @@ namespace ContentExportTool
 
             if (!validStartDateCr && !validStartDatePb && !validEndDateCr && !validEndDatePb) return exportItems;
 
-            var createdFilterItems = exportItems;
-            var updatedFilterItems = exportItems;
+            var createdFilterItems = new List<Item>();
+            var updatedFilterItems = new List<Item>();
 
             if (validEndDateCr)
             {
@@ -1692,54 +1692,45 @@ namespace ContentExportTool
                 endDatePb = new DateTime(endDatePb.Year, endDatePb.Month, endDatePb.Day, 23, 59, 59);
             }
 
-            if (validStartDateCr || validEndDateCr)
+            // put in date values
+            if (!validStartDateCr)
             {
-                if (validStartDateCr && validEndDateCr)
-                {
-                    createdFilterItems = exportItems.Where(x => (x.Statistics.Created >= startDateCr && x.Statistics.Created <= endDateCr && x.Statistics.Created != DateTime.MinValue && x.Statistics.Created != DateTime.MaxValue)).ToList();
-                }
-                else if (validStartDateCr)
-                {
-                    createdFilterItems =
-                        exportItems.Where(
-                            x =>
-                                (x.Statistics.Created >= startDateCr && x.Statistics.Created != DateTime.MinValue &&
-                                 x.Statistics.Created != DateTime.MaxValue)).ToList();
-                }
-                else
-                {
-                    createdFilterItems = exportItems.Where(x => (x.Statistics.Created <= endDateCr && x.Statistics.Created != DateTime.MinValue && x.Statistics.Created != DateTime.MaxValue)).ToList();
-                }
+                startDateCr = DateTime.MinValue;
+            }
+            if (!validEndDateCr)
+            {
+                endDateCr = DateTime.MaxValue;
+            }
+            if (!validStartDatePb)
+            {
+                startDatePb = DateTime.MinValue;
+            }
+            if (!validEndDatePb)
+            {
+                endDatePb = DateTime.MaxValue;
             }
 
-            if (validStartDatePb || validEndDatePb)
+            if (validStartDateCr || validEndDateCr || radDateRangeAnd.Checked) // only populate list if we've selected filters, otherwise should be empty
             {
-                if (validStartDatePb && validEndDatePb)
-                {
-                    updatedFilterItems = exportItems.Where(x => (x.Statistics.Updated >= startDatePb && x.Statistics.Updated <= endDatePb && x.Statistics.Updated != DateTime.MinValue && x.Statistics.Updated != DateTime.MaxValue)).ToList();
-                }
-                else if (validStartDatePb)
-                {
-                    updatedFilterItems =
-                        exportItems.Where(
-                            x =>
-                                (x.Statistics.Updated >= startDatePb && x.Statistics.Updated != DateTime.MinValue &&
-                                 x.Statistics.Updated != DateTime.MaxValue)).ToList();
-                }
-                else
-                {
-                    updatedFilterItems = exportItems.Where(x => (x.Statistics.Updated <= endDatePb && x.Statistics.Updated != DateTime.MinValue && x.Statistics.Updated != DateTime.MaxValue)).ToList();
-                }
+                createdFilterItems =
+                    exportItems.Where(
+                        x =>
+                            (x.Statistics.Created >= startDateCr && x.Statistics.Created <= endDateCr &&
+                             x.Statistics.Created != DateTime.MinValue && x.Statistics.Created != DateTime.MaxValue))
+                        .ToList();
             }
 
-            if (radDateRangeOr.Checked)
+            if (validStartDatePb || validEndDatePb || radDateRangeAnd.Checked)
             {
-                exportItems = createdFilterItems.Union(updatedFilterItems).ToList();
+                updatedFilterItems =
+                    exportItems.Where(
+                        x =>
+                            (x.Statistics.Updated >= startDatePb && x.Statistics.Updated <= endDatePb &&
+                             x.Statistics.Updated != DateTime.MinValue && x.Statistics.Updated != DateTime.MaxValue))
+                        .ToList();
             }
-            else
-            {
-                exportItems = createdFilterItems.Intersect(updatedFilterItems).ToList();
-            }
+
+            exportItems = radDateRangeOr.Checked ? createdFilterItems.Union(updatedFilterItems).ToList() : createdFilterItems.Intersect(updatedFilterItems).ToList();
 
             return exportItems.OrderByDescending(x => x.Paths.ContentPath).ToList();
         }
