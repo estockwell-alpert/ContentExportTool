@@ -1549,21 +1549,12 @@ namespace ContentExportTool
             {
                 var queryItems = _db.SelectItems(fastQuery);
                 exportItems = queryItems.ToList();
-            }
-            else
-            {
-                Item startItem = _db.GetItem(startNode);
-                var descendants = startItem.Axes.GetDescendants();
-                exportItems.Add(startItem);
-                exportItems.AddRange(descendants);
-            }
-
-            if (!string.IsNullOrWhiteSpace(inputMultiStartItem.Value))
+            }else if (!string.IsNullOrWhiteSpace(inputMultiStartItem.Value))
             {
                 var startItems = inputMultiStartItem.Value.Split(',');
                 foreach (var startItem in startItems)
                 {
-                    Item item = _db.GetItem(startItem);
+                    Item item = _db.GetItem(startItem.Trim());
                     if (item == null)
                         continue;
 
@@ -1572,7 +1563,14 @@ namespace ContentExportTool
                     exportItems.AddRange(descendants);
                 }
             }
-
+            else
+            {
+                Item startItem = _db.GetItem(startNode);
+                var descendants = startItem.Axes.GetDescendants();
+                exportItems.Add(startItem);
+                exportItems.AddRange(descendants);
+            }
+       
             // created AND published filters
             exportItems = FilterByDateRanges(exportItems);
 
