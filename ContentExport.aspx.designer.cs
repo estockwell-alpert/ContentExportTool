@@ -397,7 +397,7 @@ namespace ContentExportTool {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputGenericControl txtStartDateCr;
+        protected global::System.Web.UI.HtmlControls.HtmlInputText txtStartDateCr;
         
         /// <summary>
         /// txtEndDateCr control.
@@ -406,7 +406,7 @@ namespace ContentExportTool {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputGenericControl txtEndDateCr;
+        protected global::System.Web.UI.HtmlControls.HtmlInputText txtEndDateCr;
         
         /// <summary>
         /// radDateRangeOr control.
@@ -433,7 +433,7 @@ namespace ContentExportTool {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputGenericControl txtStartDatePb;
+        protected global::System.Web.UI.HtmlControls.HtmlInputText txtStartDatePb;
         
         /// <summary>
         /// txtEndDatePu control.
@@ -442,7 +442,7 @@ namespace ContentExportTool {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputGenericControl txtEndDatePu;
+        protected global::System.Web.UI.HtmlControls.HtmlInputText txtEndDatePu;
         
         /// <summary>
         /// inputMultiStartItem control.

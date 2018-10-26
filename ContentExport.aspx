@@ -91,6 +91,10 @@
             max-width: 80%;
         }
 
+        input[type='text'].hasDatepicker {
+            width: 175px;
+        }
+
         a.clear-btn, .show-hints {
             cursor: pointer;
             color: rgb(38, 148, 192);
@@ -558,6 +562,8 @@
             display: block;
             font-weight: 600;
         }
+
+        
     </style>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
@@ -786,7 +792,7 @@
                                 <div class="row">
                                     <span class="header"><b>Created Date Range</b></span>
                                     <a class="clear-section-btn clear-btn">Clear</a>
-                                    Created between <input type="datetime" runat="server" id="txtStartDateCr" autocomplete="off"/> and <input type="datetime" runat="server" id="txtEndDateCr" autocomplete="off"/>
+                                    Created between <input type="text" runat="server" id="txtStartDateCr" autocomplete="off"/> and <input type="text" runat="server" id="txtEndDateCr" autocomplete="off"/>
                                     <span class="border-notes">Only return items created between the selected time span</span>
                                 </div>
                                 <div class="row">
@@ -795,7 +801,7 @@
                                 <div class="row">
                                     <span class="header"><b>Published Date Range</b></span>
                                     <a class="clear-section-btn clear-btn">Clear</a>
-                                    Updated between <input type="datetime" runat="server" id="txtStartDatePb" autocomplete="off"/> and <input type="datetime" runat="server" id="txtEndDatePu" autocomplete="off"/>
+                                    Updated between <input type="text" runat="server" id="txtStartDatePb" autocomplete="off"/> and <input type="text" runat="server" id="txtEndDatePu" autocomplete="off"/>
                                     <span class="border-notes">Only return items last published between the selected time span</span>
                                 </div>
                             </div>
