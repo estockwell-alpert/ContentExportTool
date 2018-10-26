@@ -162,6 +162,9 @@ function loadChildren(id, parentNode) {
                     var hasChildren = child.HasChildren;
                     var id = child.ID;
                     var name = child.Name;
+                    if (!name) {
+                        name = child.DisplayName;
+                    }
                     var path = child.Path;
 
                     var childNode = "<li data-name='" + name + "' data-id='" + id + "'>";
