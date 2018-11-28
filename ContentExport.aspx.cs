@@ -509,7 +509,7 @@ namespace ContentExportTool
                                     {
                                         if (!first)
                                         {
-                                            data += ";\n";
+                                            data += ";";
                                         }
                                         data += referrer.Paths.ContentPath;
                                         first = false;
@@ -892,7 +892,7 @@ namespace ContentExportTool
                 {
                     if (!first)
                     {
-                        data += "\n";
+                        data += ";";
                     }
                     var url = i.Paths.ContentPath;
                     data += url + ";";
@@ -908,7 +908,7 @@ namespace ContentExportTool
                     {
                         if (!first)
                         {
-                            idData += "\n";
+                            idData += ";";
                         }
                         idData += i.ID + ";";
                         first = false;
@@ -1056,7 +1056,6 @@ namespace ContentExportTool
                 litUploadResponse.Text = "You must select a file first<br/>";
             }
 
-            Regex CSVParser = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
             var fieldsMap = new List<String>();
             var itemPathIndex = 0;
             var itemNameIndex = 0;
@@ -1070,7 +1069,50 @@ namespace ContentExportTool
                 // currentLine will be null when the StreamReader reaches the end of file
                 while ((currentLine = sr.ReadLine()) != null)
                 {
-                    String[] cells = CSVParser.Split(currentLine);
+                    if (String.IsNullOrEmpty(currentLine.Replace(",", "")))
+                    {
+                        break;
+                    }
+                    //String[] cells = CSVParser.Split(currentLine);
+
+                    List<string> cells = new List<string>();
+                    var index = 0;
+                    var inQuote = false;
+                    while (currentLine.Length > 0)
+                    {
+                        // last word
+                        if (index > currentLine.Length - 1)
+                        {
+                            cells.Add(currentLine);
+                            break;
+                        }
+                        var currentChar = currentLine[index];
+                        
+                        // begin or end quote
+                        if (currentChar == '"')
+                        {
+                            if (inQuote)
+                            {
+                                inQuote = false;
+                            }
+                            else
+                            {
+                                inQuote = true;
+                            }
+                        }
+
+                        if (currentChar == ',' && !inQuote)
+                        {
+                            var substring = currentLine.Substring(0, index);
+                            cells.Add(substring);
+                            currentLine = currentLine.Substring(index + 1);
+                            index = -1;
+                        }
+                        index++;
+                    }
+
+
+
                     if (line == 1)
                     {                       
                         // create fields map
@@ -1082,9 +1124,11 @@ namespace ContentExportTool
                     else
                     {
                         var path = cells[itemPathIndex];
-                        var name = cells[itemNameIndex];
-                        var template = cells[itemTemplateIndex];         
-
+                        if (!path.ToLower().StartsWith("/sitecore/content"))
+                        {
+                            path = "/sitecore/content" + path;
+                        }
+                               
                         // if we are editing items, then the current item = Item Path; if we are creatign items, then are our item is created under Item Path item
                         Item item = _db.GetItem(path);
                         if (item == null)
@@ -1094,6 +1138,13 @@ namespace ContentExportTool
                         } 
                         if (createItems)
                         {
+                            if (itemNameIndex == -1 || itemTemplateIndex == -1)
+                            {
+                                output += "Name and Template columns are required to create items<br/>";
+                                return;
+                            }
+                            var name = cells[itemNameIndex];
+                            var template = cells[itemTemplateIndex];
                             if (String.IsNullOrEmpty(name) || String.IsNullOrEmpty(template))
                             {
                                 output += "Skipped line " + line + "; name or template not specified<br/>";
@@ -1114,12 +1165,19 @@ namespace ContentExportTool
                             }
                         }
                         item.Editing.BeginEdit();
-                        for (var i = 0; i < cells.Length; i++)
+                        for (var i = 0; i < cells.Count; i++)
                         {
                             // skip path, name, and template fields
                             if (i == itemPathIndex || i == itemNameIndex || i == itemTemplateIndex) continue;
                             var fieldName = fieldsMap[i];
                             var value = cells[i];
+
+                            // remove extra quotes wrapping value
+                            if (value.Contains(",") && value[0] == '"' && value[value.Length - 1] == '"')
+                            {
+                                value = value.Substring(1, value.Length - 2);
+                            }
+
                             try
                             {
                                 var itemField = item.Fields[fieldName];
@@ -1163,6 +1221,16 @@ namespace ContentExportTool
                                         var checkboxField = (CheckboxField)item.Fields[fieldName];
                                         checkboxField.Checked = boolean;
                                     }
+                                }
+                                else if (itemOfType is DateField)
+                                {
+                                    DateTime date;
+                                    if (DateTime.TryParse(value, out date))
+                                    {
+                                        var isoDate = DateUtil.ToIsoDate(date);
+                                        item[fieldName] = isoDate;
+                                    }
+                                    
                                 }
                                 else if (itemOfType is DateField)
                                 {
