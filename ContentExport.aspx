@@ -934,8 +934,8 @@
                                 </span>
 
                                 <div class="row">
-                                    <asp:Button runat="server" ID="btnCreateItems" OnClick="btnCreateItems_OnClick" Text="Create Items" />
-                                    <asp:Button runat="server" ID="btnEditItems" OnClick="btnEditItems_OnClick" Text="Edit Items" />
+                                    <asp:Button runat="server" CssClass="import-btn" ID="btnCreateItems" OnClick="btnCreateItems_OnClick" Text="Create Items" />
+                                    <asp:Button runat="server" CssClass="import-btn" ID="btnEditItems" OnClick="btnEditItems_OnClick" Text="Edit Items" />
                                 </div>
                                 
                                 <h3>Tips:</h3>

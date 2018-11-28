@@ -940,6 +940,10 @@ namespace ContentExportTool
         private Tuple<string, string> ParseDefaultField(Field itemField, string itemLine, string headingString, string fieldName)
         {
             var fieldValue = RemoveLineEndings(itemField.Value);
+            if (fieldValue.Contains("\""))
+            {
+                fieldValue = fieldValue.Replace("\"", "\"\"");
+            }
             if (fieldValue.Contains(","))
             {
                 fieldValue = "\"" + fieldValue + "\"";

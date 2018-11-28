@@ -40,6 +40,10 @@
         checkIfFileDownloaded(downloadToken);
     });
 
+    $(".import-btn").on("click", function() {
+        $(".loading-modal").show();
+    })
+
     $(".advanced-btn").on("click", function () {
         if ($(this).parent().hasClass("open")) {
             $(this).parent().removeClass("open");
