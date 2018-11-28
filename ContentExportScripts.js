@@ -47,7 +47,7 @@
             $(this).parent().addClass("open");
         }
 
-        $(".advanced-inner").slideToggle();
+        $(this).parent().find(".advanced-inner").slideToggle();
     });
 
     $(".ddDatabase").on("change", function () {

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Script.Serialization;
 using Sitecore;
@@ -406,22 +407,22 @@ namespace ContentExportTool
 
                 using (StringWriter sw = new StringWriter())
                 {
-                    var headingString = "Item Path\t"
-                                        + (includeName ? "Name\t" : string.Empty)
-                                        + (includeIds ? "Item ID\t" : string.Empty)
-                                        + (includeTemplate ? "Template\t" : string.Empty)
+                    var headingString = "Item Path,"
+                                        + (includeName ? "Name," : string.Empty)
+                                        + (includeIds ? "Item ID," : string.Empty)
+                                        + (includeTemplate ? "Template," : string.Empty)
                                         +
                                         (allLanguages || !string.IsNullOrWhiteSpace(selectedLanguage)
-                                            ? "Language\t"
+                                            ? "Language,"
                                             : string.Empty)
-                                        + (includeDateCreated ? "Created\t" : string.Empty)
-                                        + (includeCreatedBy ? "Created By\t" : string.Empty)
-                                        + (includeDateModified ? "Modified\t" : string.Empty)
-                                        + (includeModifiedBy ? "Modified By\t" : string.Empty)
-                                        + (neverPublish ? "Never Publish\t" : string.Empty)
-                                        + (includeworkflowName ? "Workflow\t" : string.Empty)
-                                        + (includeWorkflowState ? "Workflow State\t" : string.Empty)
-                                        + (includeReferrers ? "Referrers\t" : string.Empty);
+                                        + (includeDateCreated ? "Created," : string.Empty)
+                                        + (includeCreatedBy ? "Created By," : string.Empty)
+                                        + (includeDateModified ? "Modified," : string.Empty)
+                                        + (includeModifiedBy ? "Modified By," : string.Empty)
+                                        + (neverPublish ? "Never Publish," : string.Empty)
+                                        + (includeworkflowName ? "Workflow," : string.Empty)
+                                        + (includeWorkflowState ? "Workflow State," : string.Empty)
+                                        + (includeReferrers ? "Referrers," : string.Empty);
 
                     var dataLines = new List<string>();
 
@@ -433,49 +434,49 @@ namespace ContentExportTool
                         {
                             var itemPath = item.Paths.ContentPath;
                             if (String.IsNullOrEmpty(itemPath)) continue;
-                            var itemLine = itemPath + "\t";
+                            var itemLine = itemPath + ",";
 
                             if (includeName)
                             {
-                                itemLine += item.Name + "\t";
+                                itemLine += item.Name + ",";
                             }                     
 
                             if (includeIds)
                             {
-                                itemLine += item.ID + "\t";
+                                itemLine += item.ID + ",";
                             }
 
                             if (includeTemplate)
                             {
                                 var template = item.TemplateName;
-                                itemLine += template + "\t";
+                                itemLine += template + ",";
                             }
 
                             if (allLanguages || !string.IsNullOrWhiteSpace(selectedLanguage))
                             {
-                                itemLine += item.Language.GetDisplayName() + "\t";
+                                itemLine += item.Language.GetDisplayName() + ",";
                             }
 
                             if (includeDateCreated)
                             {
-                                itemLine += item.Statistics.Created.ToString("d") + "\t";
+                                itemLine += item.Statistics.Created.ToString("d") + ",";
                             }
                             if (includeCreatedBy)
                             {
-                                itemLine += item.Statistics.CreatedBy + "\t";
+                                itemLine += item.Statistics.CreatedBy + ",";
                             }
                             if (includeDateModified)
                             {
-                                itemLine += item.Statistics.Updated.ToString("d") + "\t";
+                                itemLine += item.Statistics.Updated.ToString("d") + ",";
                             }
                             if (includeModifiedBy)
                             {
-                                itemLine += item.Statistics.UpdatedBy + "\t";
+                                itemLine += item.Statistics.UpdatedBy + ",";
                             }
                             if (neverPublish)
                             {
                                 var neverPublishVal = item.Publishing.NeverPublish;
-                                itemLine += neverPublishVal.ToString() + "\t";
+                                itemLine += neverPublishVal.ToString() + ",";
                             }
 
                             if (chkAllFields.Checked)
@@ -514,7 +515,7 @@ namespace ContentExportTool
                                         first = false;
                                     }
                                 }
-                                itemLine += "\"" + data + "\"\t";
+                                itemLine += "\"" + data + "\",";
 
                             }
 
@@ -548,8 +549,8 @@ namespace ContentExportTool
                         foreach (var field in fields)
                         {
                             var fieldName = GetFieldNameIfGuid(field);
-                            newLine = newLine.Replace(String.Format("{0}-ID", fieldName), headingString.Contains(String.Format("{0} ID", fieldName)) ? "n/a\t" : string.Empty);
-                            newLine = newLine.Replace(String.Format("{0}-HTML", fieldName), headingString.Contains(String.Format("{0} Raw HTML", fieldName)) ? "n/a\t" : string.Empty);
+                            newLine = newLine.Replace(String.Format("{0}-ID", fieldName), headingString.Contains(String.Format("{0} ID", fieldName)) ? "n/a," : string.Empty);
+                            newLine = newLine.Replace(String.Format("{0}-HTML", fieldName), headingString.Contains(String.Format("{0} Raw HTML", fieldName)) ? "n/a," : string.Empty);
                         }
                         sw.WriteLine(newLine);
                     }
@@ -605,9 +606,9 @@ namespace ContentExportTool
             {
                 if (includeworkflowName && includeWorkflowState)
                 {
-                    itemLine += "\t";
+                    itemLine += ",";
                 }
-                itemLine += "\t";
+                itemLine += ",";
             }
             else
             {
@@ -616,23 +617,23 @@ namespace ContentExportTool
                 {
                     if (includeworkflowName && includeWorkflowState)
                     {
-                        itemLine += "\t";
+                        itemLine += ",";
                     }
                     else
                     {
-                        itemLine += "\t";
+                        itemLine += ",";
                     }
                 }
                 else
                 {
                     if (includeworkflowName)
                     {
-                        itemLine += workflow + "\t";
+                        itemLine += workflow + ",";
                     }
                     if (includeWorkflowState)
                     {
                         var workflowState = workflow.GetState(item);
-                        itemLine += workflowState.DisplayName + "\t";
+                        itemLine += workflowState.DisplayName + ",";
                     }
                 }
             }
@@ -660,7 +661,7 @@ namespace ContentExportTool
                             linkedId = false
                         });
                     }
-                    itemLine += String.Format("n/a\t{0}-ID{0}-HTML", fieldName);
+                    itemLine += String.Format("n/a,{0}-ID{0}-HTML", fieldName);
                 }
                 else
                 {
@@ -743,51 +744,51 @@ namespace ContentExportTool
             ImageField imageField = itemField;
             if (includeLinkedIds)
             {
-                headingString = headingString.Replace(String.Format("{0}-ID", fieldName), String.Format("{0} ID\t", fieldName));
+                headingString = headingString.Replace(String.Format("{0}-ID", fieldName), String.Format("{0} ID,", fieldName));
             }
             if (includeRawHtml)
             {
-                headingString = headingString.Replace(String.Format("{0}-HTML", fieldName), String.Format("{0} Raw HTML\t", fieldName));
+                headingString = headingString.Replace(String.Format("{0}-HTML", fieldName), String.Format("{0} Raw HTML,", fieldName));
             }
             if (imageField == null)
             {
-                itemLine += "n/a\t";
+                itemLine += "n/a,";
 
                 if (includeLinkedIds)
                 {
-                    itemLine += "n/a\t";
+                    itemLine += "n/a,";
                 }
 
                 if (includeRawHtml)
                 {
-                    itemLine += "n/a\t";
+                    itemLine += "n/a,";
                 }
             }
             else if (imageField.MediaItem == null)
             {
 
-                itemLine += "\t";
+                itemLine += ",";
                 if (includeLinkedIds)
                 {
-                    itemLine += "\t";
+                    itemLine += ",";
                 }
 
                 if (includeRawHtml)
                 {
-                    itemLine += "\t";
+                    itemLine += ",";
                 }
             }
             else
             {
-                itemLine += imageField.MediaItem.Paths.MediaPath + "\t";
+                itemLine += imageField.MediaItem.Paths.MediaPath + ",";
                 if (includeLinkedIds)
                 {
-                    itemLine += imageField.MediaItem.ID + "\t";
+                    itemLine += imageField.MediaItem.ID + ",";
                 }
 
                 if (includeRawHtml)
                 {
-                    itemLine += imageField.Value + "\t";
+                    itemLine += imageField.Value + ",";
                 }
             }
             return new Tuple<string, string>(itemLine, headingString);
@@ -802,24 +803,24 @@ namespace ContentExportTool
             }
             if (includeRawHtml)
             {
-                headingString = headingString.Replace(String.Format("{0}-HTML", fieldName), String.Format("{0} Raw HTML\t", fieldName));
+                headingString = headingString.Replace(String.Format("{0}-HTML", fieldName), String.Format("{0} Raw HTML,", fieldName));
             }
             if (linkField == null)
             {
-                itemLine += "n/a\t";
+                itemLine += "n/a,";
 
                 if (includeRawHtml)
                 {
-                    itemLine += "n/a\t";
+                    itemLine += "n/a,";
                 }
             }
             else
             {
-                itemLine += linkField.Url + "\t";
+                itemLine += linkField.Url + ",";
 
                 if (includeRawHtml)
                 {
-                    itemLine += linkField.Value + "\t";
+                    itemLine += linkField.Value + ",";
                 }
             }
             return new Tuple<string, string>(itemLine, headingString);
@@ -830,7 +831,7 @@ namespace ContentExportTool
             ReferenceField refField = itemField;
             if (includeLinkedIds)
             {
-                headingString = headingString.Replace(String.Format("{0}-ID", fieldName), String.Format("{0} ID\t", fieldName));
+                headingString = headingString.Replace(String.Format("{0}-ID", fieldName), String.Format("{0} ID,", fieldName));
             }
             if (includeRawHtml)
             {
@@ -838,26 +839,26 @@ namespace ContentExportTool
             }
             if (refField == null)
             {
-                itemLine += "n/a\t";
+                itemLine += "n/a,";
                 if (includeLinkedIds)
                 {
-                    itemLine += "n/a\t";
+                    itemLine += "n/a,";
                 }
             }
             else if (refField.TargetItem == null)
             {
-                itemLine += "\t";
+                itemLine += ",";
                 if (includeLinkedIds)
                 {
-                    itemLine += "\t";
+                    itemLine += ",";
                 }
             }
             else
             {
-                itemLine += refField.TargetItem.Paths.ContentPath + "\t";
+                itemLine += refField.TargetItem.Paths.ContentPath + ",";
                 if (includeLinkedIds)
                 {
-                    itemLine += refField.TargetID + "\t";
+                    itemLine += refField.TargetID + ",";
                 }
             }
             return new Tuple<string, string>(itemLine, headingString);
@@ -868,7 +869,7 @@ namespace ContentExportTool
             MultilistField multiField = itemField;
             if (includeLinkedIds)
             {
-                headingString = headingString.Replace(String.Format("{0}-ID", fieldName), String.Format("{0} ID\t", fieldName));
+                headingString = headingString.Replace(String.Format("{0}-ID", fieldName), String.Format("{0} ID,", fieldName));
             }
             if (includeRawHtml)
             {
@@ -876,10 +877,10 @@ namespace ContentExportTool
             }
             if (multiField == null)
             {
-                itemLine += "n/a\t";
+                itemLine += "n/a,";
                 if (includeLinkedIds)
                 {
-                    itemLine += "n/a\t";
+                    itemLine += "n/a,";
                 }
             }
             else
@@ -897,7 +898,7 @@ namespace ContentExportTool
                     data += url + ";";
                     first = false;
                 }
-                itemLine += "\"" + data + "\"" + "\t";
+                itemLine += "\"" + data + "\"" + ",";
 
                 if (includeLinkedIds)
                 {
@@ -912,7 +913,7 @@ namespace ContentExportTool
                         idData += i.ID + ";";
                         first = false;
                     }
-                    itemLine += "\"" + idData + "\"" + "\t";
+                    itemLine += "\"" + idData + "\"" + ",";
                 }
             }
             return new Tuple<string, string>(itemLine, headingString);
@@ -922,7 +923,7 @@ namespace ContentExportTool
         {
             CheckboxField checkboxField = itemField;
             headingString = headingString.Replace(String.Format("{0}-ID", fieldName), string.Empty).Replace(String.Format("{0}-HTML", fieldName), string.Empty);
-            itemLine += checkboxField.Checked.ToString() + "\t";
+            itemLine += checkboxField.Checked.ToString() + ",";
             return new Tuple<string, string>(itemLine, headingString);
         }
 
@@ -932,13 +933,18 @@ namespace ContentExportTool
 
             itemLine += dateField.DateTime.ToString("d");
 
-            itemLine += "\t";
+            itemLine += ",";
             return new Tuple<string, string>(itemLine, headingString);
         }
 
         private Tuple<string, string> ParseDefaultField(Field itemField, string itemLine, string headingString, string fieldName)
         {
-            itemLine += RemoveLineEndings(itemField.Value) + "\t";
+            var fieldValue = RemoveLineEndings(itemField.Value);
+            if (fieldValue.Contains(","))
+            {
+                fieldValue = "\"" + fieldValue + "\"";
+            }
+            itemLine += fieldValue + ",";
             headingString = headingString.Replace(String.Format("{0}-ID", fieldName), string.Empty).Replace(String.Format("{0}-HTML", fieldName), string.Empty);
             return new Tuple<string, string>(itemLine, headingString);
         }
@@ -948,7 +954,7 @@ namespace ContentExportTool
         private List<String> GetInheritors(List<string> templates)
         {
             var inheritors = new List<string>();
-            var templateRoot = _db.GetItem("/sitecore/templates");
+            var templateRoot = _db.GetItem("/sitecore/template.cs");
             var templateItems = templateRoot.Axes.GetDescendants().Where(x => x.TemplateName == "Template");
             var templateItems1 = templateItems as Item[] ?? templateItems.ToArray();
             var enumerable = templateItems as Item[] ?? templateItems1.ToArray();
@@ -994,16 +1000,16 @@ namespace ContentExportTool
             {
                 var fieldName = field.fieldName;
 
-                header += fieldName + "\t";
+                header += fieldName + ",";
 
                 if (includeId && field.linkedId)
                 {
-                    header += String.Format("{0} ID", fieldName) + "\t";
+                    header += String.Format("{0} ID", fieldName) + ",";
                 }
 
                 if (includeRaw && field.rawHtml)
                 {
-                    header += String.Format("{0} HTML", fieldName) + "\t";
+                    header += String.Format("{0} HTML", fieldName) + ",";
                 }
             }
             return header;
@@ -1023,6 +1029,176 @@ namespace ContentExportTool
             return value.Replace("\r\n", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty).Replace(lineSeparator, string.Empty).Replace(paragraphSeparator, string.Empty).Replace("<br/>", string.Empty).Replace("<br />", string.Empty).Replace("\t", "   ");
         }
 
+        #endregion
+
+        #region Run Export
+        protected void btnCreateItems_OnClick(object sender, EventArgs e)
+        {
+            ProcessImport(true);
+        }
+
+        protected void btnEditItems_OnClick(object sender, EventArgs e)
+        {
+            ProcessImport(false);
+        }
+
+        protected void ProcessImport(bool createItems)
+        {
+            var output = "";
+            var _db = Sitecore.Configuration.Factory.GetDatabase("master");
+            var file = btnFileUpload.PostedFile;
+            if (file == null)
+            {
+                litUploadResponse.Text = "You must select a file first<br/>";
+            }
+
+            Regex CSVParser = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
+            var fieldsMap = new List<String>();
+            var itemPathIndex = 0;
+            var itemNameIndex = 0;
+            var itemTemplateIndex = 0;
+            var itemsImported = 0;
+
+            using (StreamReader sr = new StreamReader(file.InputStream))
+            {
+                string currentLine;
+                var line = 1;
+                // currentLine will be null when the StreamReader reaches the end of file
+                while ((currentLine = sr.ReadLine()) != null)
+                {
+                    String[] cells = CSVParser.Split(currentLine);
+                    if (line == 1)
+                    {                       
+                        // create fields map
+                        fieldsMap = cells.ToList();
+                        itemPathIndex = fieldsMap.FindIndex(x => x.ToLower() == "item path");
+                        itemTemplateIndex = fieldsMap.FindIndex(x => x.ToLower() == "template");
+                        itemNameIndex = fieldsMap.FindIndex(x => x.ToLower() == "name");
+                    }
+                    else
+                    {
+                        var path = cells[itemPathIndex];
+                        var name = cells[itemNameIndex];
+                        var template = cells[itemTemplateIndex];         
+
+                        // if we are editing items, then the current item = Item Path; if we are creatign items, then are our item is created under Item Path item
+                        Item item = _db.GetItem(path);
+                        if (item == null)
+                        {
+                            output += "Skipped line " + line + "; could not find " + path + "<br/>";
+                            continue;
+                        } 
+                        if (createItems)
+                        {
+                            if (String.IsNullOrEmpty(name) || String.IsNullOrEmpty(template))
+                            {
+                                output += "Skipped line " + line + "; name or template not specified<br/>";
+                                continue;
+                            }
+                            var templateItem = _db.GetTemplate(template);
+                            if (templateItem == null)
+                            {
+                                output += "Skipped line " + line + "; could not find template<br/>";
+                                continue;
+                            }
+                            var newItem = item.Add(name, templateItem);
+                            item = newItem;
+                            if (item == null)
+                            {
+                                output += "Skipped line " + line + "; could not create item<br/>";
+                                continue;
+                            }
+                        }
+                        item.Editing.BeginEdit();
+                        for (var i = 0; i < cells.Length; i++)
+                        {
+                            // skip path, name, and template fields
+                            if (i == itemPathIndex || i == itemNameIndex || i == itemTemplateIndex) continue;
+                            var fieldName = fieldsMap[i];
+                            var value = cells[i];
+                            try
+                            {
+                                var itemField = item.Fields[fieldName];
+                                if (itemField == null)
+                                {
+                                    output += "Unable to set " + fieldName + ", line " + line + ": Field not found" + "<br/>";
+                                    continue;
+                                }
+
+                                var itemOfType = FieldTypeManager.GetField(itemField);
+                                if (itemOfType is ImageField) // if image field
+                                {
+                                    var imageField = (ImageField) item.Fields[fieldName];
+                                    MediaItem mediaItem = _db.GetItem(value);
+                                    if (mediaItem == null)
+                                    {
+                                        output += "Unable to set " + fieldName + ", line " + line + ": Could not find image" + "<br/>";
+                                        continue;
+                                    }
+                                    imageField.MediaID = mediaItem.ID;
+                                }
+                                else if (itemOfType is LinkField)
+                                {
+                                    var linkField = (LinkField) item.Fields[fieldName];
+                                    linkField.Url = value;
+
+                                }
+                                //else if (itemOfType is ReferenceField || itemOfType is GroupedDroplistField || itemOfType is LookupField)
+                                //{
+                     
+                                //}
+                                //else if (itemOfType is MultilistField)
+                                //{
+                        
+                                //}
+                                else if (itemOfType is CheckboxField)
+                                {
+                                    bool boolean;
+                                    if (Boolean.TryParse(value, out boolean))
+                                    {
+                                        var checkboxField = (CheckboxField)item.Fields[fieldName];
+                                        checkboxField.Checked = boolean;
+                                    }
+                                }
+                                else if (itemOfType is DateField)
+                                {
+                                }
+                                else // default text field
+                                {
+                                    item[fieldName] = value;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                output += "Unable to set " + fieldName + ", line " + line + ": " + ex.Message + "<br/>";
+                            }
+                        }
+                        item.Editing.EndEdit();
+                        itemsImported++;
+                    }
+                    line++;
+
+                }
+            }
+            if (itemsImported > 0)
+            {
+                output = "Successfully " + (createItems ? "created " : "edited ") + itemsImported + " items<br/>" + output;
+            }
+
+            
+            litUploadResponse.Text = output;
+        }       
+
+        protected void btnDownloadCSVTemplate_OnClick(object sender, EventArgs e)
+        {
+            StartResponse("CSVImportTemplate");
+            using (StringWriter sw = new StringWriter())
+            {
+                var headingString = "Item Path,Template,Name,Field1,Field2,Field3";
+                sw.WriteLine(headingString);
+                SetCookieAndResponse(sw.ToString());
+            }
+        }
         #endregion
 
         #region Test Fast Query
@@ -1347,7 +1523,7 @@ namespace ContentExportTool
 
             using (StringWriter sw = new StringWriter())
             {
-                var headingString = "Item Path\tField";
+                var headingString = "Item Path,Field";
                 var addedLangToHeading = false;
                                     
 
@@ -1372,14 +1548,14 @@ namespace ContentExportTool
                         var fieldsWithText = CheckAllFields(version, searchText, fields);
                         if (!string.IsNullOrWhiteSpace(fieldsWithText))
                         {
-                            var dataLine = baseItem.Paths.ContentPath + "\t" + fieldsWithText;
+                            var dataLine = baseItem.Paths.ContentPath + "," + fieldsWithText;
                             if (version.Language.Name != LanguageManager.DefaultLanguage.Name)
                             {
-                                dataLine += "\t" + version.Language.GetDisplayName();
+                                dataLine += "," + version.Language.GetDisplayName();
                                 if (!addedLangToHeading)
                                 {
                                     addedLangToHeading = true;
-                                    headingString += "\tLanguage";
+                                    headingString += ",Language";
                                 }
                             }
                             dataLines.Add(dataLine);
@@ -1802,7 +1978,7 @@ namespace ContentExportTool
         {
             Response.Clear();
             Response.Buffer = true;
-            Response.AddHeader("content-disposition", string.Format("attachment;filename={0}.xls", fileName));
+            Response.AddHeader("content-disposition", string.Format("attachment;filename={0}.csv", fileName));
             Response.Charset = "";
             Response.ContentType = "application/vnd.ms-excel";
         }
@@ -1820,6 +1996,8 @@ namespace ContentExportTool
         }
 
         #endregion
+
+       
     }
 
     #region Classes
