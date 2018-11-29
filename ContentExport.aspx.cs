@@ -2229,13 +2229,24 @@ namespace ContentExportTool
         private bool disposed;
         private int c = -1;
 
-        public virtual char[] InjectionCharacters { get; set; } = new[] { '=', '@', '+', '-' };
-        public virtual char InjectionEscapeCharacter { get; set; } = '\t';
+        public char[] InjectionCharacters
+        {
+            get { return new[] {'=', '@', '+', '-'}; } 
+        }
+
+        public char InjectionEscapeCharacter
+        {
+            get { return '\t'; }
+        }
 
         /// <summary>
         /// Gets the <see cref="FieldReader"/>.
         /// </summary>
-        public virtual IFieldReader FieldReader => fieldReader;
+        public IFieldReader FieldReader {
+			get{
+				return fieldReader;
+			}
+		}
 
         /// <summary>
         /// Creates a new parser using the given <see cref="TextReader" />.
@@ -2275,7 +2286,7 @@ namespace ContentExportTool
             context = fieldReader.Context as ReadingContext;
         }
 
-        public virtual List<string[]> GetRows()
+        public List<string[]> GetRows()
         {
             // Don't forget about the async method below!
             List<string[]> rows = new List<string[]>();
@@ -2292,7 +2303,7 @@ namespace ContentExportTool
             return rows;
         }
 
-        public virtual string[] Read()
+        public string[] Read()
         {
             try
             {
@@ -2470,7 +2481,7 @@ namespace ContentExportTool
                     {
                         if (context.ParserConfiguration.LineBreakInQuotedFieldIsBadData)
                         {
-                            context.ParserConfiguration.BadDataFound?.Invoke(context);
+                            context.ParserConfiguration.BadDataFound.Invoke(context);
                         }
 
                         // Inside a quote \r\n is just another character to absorb.
@@ -2736,33 +2747,40 @@ namespace ContentExportTool
         /// <summary>
         /// Gets the reading context.
         /// </summary>
-        public virtual ReadingContext Context => context;
+        public ReadingContext Context {
+			get{
+				return context;
+			}
+		}
 
         /// <summary>
         /// Gets a value indicating if the buffer is empty.
         /// True if the buffer is empty, otherwise false.
         /// </summary>
-        public virtual bool IsBufferEmpty => context.BufferPosition >= context.CharsRead;
+        public bool IsBufferEmpty
+        {
+            get { return context.BufferPosition >= context.CharsRead; }
+        }
 
         /// <summary>
         /// Fills the buffer.
         /// </summary>
         /// <returns>True if there is more data left.
         /// False if all the data has been read.</returns>
-        public virtual bool FillBuffer()
+        public bool FillBuffer()
         {
             try
             {
                 if (!IsBufferEmpty)
                 {
-                    throw new InvalidOperationException($"The buffer can't be filled if it's not empty.");
+                    return false;
                 }
 
                 if (context.Buffer.Length == 0)
                 {
                     context.Buffer = new char[context.ParserConfiguration.BufferSize];
                 }
-
+                
                 if (context.CharsRead > 0)
                 {
                     // Create a new buffer with extra room for what is left from
@@ -2805,11 +2823,11 @@ namespace ContentExportTool
         /// </summary>
         /// <returns>True if there is more data left.
         /// False if all the data has been read.</returns>
-        public virtual async Task<bool> FillBufferAsync()
+        public async Task<bool> FillBufferAsync()
         {
             if (!IsBufferEmpty)
             {
-                throw new InvalidOperationException($"The buffer can't be filled if it's not empty.");
+                return false;
             }
 
             if (context.Buffer.Length == 0)
@@ -2860,7 +2878,7 @@ namespace ContentExportTool
         /// <summary>
         /// Gets the next char as an <see cref="int"/>.
         /// </summary>
-        public virtual int GetChar()
+        public int GetChar()
         {
             var c = context.Buffer[context.BufferPosition];
             context.BufferPosition++;
@@ -2875,7 +2893,7 @@ namespace ContentExportTool
         /// Gets the field. This will append any reading progress.
         /// </summary>
         /// <returns>The current field.</returns>
-        public virtual string GetField()
+        public string GetField()
         {
             AppendField();
 
@@ -2890,7 +2908,7 @@ namespace ContentExportTool
         /// <summary>
         /// Appends the current reading progress.
         /// </summary>
-        public virtual void AppendField()
+        public void AppendField()
         {
             context.RawRecordBuilder.Append(new string(context.Buffer, context.RawRecordStartPosition, context.RawRecordEndPosition - context.RawRecordStartPosition));
             context.RawRecordStartPosition = context.RawRecordEndPosition;
@@ -2905,7 +2923,7 @@ namespace ContentExportTool
         /// Move's the buffer position according to the given offset.
         /// </summary>
         /// <param name="offset">The offset to move the buffer.</param>
-        public virtual void SetBufferPosition(int offset = 0)
+        public void SetBufferPosition(int offset = 0)
         {
             var position = context.BufferPosition + offset;
             if (position >= 0)
@@ -2919,7 +2937,7 @@ namespace ContentExportTool
         /// </summary>
         /// <param name="offset">An offset for the field start.
         /// The offset should be less than 1.</param>
-        public virtual void SetFieldStart(int offset = 0)
+        public void SetFieldStart(int offset = 0)
         {
             var position = context.BufferPosition + offset;
             if (position >= 0)
@@ -2933,7 +2951,7 @@ namespace ContentExportTool
         /// </summary>
         /// <param name="offset">An offset for the field start.
         /// The offset should be less than 1.</param>
-        public virtual void SetFieldEnd(int offset = 0)
+        public void SetFieldEnd(int offset = 0)
         {
             var position = context.BufferPosition + offset;
             if (position >= 0)
@@ -2947,7 +2965,7 @@ namespace ContentExportTool
         /// </summary>
         /// <param name="offset">An offset for the raw record start.
         /// The offset should be less than 1.</param>
-        public virtual void SetRawRecordStart(int offset)
+        public void SetRawRecordStart(int offset)
         {
             var position = context.BufferPosition + offset;
             if (position >= 0)
@@ -2961,7 +2979,7 @@ namespace ContentExportTool
         /// </summary>
         /// <param name="offset">An offset for the raw record end.
         /// The offset should be less than 1.</param>
-        public virtual void SetRawRecordEnd(int offset)
+        public void SetRawRecordEnd(int offset)
         {
             var position = context.BufferPosition + offset;
             if (position >= 0)
@@ -2974,7 +2992,7 @@ namespace ContentExportTool
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         /// <filterpriority>2</filterpriority>
-        public virtual void Dispose()
+        public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
@@ -2993,7 +3011,7 @@ namespace ContentExportTool
 
             if (disposing)
             {
-                context?.Dispose();
+                context.Dispose();
             }
 
             context = null;
@@ -3018,38 +3036,52 @@ namespace ContentExportTool
         /// CSV file has a header record.
         /// Default is true.
         /// </summary>
-        public virtual bool HasHeaderRecord { get; set; } = true;
+        public bool HasHeaderRecord
+        {
+            get { return hasHeaderRecord; }
+            set { hasHeaderRecord = value; }
+        }
+
+        private bool hasHeaderRecord = true;
 
         public Action<ReadingContext> BadDataFound { get; set; }
 
         /// <summary>
 		/// Builds the values for the RequiredQuoteChars property.
 		/// </summary>
-		public virtual Func<char[]> BuildRequiredQuoteChars { get; set; }
+		public Func<char[]> BuildRequiredQuoteChars { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating if a line break found in a quote field should
         /// be considered bad data. True to consider a line break bad data, otherwise false.
         /// Defaults to false.
         /// </summary>
-        public virtual bool LineBreakInQuotedFieldIsBadData { get; set; }
+        public bool LineBreakInQuotedFieldIsBadData { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating if fields should be sanitized
         /// to prevent malicious injection. This covers MS Excel, 
         /// Google Sheets and Open Office Calc.
         /// </summary>
-        public virtual bool SanitizeForInjection { get; set; }
+        public bool SanitizeForInjection { get; set; }
 
         /// <summary>
         /// Gets or sets the characters that are used for injection attacks.
         /// </summary>
-        public virtual char[] InjectionCharacters { get; set; } = new[] { '=', '@', '+', '-' };
+        public char[] InjectionCharacters { 
+			get{
+				return new[] { '=', '@', '+', '-' };
+			}
+		}
 
         /// <summary>
         /// Gets or sets the character used to escape a detected injection.
         /// </summary>
-        public virtual char InjectionEscapeCharacter { get; set; } = '\t';
+        public char InjectionEscapeCharacter { 
+			get{
+				return '\t';
+			}
+		}
 
         public Func<Type, string, string> ReferenceHeaderPrefix { get; set; }
 
@@ -3061,7 +3093,7 @@ namespace ContentExportTool
         /// <value>
         /// <c>true</c> if [detect column count changes]; otherwise, <c>false</c>.
         /// </value>
-        public virtual bool DetectColumnCountChanges { get; set; }
+        public bool DetectColumnCountChanges { get; set; }
 
         public void UnregisterClassMap(Type classMapType)
         {
@@ -3080,20 +3112,20 @@ namespace ContentExportTool
         /// should be ignored when auto mapping. True to ignore
         /// references, otherwise false. Default is false.
         /// </summary>
-        public virtual bool IgnoreReferences { get; set; }
+        public bool IgnoreReferences { get; set; }
 
         public Func<string[], bool> ShouldSkipRecord { get; set; }
 
         /// <summary>
         /// Gets or sets the field trimming options.
         /// </summary>
-        public virtual TrimOptions TrimOptions { get; set; }
+        public TrimOptions TrimOptions { get; set; }
 
         /// <summary>
         /// Gets or sets the delimiter used to separate fields.
         /// Default is CultureInfo.CurrentCulture.TextInfo.ListSeparator.
         /// </summary>
-        public virtual string Delimiter
+        public string Delimiter
         {
             get { return delimiter; }
             set
@@ -3123,7 +3155,7 @@ namespace ContentExportTool
         /// Gets or sets the escape character used to escape a quote inside a field.
         /// Default is '"'.
         /// </summary>
-        public virtual char Escape
+        public char Escape
         {
             get { return escape; }
             set
@@ -3153,7 +3185,7 @@ namespace ContentExportTool
         /// Gets or sets the character used to quote fields.
         /// Default is '"'.
         /// </summary>
-        public virtual char Quote
+        public char Quote
         {
             get { return quote; }
             set
@@ -3191,7 +3223,11 @@ namespace ContentExportTool
         /// <value>
         /// The new quote string.
         /// </value>
-        public virtual string QuoteString => quoteString;
+        public string QuoteString {
+			get {
+				return quoteString;
+			}
+		}
 
         /// <summary>
         /// Gets a string representation of two of the currently configured Quote characters.
@@ -3199,32 +3235,51 @@ namespace ContentExportTool
         /// <value>
         /// The new double quote string.
         /// </value>
-        public virtual string DoubleQuoteString => doubleQuoteString;
+        public string DoubleQuoteString {
+			get {
+				return doubleQuoteString;
+			}
+		} 
 
         /// <summary>
         /// Gets an array characters that require
         /// the field to be quoted.
         /// </summary>
-        public virtual char[] QuoteRequiredChars => quoteRequiredChars;
+        public char[] QuoteRequiredChars {
+			get {
+				return quoteRequiredChars;
+			}
+		}
 
         /// <summary>
         /// Gets or sets the character used to denote
         /// a line that is commented out. Default is '#'.
         /// </summary>
-        public virtual char Comment { get; set; } = '#';
+        public char Comment
+        {
+            get { return comment; }
+            set { comment = value; }
+        }
+
+        private char comment = '#';
 
         /// <summary>
         /// Gets or sets a value indicating if comments are allowed.
         /// True to allow commented out lines, otherwise false.
         /// </summary>
-        public virtual bool AllowComments { get; set; }
+        public bool AllowComments { get; set; }
 
         /// <summary>
         /// Gets or sets the size of the buffer
         /// used for reading CSV files.
         /// Default is 2048.
         /// </summary>
-        public virtual int BufferSize { get; set; } = 2048;
+        public int BufferSize
+        {
+            get { return bufferSize; }
+            set { bufferSize = value; }
+        }
+        private int bufferSize = 2048;
 
         /// <summary>
         /// Gets or sets a value indicating whether all fields are quoted when writing,
@@ -3235,7 +3290,7 @@ namespace ContentExportTool
         /// <value>
         ///   <c>true</c> if all fields should be quoted; otherwise, <c>false</c>.
         /// </value>
-        public virtual bool QuoteAllFields
+        public bool QuoteAllFields
         {
             get { return quoteAllFields; }
             set
@@ -3257,7 +3312,7 @@ namespace ContentExportTool
         /// <value>
         ///   <c>true</c> if [quote no fields]; otherwise, <c>false</c>.
         /// </value>
-        public virtual bool QuoteNoFields
+        public bool QuoteNoFields
         {
             get { return quoteNoFields; }
             set
@@ -3277,17 +3332,22 @@ namespace ContentExportTool
         /// because it needs to get the byte count of every char for the given encoding.
         /// The <see cref="Encoding"/> needs to be set correctly for this to be accurate.
         /// </summary>
-        public virtual bool CountBytes { get; set; }
+        public bool CountBytes { get; set; }
 
         /// <summary>
         /// Gets or sets the encoding used when counting bytes.
         /// </summary>
-        public virtual Encoding Encoding { get; set; } = Encoding.UTF8;
+        public Encoding Encoding
+        {
+            get { return encoding; }set { encoding = value; }
+        }
+
+        private Encoding encoding = Encoding.UTF8;
 
         /// <summary>
         /// Gets or sets the culture info used to read an write CSV files.
         /// </summary>
-        public virtual CultureInfo CultureInfo
+        public CultureInfo CultureInfo
         {
             get { return cultureInfo; }
             set { cultureInfo = value; }
@@ -3299,21 +3359,27 @@ namespace ContentExportTool
         /// Gets or sets a value indicating if quotes should be
         /// ignored when parsing and treated like any other character.
         /// </summary>
-        public virtual bool IgnoreQuotes { get; set; }
+        public bool IgnoreQuotes { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating if private
         /// member should be read from and written to.
         /// True to include private member, otherwise false. Default is false.
         /// </summary>
-        public virtual bool IncludePrivateMembers { get; set; }
+        public bool IncludePrivateMembers { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating if blank lines
         /// should be ignored when reading.
         /// True to ignore, otherwise false. Default is true.
         /// </summary>
-        public virtual bool IgnoreBlankLines { get; set; } = true;
+        public bool IgnoreBlankLines
+        {
+            get { return ignoreBlankLines; }
+            set { ignoreBlankLines = value; }
+        }
+
+        private bool ignoreBlankLines = true;
     }
 
     public interface IFieldReader : IDisposable
@@ -3404,12 +3470,20 @@ namespace ContentExportTool
         /// <summary>
         /// The number of records.
         /// </summary>
-        public int Length => position;
+        public int Length{
+			get{
+				return position;
+			}
+		}
 
         /// <summary>
         /// The total record capacity.
         /// </summary>
-        public int Capacity => capacity;
+        public int Capacity{
+			get{
+				return capacity;
+			}
+		}
 
         /// <summary>
         /// Creates a new <see cref="RecordBuilder"/> using defaults.
@@ -3432,7 +3506,7 @@ namespace ContentExportTool
         /// </summary>
         /// <param name="field">The field to add.</param>
         /// <returns>The current instance of the <see cref="RecordBuilder"/>.</returns>
-        public virtual RecordBuilder Add(string field)
+        public RecordBuilder Add(string field)
         {
             if (position == record.Length)
             {
@@ -3450,7 +3524,7 @@ namespace ContentExportTool
         /// Clears the records.
         /// </summary>
         /// <returns>The current instance of the <see cref="RecordBuilder"/>.</returns>
-        public virtual RecordBuilder Clear()
+        public RecordBuilder Clear()
         {
             position = 0;
 
@@ -3461,7 +3535,7 @@ namespace ContentExportTool
         /// Returns the record as an <see cref="T:string[]"/>.
         /// </summary>
         /// <returns>The record as an <see cref="T:string[]"/>.</returns>
-        public virtual string[] ToArray()
+        public string[] ToArray()
         {
             var array = new string[position];
             Array.Copy(record, array, position);
@@ -3485,7 +3559,11 @@ namespace ContentExportTool
         /// </summary>
         public StringBuilder FieldBuilder = new StringBuilder();
 
-        public IParserConfiguration ParserConfiguration => configuration;
+        public IParserConfiguration ParserConfiguration{
+			get{
+				return configuration;
+			}
+		}
 
 
         /// <summary>
@@ -3609,12 +3687,20 @@ namespace ContentExportTool
         /// Gets all the characters of the record including
         /// quotes, delimeters, and line endings.
         /// </summary>
-        public string RawRecord => RawRecordBuilder.ToString();
+        public string RawRecord {
+			get{
+				return RawRecordBuilder.ToString();
+			}
+		}
 
         /// <summary>
         /// Gets the field.
         /// </summary>
-        public string Field => FieldBuilder.ToString();
+        public string Field{
+			get{
+				return FieldBuilder.ToString();
+			}
+		}
 
         public RecordBuilder RecordBuilder = new RecordBuilder();
 
@@ -3636,7 +3722,7 @@ namespace ContentExportTool
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         /// <filterpriority>2</filterpriority>
-        public virtual void Dispose()
+        public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
@@ -3655,7 +3741,7 @@ namespace ContentExportTool
 
             if (disposing)
             {
-                Reader?.Dispose();
+                Reader.Dispose();
             }
 
             Reader = null;
