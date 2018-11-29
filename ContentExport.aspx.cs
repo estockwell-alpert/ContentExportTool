@@ -1121,6 +1121,17 @@ namespace ContentExportTool
                                 }
                                 try
                                 {
+                                    if (chkNoDuplicates.Checked)
+                                    {
+                                        var newItemPath = item.Paths.FullPath + "/" + name;
+                                        var existingItem = _db.GetItem(newItemPath);
+                                        if (existingItem != null && existingItem.TemplateID == templateItem.ID)
+                                        {
+                                            output += "Line " + (line + 1) + " skipped; item with that name already exists at that location<br/>";
+                                            continue;
+                                        }
+                                    }
+
                                     var newItem = item.Add(name, templateItem);
                                     item = newItem;
                                     if (item == null)
@@ -1147,7 +1158,7 @@ namespace ContentExportTool
                 }
                 else
                 {
-                    output = "No items were imported<br/>";
+                    output = "No items were imported<br/>" + output;
                 }
                 btnFileUpload.Dispose();
 

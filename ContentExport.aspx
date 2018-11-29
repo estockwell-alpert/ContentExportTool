@@ -938,9 +938,25 @@
                                     <asp:Button runat="server" CssClass="import-btn" ID="btnEditItems" OnClick="btnEditItems_OnClick" Text="Edit Items" />
                                 </div>
                                 
+                                <div class="row">
+                                    <asp:CheckBox runat="server" ID="chkNoDuplicates"/><span class="notes"><b style="color: black">Do not create duplicates</b></span><br />
+                                    <span class="notes">If this box is checked off, Create Items will not create a new item if an item with the same name and template already exists in that location</span>
+                                </div>
+                                
+                                <h3>READ ME!</h3>
+                                <p>Use the import tool carefully! Make sure to review all modified items in Sitecore before publishing.
+                                    <br/><br/>The <b>Edit Items</b> button will only edit existing items (found using the Item Path) and will ignore items that are not found.
+                                    <br/><br/>The <b>Create Items</b> button will create new items under the Item Path. An item will be created even if an item with the same path already exists, unless you check off "Do not create duplicates"
+                                </p>
+                                
                                 <h3>Tips:</h3>
                                 <ul>
-                                    <li>Add a column for every field that you want to add content to (e.g. replace Field1 in the example template with a valid field name)</li>
+                                    <li>Files should be uploaded in <b>csv</b> format</li>
+                                    <li>Add a column for every field that you want to add/change content for with the field name or ID (e.g. replace Field1 in the example template with a valid field name)
+                                        <ul><li>If you are editing content, it is recommended to export all the items with all fields you want to modify first, edit that file and then upload it</li>
+ 
+                                        </ul>
+                                    </li>
                                     <li>If a template name is not unique, use the template ID instead</li>
                                     <li>If you are modifying existing content, for best results run an export on that content first, make  your changes in the downloaded file and re-upload that file to import.</li>
                                     <li> To <b>edit</b> content, Item Path must be the path of the item you with to edit.<br/>
