@@ -43,6 +43,7 @@ namespace ContentExportTool
 
         protected void SetupForm()
         {
+            chkNoDuplicates.Checked = true;
             txtSaveSettingsName.Value = string.Empty;
             PhBrowseTree.Visible = false;
             PhBrowseTemplates.Visible = false;
