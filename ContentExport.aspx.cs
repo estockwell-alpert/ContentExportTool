@@ -31,6 +31,7 @@ namespace ContentExportTool
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            divAdvOptions.Attributes["class"] = "advanced";
             litUploadResponse.Text = String.Empty;
             litFeedback.Text = String.Empty;
             CheckSitecoreItemApiEnabled();
@@ -40,6 +41,13 @@ namespace ContentExportTool
             litFastQueryTest.Text = String.Empty;
             if (!IsPostBack)
                 SetupForm();
+
+
+            // check if advanced options should be open
+            if (OpenAdvancedOptions())
+            {
+                divAdvOptions.Attributes["class"] = "advanced open open-default";
+            }
         }
 
         protected void SetupForm()
@@ -69,6 +77,30 @@ namespace ContentExportTool
             radDateRangeOr.Checked = true;
 
             SetSavedSettingsDropdown();
+        }
+
+        protected bool OpenAdvancedOptions()
+        {
+            return (!String.IsNullOrEmpty(txtAdvancedSearch.Value) ||
+                    !String.IsNullOrEmpty(txtStartDateCr.Value) ||
+                    !String.IsNullOrEmpty(txtEndDateCr.Value) ||
+                    !String.IsNullOrEmpty(txtStartDatePb.Value) ||
+                    !String.IsNullOrEmpty(txtEndDatePu.Value) ||
+                    !String.IsNullOrEmpty(inputMultiStartItem.Value) ||
+                    !String.IsNullOrEmpty(txtFileName.Value) ||
+                    chkIncludeIds.Checked ||
+                    chkIncludeRawHtml.Checked ||
+                    chkReferrers.Checked ||
+                    chkDateCreated.Checked ||
+                    chkDateModified.Checked ||
+                    chkCreatedBy.Checked ||
+                    chkModifiedBy.Checked ||
+                    chkNeverPublish.Checked ||
+                    chkWorkflowName.Checked ||
+                    chkWorkflowState.Checked ||
+                    chkAllLanguages.Checked ||
+                    ddLanguages.SelectedIndex != 0
+                );
         }
 
         protected List<Language> GetSiteLanguages()
@@ -1517,6 +1549,37 @@ namespace ContentExportTool
                 radDateRangeOr.Checked = true;
                 radDateRangeAnd.Checked = false;
             }
+
+            if (SavedSettingsOpenAdvanced(settings))
+            {
+                divAdvOptions.Attributes["class"] = "advanced open open-default";
+            }
+        }
+
+        public bool SavedSettingsOpenAdvanced(ExportSettingsData settings)
+        {
+            return (
+                !String.IsNullOrEmpty(settings.AdvancedSearch) ||
+                !String.IsNullOrEmpty(settings.StartDateCr) ||
+                !String.IsNullOrEmpty(settings.EndDateCr) ||
+                !String.IsNullOrEmpty(settings.StartDatePb) ||
+                !String.IsNullOrEmpty(settings.EndDatePb) ||
+                !String.IsNullOrEmpty(settings.MultipleStartPaths) ||
+                settings.RequireLayout ||
+                settings.IncludeLinkedIds ||
+                settings.IncludeRaw ||
+                settings.Referrers ||
+                settings.DateCreated ||
+                settings.DateModified ||
+                settings.CreatedBy ||
+                settings.ModifiedBy ||
+                settings.NeverPublish ||
+                settings.Workflow ||
+                settings.WorkflowState ||
+                !String.IsNullOrEmpty(settings.SelectedLanguage) ||
+                settings.GetAllLanguages ||
+                !String.IsNullOrEmpty(settings.FileName)
+                );
         }
 
         #endregion

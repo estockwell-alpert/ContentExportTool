@@ -785,8 +785,8 @@
                         <asp:CheckBox runat="server" ID="chkComponentFields" />
                         <span class="notes"><b style="color: black">Include Component Fields</b> - This will export the values of fields that are on a page's component items as well as on the page item itself</span>
                     </div>
-
-                    <div class="advanced">
+                                    
+                    <div runat="server" ID="divAdvOptions">
                         <a class="advanced-btn">Advanced Options</a>
                         <div class="advanced-inner">
                             <div class="row advanced-search">
