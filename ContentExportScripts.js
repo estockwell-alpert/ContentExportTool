@@ -29,16 +29,22 @@
     }
 
     $(".browse-btn").on("click", function () {
+        $(".feedback").empty();
         $(".loading-modal").show();
     });
 
     $("#btnRunExport, #btnRunExportDupe, #btnAdvancedSearch").on("click", function () {
+        $(".feedback").empty();
         $(".loading-modal").show();
         //$("#loading-text").html(loadingModalHtml);
         var downloadToken = new Date().getTime();
         $("#txtDownloadToken").val(downloadToken)
         checkIfFileDownloaded(downloadToken);
     });
+
+    $(".import-btn").on("click", function() {
+        $(".loading-modal").show();
+    })
 
     $(".advanced-btn").on("click", function () {
         if ($(this).parent().hasClass("open")) {
@@ -47,7 +53,7 @@
             $(this).parent().addClass("open");
         }
 
-        $(".advanced-inner").slideToggle();
+        $(this).parent().find(".advanced-inner").slideToggle();
     });
 
     $(".ddDatabase").on("change", function () {
