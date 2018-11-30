@@ -1014,7 +1014,7 @@ namespace ContentExportTool
 
                 if (includeRaw && field.rawHtml)
                 {
-                    header += String.Format("{0} HTML", fieldName) + ",";
+                    header += String.Format("{0} Raw HTML", fieldName) + ",";
                 }
             }
             return header;
