@@ -1,5 +1,51 @@
 ﻿$(document).ready(function () {
 
+    $("#txtStartDateCr, #txtStartDatePb, #txtEndDateCr, #txtEndDatePu").datepicker();
+
+    var loadingModalHtml = "<div class='loading-modal'><div class='loading-box'><div class='loader'></div></div></div>";
+
+    function checkIfFileDownloaded(downloadToken) {
+        var token = getCookie("DownloadToken");
+
+        if ((token == downloadToken)) {
+            //$("#loading-text").html("");
+            $(".loading-modal").hide();
+            expireCookie("DownloadToken");
+        } else {
+            setTimeout(function() {
+                checkIfFileDownloaded(downloadToken)
+            }, 1000)              
+        }
+    }
+
+    function getCookie(name) {
+        var parts = document.cookie.split(name + "=");
+        if (parts.length == 2) return parts.pop().split(";").shift();
+    }  
+
+    function expireCookie(cName) {
+        document.cookie =
+            encodeURIComponent(cName) + "=deleted; expires=" + new Date(0).toUTCString();
+    }
+
+    $(".browse-btn").on("click", function () {
+        $(".feedback").empty();
+        $(".loading-modal").show();
+    });
+
+    $("#btnRunExport, #btnRunExportDupe, #btnAdvancedSearch").on("click", function () {
+        $(".feedback").empty();
+        $(".loading-modal").show();
+        //$("#loading-text").html(loadingModalHtml);
+        var downloadToken = new Date().getTime();
+        $("#txtDownloadToken").val(downloadToken)
+        checkIfFileDownloaded(downloadToken);
+    });
+
+    $(".import-btn").on("click", function() {
+        $(".loading-modal").show();
+    })
+
     $(".advanced-btn").on("click", function () {
         if ($(this).parent().hasClass("open")) {
             $(this).parent().removeClass("open");
@@ -7,7 +53,7 @@
             $(this).parent().addClass("open");
         }
 
-        $(".advanced-inner").slideToggle();
+        $(this).parent().find(".advanced-inner").slideToggle();
     });
 
     $(".ddDatabase").on("change", function () {
@@ -37,6 +83,11 @@
         removeSavedMessage();
     });
 
+    $(".clear-section-btn").on("click", function() {
+        $(this).parent().find("input").val("");
+        removeSavedMessage();
+    })
+
     $("#clear-fast-query").on("click", function () {
         $(".lit-fast-query").html("");
     });
@@ -62,9 +113,25 @@
     $("select").on("change", function () {
         removeSavedMessage();
     });
+
+    $("#chkAdvancedSelectionOn").on("change", function() {
+        if ($(this).prop("checked")) {
+            $(this).parent().addClass("disabled");
+        } else {
+            $(this).parent().removeClass("disabled");
+        }
+    });
 });
 
 function expandNode(node) {
+
+    if (!($(node).parent().hasClass("loaded"))) {
+        // load children
+        var itemId = $(node).parent().attr("data-id");
+
+        loadChildren(itemId, $(node).parent());
+    }
+
     if ($(node).parent().hasClass("expanded")) {
 
         var children = $(node).parent().find("li");
@@ -80,10 +147,85 @@ function expandNode(node) {
     }
 }
 
+function loadChildren(id, parentNode) {
+    var xhr = new XMLHttpRequest();
+    var apiUrl = window.location.protocol + "//" + window.location.hostname + "/-/item/v1/?sc_itemid=" + id + "&scope=c";
+    xhr.open("GET", apiUrl);
+    xhr.onreadystatechange = function () {
+        if (this.readyState == 4) {
+            var innerHtml = "<ul>";
+
+            var json = JSON.parse(this.responseText);
+
+            var templates = isTemplate(parentNode);
+
+            if (json.statusCode === 200) {
+                var children = json.result.items;
+
+                for (var i = 0; i < children.length; i++) {
+                    var child = children[i];
+
+                    var hasChildren = child.HasChildren;
+                    var id = child.ID;
+                    var name = child.Name;
+                    if (!name) {
+                        name = child.DisplayName;
+                    }
+                    var path = child.Path;
+
+                    var childNode = "<li data-name='" + name + "' data-id='" + id + "'>";
+
+                    if (hasChildren) {
+                        childNode += "<a class='browse-expand' onclick='expandNode($(this))'>+</a>";
+                    }
+
+                    if (templates) {
+                        var itemTemplate = child.Template.split('/')[child.Template.split('/').length - 1];
+                        if (itemTemplate === "Template") {
+                            childNode += getClickableBrowseItem(path,name);
+                        } else {
+                            childNode += "<span class='sitecore-node'>" + name + "</span>";
+                        }
+                    } else {
+                        childNode += getClickableBrowseItem(path, name);
+                    }
+                   
+                    childNode += "</li>";
+                    innerHtml += childNode;
+                }
+
+                innerHtml += "</ul>";
+                $(parentNode).append(innerHtml);
+
+                $(parentNode).addClass("loaded");
+            }
+        }
+    };
+    xhr.send(null);
+}
+
+function getClickableBrowseItem(path, name) {
+    return "<a class='sitecore-node' href='javascript:void(0)' ondblclick='selectNode($(this));addTemplate();' onclick='selectNode($(this));' data-path='" + path + "'>" + name + "</a>"; 
+}
+
+function isTemplate(node) {
+    var templateParent = $(node).parents("#templateLinks");
+    if (templateParent.length > 0) {
+        return true;
+    }
+    return false;
+}
+
 function selectNode(node) {
-    $(".select-node-btn").removeClass("disabled");
-    var nodePath = $(node).attr("data-path");
-    $(".selected-node").html(nodePath);
+
+    // if link is in the template model:
+    if (isTemplate(node)) {
+        selectBrowseNode(node);
+    } else {
+        $(".select-node-btn").removeClass("disabled");
+        var nodePath = $(node).attr("data-path");
+        $(".selected-node").html(nodePath);
+    }
 }
 
 function confirmSelection() {
@@ -110,7 +252,7 @@ function addTemplate() {
     var name = $(".temp-selected").html();
     var node = $(".select-box a[data-name='" + name + "']");
     $(node).addClass("disabled").removeClass("selected");
-    $(".selected-box-list").append("<li><a class='addedTemplate' href='javascript:void(0);' onclick='selectAddedTemplate($(this))' data-name='" + name + "' >" + name + "</a></li>");
+    $(".selected-box-list").append("<li><a class='addedTemplate' href='javascript:void(0);' onclick='selectAddedTemplate($(this))' ondblclick='selectAddedTemplate($(this));removeTemplate()' data-name='" + name + "' >" + name + "</a></li>");
     $(".temp-selected").html("");
 
     $(".selected-box .select-node-btn").removeClass("disabled");
