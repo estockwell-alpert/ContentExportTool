@@ -32,6 +32,7 @@ namespace ContentExportTool
         protected void Page_Load(object sender, EventArgs e)
         {
             litUploadResponse.Text = String.Empty;
+            litFeedback.Text = String.Empty;
             CheckSitecoreItemApiEnabled();
             PhApiMessage.Visible = !_sitecoreItemApiEnabled;
             litSavedMessage.Text = String.Empty;
@@ -391,7 +392,7 @@ namespace ContentExportTool
                 var templateString = inputTemplates.Value;
                 var templates = templateString.ToLower().Split(',').Select(x => x.Trim()).ToList();
 
-                if (chkIncludeInheritance.Checked)
+                if (chkIncludeInheritance.Checked && !String.IsNullOrEmpty(templateString))
                 {                    
                     templates.AddRange(GetInheritors(templates));
                 }
@@ -563,7 +564,7 @@ namespace ContentExportTool
             }
             catch (Exception ex)
             {
-                litFeedback.Text = ex.Message;
+                litFeedback.Text = "<span style='color:red'>" + ex + "</span>";
             }
         }
 
@@ -961,7 +962,7 @@ namespace ContentExportTool
         private List<String> GetInheritors(List<string> templates)
         {
             var inheritors = new List<string>();
-            var templateRoot = _db.GetItem("/sitecore/template.cs");
+            var templateRoot = _db.GetItem("/sitecore/templates");
             var templateItems = templateRoot.Axes.GetDescendants().Where(x => x.TemplateName == "Template");
             var templateItems1 = templateItems as Item[] ?? templateItems.ToArray();
             var enumerable = templateItems as Item[] ?? templateItems1.ToArray();

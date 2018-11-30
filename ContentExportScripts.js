@@ -29,10 +29,12 @@
     }
 
     $(".browse-btn").on("click", function () {
+        $(".feedback").empty();
         $(".loading-modal").show();
     });
 
     $("#btnRunExport, #btnRunExportDupe, #btnAdvancedSearch").on("click", function () {
+        $(".feedback").empty();
         $(".loading-modal").show();
         //$("#loading-text").html(loadingModalHtml);
         var downloadToken = new Date().getTime();

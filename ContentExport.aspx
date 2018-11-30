@@ -614,7 +614,7 @@
                     </div>
                 </div>
             </asp:PlaceHolder>
-            <div class="container">
+            <div class="container feedback">
                 <asp:Literal runat="server" ID="litFeedback"></asp:Literal>
             </div>
             <div class="controls">
