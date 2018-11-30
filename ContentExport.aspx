@@ -952,12 +952,12 @@
                                 <h3>Tips:</h3>
                                 <ul>
                                     <li>Files should be uploaded in <b>csv</b> format</li>
+                                    <li>Item Path and Template can be either a full Sitecore path or a Guid ID</li>
                                     <li>Add a column for every field that you want to add/change content for with the field name or ID (e.g. replace Field1 in the example template with a valid field name)
                                         <ul><li>If you are editing content, it is recommended to export all the items with all fields you want to modify first, edit that file and then upload it</li>
  
                                         </ul>
                                     </li>
-                                    <li>If a template name is not unique, use the template ID instead</li>
                                     <li>If you are modifying existing content, for best results run an export on that content first, make  your changes in the downloaded file and re-upload that file to import.</li>
                                     <li> To <b>edit</b> content, Item Path must be the path of the item you with to edit.<br/>
                                         
