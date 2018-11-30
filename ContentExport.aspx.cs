@@ -623,10 +623,7 @@ namespace ContentExportTool
                     {
                         itemLine += ",";
                     }
-                    else
-                    {
-                        itemLine += ",";
-                    }
+                    itemLine += ",";
                 }
                 else
                 {
