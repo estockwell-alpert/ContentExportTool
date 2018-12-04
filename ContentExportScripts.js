@@ -147,61 +147,56 @@ function expandNode(node) {
     }
 }
 
+function getItemChildren(pathOrId) {
+    return $.ajax({
+        method: "get",
+        url: "/sitecore/shell/applications/contentexport/contentexport.aspx",
+        data: { getitems: true, startitem : pathOrId }
+    });
+}
+
+
 function loadChildren(id, parentNode) {
-    var xhr = new XMLHttpRequest();
-    var apiUrl = window.location.protocol + "//" + window.location.hostname + "/-/item/v1/?sc_itemid=" + id + "&scope=c";
-    xhr.open("GET", apiUrl);
-    xhr.onreadystatechange = function () {
-        if (this.readyState == 4) {
-            var innerHtml = "<ul>";
+    var innerHtml = "<ul>";
+    var templates = isTemplate(parentNode);
+    getItemChildren(id).then(function (results) {
+        if (results.length) {
+            var children = results;
 
-            var json = JSON.parse(this.responseText);
+            for (var i = 0; i < children.length; i++) {
+                var child = children[i];
 
-            var templates = isTemplate(parentNode);
+                var hasChildren = child.HasChildren;
+                var id = child.Id;
+                var name = child.Name;
+                var path = child.Path;
 
-            if (json.statusCode === 200) {
-                var children = json.result.items;
+                var childNode = "<li data-name='" + name + "' data-id='" + id + "'>";
 
-                for (var i = 0; i < children.length; i++) {
-                    var child = children[i];
-
-                    var hasChildren = child.HasChildren;
-                    var id = child.ID;
-                    var name = child.Name;
-                    if (!name) {
-                        name = child.DisplayName;
-                    }
-                    var path = child.Path;
-
-                    var childNode = "<li data-name='" + name + "' data-id='" + id + "'>";
-
-                    if (hasChildren) {
-                        childNode += "<a class='browse-expand' onclick='expandNode($(this))'>+</a>";
-                    }
-
-                    if (templates) {
-                        var itemTemplate = child.Template.split('/')[child.Template.split('/').length - 1];
-                        if (itemTemplate === "Template") {
-                            childNode += getClickableBrowseItem(path,name);
-                        } else {
-                            childNode += "<span class='sitecore-node'>" + name + "</span>";
-                        }
-                    } else {
-                        childNode += getClickableBrowseItem(path, name);
-                    }
-                   
-                    childNode += "</li>";
-                    innerHtml += childNode;
+                if (hasChildren) {
+                    childNode += "<a class='browse-expand' onclick='expandNode($(this))'>+</a>";
                 }
 
-                innerHtml += "</ul>";
-                $(parentNode).append(innerHtml);
+                if (templates) {
+                    var itemTemplate = child.Template.split('/')[child.Template.split('/').length - 1];
+                    if (itemTemplate === "Template") {
+                        childNode += getClickableBrowseItem(path, name);
+                    } else {
+                        childNode += "<span class='sitecore-node'>" + name + "</span>";
+                    }
+                } else {
+                    childNode += getClickableBrowseItem(path, name);
+                }
 
-                $(parentNode).addClass("loaded");
+                childNode += "</li>";
+                innerHtml += childNode;
             }
-        }
-    };
-    xhr.send(null);
+            innerHtml += "</ul>";
+            $(parentNode).append(innerHtml);
+
+            $(parentNode).addClass("loaded");
+        } 
+    });
 }
 
 function getClickableBrowseItem(path, name) {

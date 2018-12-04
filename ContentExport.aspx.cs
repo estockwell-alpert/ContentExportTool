@@ -34,14 +34,22 @@ namespace ContentExportTool
             divAdvOptions.Attributes["class"] = "advanced";
             litUploadResponse.Text = String.Empty;
             litFeedback.Text = String.Empty;
+            var dbName = (!String.IsNullOrEmpty(ddDatabase.SelectedValue) ? ddDatabase.SelectedValue : "master");
+            _db = Sitecore.Configuration.Factory.GetDatabase(dbName);
             CheckSitecoreItemApiEnabled();
             PhApiMessage.Visible = !_sitecoreItemApiEnabled;
             litSavedMessage.Text = String.Empty;
             phOverwriteScript.Visible = false;
             litFastQueryTest.Text = String.Empty;
             if (!IsPostBack)
+            {
+                if (!String.IsNullOrEmpty(Request.QueryString["getitems"]) &&
+                    !String.IsNullOrEmpty(Request.QueryString["startitem"]))
+                {
+                    GetItemsAsync(Request.QueryString["startitem"]);
+                }
                 SetupForm();
-
+            }
 
             // check if advanced options should be open
             if (OpenAdvancedOptions())
@@ -172,6 +180,29 @@ namespace ContentExportTool
 
         #region Browse
 
+        public void GetItemsAsync(string startItem)
+        {
+            if (_db == null) _db = Sitecore.Configuration.Factory.GetDatabase("master");
+            Response.Clear();
+            Response.ContentType = "application/json; charset=utf-8";
+            var item = _db.GetItem(startItem);
+            var children = item.Children;
+
+            var returnItems = children.Select(x => new BrowseItem()
+            {
+                Id = x.ID.ToString(),
+                Name = x.DisplayName,
+                Path = x.Paths.FullPath,
+                HasChildren = x.HasChildren,
+                Template = x.TemplateName
+            });
+
+            var serializer = new JavaScriptSerializer();
+            var json = serializer.Serialize(returnItems);
+            Response.Write(json);
+            Response.End();
+        }
+
         protected void btnBrowse_OnClick(object sender, EventArgs e)
         {
             litSitecoreContentTree.Text = GetSitecoreTreeHtml();
@@ -209,7 +240,8 @@ namespace ContentExportTool
             {
                 nodeHtml.Append(GetChildList(children));
             }
-                
+            nodeHtml.AppendFormat("<a class='sitecore-node' href='javascript:void(0)' ondblclick='selectNode($(this));addTemplate();' onclick='selectNode($(this));' data-path='{0}' data-id='{2}'>{1}</a>", item.Paths.Path, item.DisplayName, item.ID.ToString());
+
             nodeHtml.Append("</li>");
 
             return nodeHtml.ToString();
@@ -314,7 +346,7 @@ namespace ContentExportTool
             PhBrowseTree.Visible = false;
             PhBrowseTemplates.Visible = false;
         }
-        
+
         protected string GetAvailableFields()
         {
             var database = ddDatabase.SelectedValue;
@@ -352,9 +384,11 @@ namespace ContentExportTool
             {
                 var fields = template.Fields.Where(x => x.Name[0] != '_');
                 fields = fields.OrderBy(x => x.Name);
+                fields = fields.OrderBy(x => x.Name).Where(x => !String.IsNullOrEmpty(x.Name));
                 if (fields.Any())
                 {
                     html += "<li data-name='" + template.Name.ToLower() + "' class='template-heading'>";
+                    html += "<li data-name='" + template.Name.ToLower() + "' class='template-heading loaded'>";
                     html += string.Format(
                         "<a class='browse-expand' onclick='expandNode($(this))'>+</a><span>{0}</span><a class='select-all' href='javascript:void(0)' onclick='selectAllFields($(this))'>select all</a>",
                         template.Name);
@@ -2201,6 +2235,15 @@ namespace ContentExportTool
     }
 
     #region Classes
+
+    public class BrowseItem
+    {
+        public string Id;
+        public string Name;
+        public string Path;
+        public bool HasChildren;
+        public string Template;
+    }
 
     public class SitecoreItemApiResponse
     {
