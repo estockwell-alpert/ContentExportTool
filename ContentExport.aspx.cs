@@ -26,7 +26,6 @@ namespace ContentExportTool
 
         private Database _db;
         private string _settingsFilePath = AppDomain.CurrentDomain.BaseDirectory + @"\sitecore\admin\ContentExportSettings.txt";
-        private bool _sitecoreItemApiEnabled;
         private List<FieldData> _fieldsList;
 
         protected void Page_Load(object sender, EventArgs e)
@@ -34,14 +33,24 @@ namespace ContentExportTool
             divAdvOptions.Attributes["class"] = "advanced";
             litUploadResponse.Text = String.Empty;
             litFeedback.Text = String.Empty;
-            CheckSitecoreItemApiEnabled();
-            PhApiMessage.Visible = !_sitecoreItemApiEnabled;
+            var dbName = (!String.IsNullOrEmpty(ddDatabase.SelectedValue) ? ddDatabase.SelectedValue : "master");
+            _db = Sitecore.Configuration.Factory.GetDatabase(dbName);
             litSavedMessage.Text = String.Empty;
             phOverwriteScript.Visible = false;
             litFastQueryTest.Text = String.Empty;
             if (!IsPostBack)
+            {
+                if (!String.IsNullOrEmpty(Request.QueryString["getitems"]) &&
+                    !String.IsNullOrEmpty(Request.QueryString["startitem"]))
+                {
+                    GetItemsAsync(Request.QueryString["startitem"]);
+                }else if (!String.IsNullOrEmpty(Request.QueryString["getfields"]) &&
+                          !String.IsNullOrEmpty(Request.QueryString["startitem"]))
+                {
+                    GetFieldsAsync(Request.QueryString["startitem"]);
+                }
                 SetupForm();
-
+            }
 
             // check if advanced options should be open
             if (OpenAdvancedOptions())
@@ -131,46 +140,56 @@ namespace ContentExportTool
             base.OnInit(e);
         }
 
-        protected void CheckSitecoreItemApiEnabled()
-        {
-            _sitecoreItemApiEnabled = false;
-            HttpWebResponse response = null;
-            try
-            {
-                var current = HttpContext.Current.Request.Url;
-                var root = current.Scheme + "://" + current.Host;
-                var apiUrl = root + "/-/item/v1/?sc_itemid={00000000-0000-0000-0000-000000000000}";
-                WebRequest request = WebRequest.Create(apiUrl);
-                response = (HttpWebResponse) request.GetResponse();
-                if (response.StatusCode != HttpStatusCode.OK)
-                    return;
-                
-                using (var reader = new StreamReader(response.GetResponseStream()))
-                {
-                    JavaScriptSerializer js = new JavaScriptSerializer();
-                    var obj = reader.ReadToEnd();
-                    SitecoreItemApiResponse apiResponse = (SitecoreItemApiResponse) js.Deserialize(obj, typeof(SitecoreItemApiResponse));
-                    if (apiResponse.statusCode == 200)
-                    {
-                        _sitecoreItemApiEnabled = true;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-            }
-            finally
-            {
-                if(response != null)
-                { 
-                    response.Close();
-                }
-            }
-        }
-
         #endregion
 
         #region Browse
+
+        public void GetItemsAsync(string startItem)
+        {
+            if (_db == null) _db = Sitecore.Configuration.Factory.GetDatabase("master");
+            Response.Clear();
+            Response.ContentType = "application/json; charset=utf-8";
+            var item = _db.GetItem(startItem);
+            var children = item.Children;
+
+            var returnItems = children.Select(x => new BrowseItem()
+            {
+                Id = x.ID.ToString(),
+                Name = x.DisplayName,
+                Path = x.Paths.FullPath,
+                HasChildren = x.HasChildren,
+                Template = x.TemplateName
+            });
+
+            var serializer = new JavaScriptSerializer();
+            var json = serializer.Serialize(returnItems);
+            Response.Write(json);
+            Response.End();
+        }
+
+        public void GetFieldsAsync(string startItem)
+        {
+            if (_db == null) _db = Sitecore.Configuration.Factory.GetDatabase("master");
+            Response.Clear();
+            Response.ContentType = "application/json; charset=utf-8";
+
+            var templateItem = _db.GetTemplate(startItem);
+            var fields = templateItem.Fields.Where(x => !x.Name.StartsWith("__"));
+
+            var returnItems = fields.Select(x => new BrowseItem()
+            {
+                Id = x.ID.ToString(),
+                Name = x.DisplayName,
+                Path = "",
+                HasChildren = false,
+                Template = "Field"
+            });
+
+            var serializer = new JavaScriptSerializer();
+            var json = serializer.Serialize(returnItems);
+            Response.Write(json);
+            Response.End();
+        }
 
         protected void btnBrowse_OnClick(object sender, EventArgs e)
         {
@@ -203,13 +222,8 @@ namespace ContentExportTool
             {
                 nodeHtml.Append("<a class='browse-expand' onclick='expandNode($(this))'>+</a>");
             }
-            nodeHtml.AppendFormat("<a class='sitecore-node' href='javascript:void(0)' ondblclick='selectNode($(this));addTemplate();' onclick='selectNode($(this));' data-path='{0}'>{1}</a>", item.Paths.Path, item.Name);
+            nodeHtml.AppendFormat("<a class='sitecore-node' href='javascript:void(0)' ondblclick='selectNode($(this));addTemplate();' onclick='selectNode($(this));' data-path='{0}' data-name='{1}' data-id='{2}'>{1}</a>", item.Paths.Path, String.IsNullOrEmpty(item.DisplayName) ? item.Name : item.DisplayName, item.ID.ToString());
 
-            if (!_sitecoreItemApiEnabled)
-            {
-                nodeHtml.Append(GetChildList(children));
-            }
-                
             nodeHtml.Append("</li>");
 
             return nodeHtml.ToString();
@@ -276,10 +290,6 @@ namespace ContentExportTool
                     nodeHtml.Append("<a class='browse-expand' onclick='expandNode($(this))'>+</a><span></span>");
                 }
                 nodeHtml.AppendFormat("<span>{0}</span>", item.Name);
-                if (!_sitecoreItemApiEnabled)
-                {
-                    nodeHtml.Append(GetChildTemplateList(children));
-                }
             }
             nodeHtml.Append("</li>");
 
@@ -314,7 +324,7 @@ namespace ContentExportTool
             PhBrowseTree.Visible = false;
             PhBrowseTemplates.Visible = false;
         }
-        
+
         protected string GetAvailableFields()
         {
             var database = ddDatabase.SelectedValue;
@@ -326,11 +336,23 @@ namespace ContentExportTool
             var startItem = _db.GetItem("/sitecore/templates");
             if (!string.IsNullOrWhiteSpace(inputTemplates.Value))
             {
+                IEnumerable<Item> allTemplates = null;
                 var templateNames = inputTemplates.Value.Split(',');
                 foreach (var templateName in templateNames.Where(x => !string.IsNullOrWhiteSpace(x)))
                 {
-                    var template =
-                        startItem.Axes.GetDescendants().Where(x => x.TemplateName == "Template").FirstOrDefault(x => x.Name.ToLower() == templateName.Trim().ToLower());
+                    var name = templateName.Trim().ToLower();
+                    // try get as path or guid
+                    var template = _db.GetItem(name);
+                    // try get by name
+                    if (template == null)
+                    {
+                        if (allTemplates == null)
+                        {
+                            allTemplates = startItem.Axes.GetDescendants();
+                        }
+                        template = allTemplates.Where(x => x.TemplateName == "Template").FirstOrDefault(x => x.Name.ToLower() == name);
+                    }
+
                     if (template != null)
                     {
                         TemplateItem templateItem = _db.GetTemplate(template.ID);
@@ -352,20 +374,15 @@ namespace ContentExportTool
             {
                 var fields = template.Fields.Where(x => x.Name[0] != '_');
                 fields = fields.OrderBy(x => x.Name);
+                fields = fields.OrderBy(x => x.Name).Where(x => !String.IsNullOrEmpty(x.Name));
                 if (fields.Any())
                 {
-                    html += "<li data-name='" + template.Name.ToLower() + "' class='template-heading'>";
+                    html += "<li data-id='" + template.ID + "' data-name='" + template.Name.ToLower() + "' class='template-heading'>";
                     html += string.Format(
-                        "<a class='browse-expand' onclick='expandNode($(this))'>+</a><span>{0}</span><a class='select-all' href='javascript:void(0)' onclick='selectAllFields($(this))'>select all</a>",
+                        "<a class='browse-expand' onclick='getFields($(this))'>+</a><span>{0}</span><a class='select-all' href='javascript:void(0)' onclick='selectAllFields($(this))'>select all</a>",
                         template.Name);
                     html += "<ul class='field-list'>";
-                    foreach (var field in fields)
-                    {
-                        html +=
-                            string.Format(
-                                "<li data-name='{2}'><a class='field-node' href='javascript:void(0)' onclick='selectBrowseNode($(this));' ondblclick='selectBrowseNode($(this));addTemplate();' data-id='{0}' data-name='{1}'>{1}</a></li>",
-                                field.ID, field.Name, field.Name.ToLower());
-                    }
+
                     html += "</ul>";
                     html += "</li>";
                 }
@@ -1004,7 +1021,8 @@ namespace ContentExportTool
                         x =>
                             x.Name.ToLower() == template.ToLower() ||
                             x.ID.ToString().ToLower().Replace("{", string.Empty).Replace("}", string.Empty) ==
-                            template.Replace("{", string.Empty).Replace("}", string.Empty));
+                            template.Replace("{", string.Empty).Replace("}", string.Empty) ||
+                            x.Paths.FullPath.ToLower() == template.ToLower());
 
                 if (templateItem != null)
                 {
@@ -1955,7 +1973,19 @@ namespace ContentExportTool
             {
                 foreach (var template in templates)
                 {
-                    var templateItems = exportItems.Where(x => x.TemplateName.ToLower() == template || x.TemplateID.ToString().ToLower().Replace("{", string.Empty).Replace("}", string.Empty) == template.Replace("{", string.Empty).Replace("}", string.Empty));
+                    IEnumerable<Item> templateItems;
+
+                    // try get template as guid or path
+                    var templateItem = _db.GetItem(template);
+                    if (templateItem != null)
+                    {
+                        templateItems = exportItems.Where(x => x.TemplateID == templateItem.ID);
+                    }
+                    else
+                    {
+                        templateItems = exportItems.Where(x => x.TemplateName.ToLower() == template || x.TemplateID.ToString().ToLower().Replace("{", string.Empty).Replace("}", string.Empty) == template.Replace("{", string.Empty).Replace("}", string.Empty));
+                    }
+
                     items.AddRange(templateItems);
                 }
             }
@@ -2202,6 +2232,21 @@ namespace ContentExportTool
     }
 
     #region Classes
+
+    public class MultipleBrowseItems
+    {
+        public BrowseItem Parent;
+        public List<BrowseItem> Children;
+    }
+
+    public class BrowseItem
+    {
+        public string Id;
+        public string Name;
+        public string Path;
+        public bool HasChildren;
+        public string Template;
+    }
 
     public class SitecoreItemApiResponse
     {
