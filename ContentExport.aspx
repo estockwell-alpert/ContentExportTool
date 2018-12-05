@@ -599,7 +599,7 @@
     <form id="form1" runat="server">
         <div class="loading-modal">
             <div class="loading-box">
-                <div class="loader"></div>
+                <img class="scSpinner" src="/sitecore/shell/themes/standard/Images/ProgressIndicator/sc-spinner32.gif" border="0" alt="" width="40px"/>
             </div>
         </div>
         <input runat="server" id="txtDownloadToken" style="display: none;" />
