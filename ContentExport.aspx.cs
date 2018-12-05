@@ -1706,7 +1706,7 @@ namespace ContentExportTool
 
         protected void btnOverWriteSettings_OnClick(object sender, EventArgs e)
         {
-            var saveName = txtSaveSettingsName.Value;
+            var settingsId = txtSaveSettingsName.Value;
 
             var settingsData = new ExportSettingsData()
             {
@@ -1738,9 +1738,9 @@ namespace ContentExportTool
 
             var serializer = new JavaScriptSerializer();
 
-            var savedSettings = ReadSettingsFromFile();
+            var savedSettings = ReadSettingsFromFile(false);
 
-            var setting = savedSettings.Settings.FirstOrDefault(x => x.Name == saveName);
+            var setting = GetSettingsFromFile(savedSettings, settingsId);
 
             if (setting == null) return;
             setting.Data = settingsData;
@@ -1749,8 +1749,8 @@ namespace ContentExportTool
             EditSavedSettingsItem(settingsListJson);
 
             litSavedMessage.Text = "Saved!";
-            SetSavedSettingsDropdown();
-            ddSavedSettings.SelectedValue = saveName;
+            SetSavedSettingsDropdown(chkAllUserSettings.Checked);
+            ddSavedSettings.SelectedValue = setting.ID;
         }
 
         #endregion
