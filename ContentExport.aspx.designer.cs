@@ -22,6 +22,15 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.PlaceHolder phOverwriteScript;
         
         /// <summary>
+        /// phDeleteScript control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder phDeleteScript;
+        
+        /// <summary>
         /// form1 control.
         /// </summary>
         /// <remarks>
@@ -110,6 +119,15 @@ namespace ContentExportTool {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnDeleteSavedSetting;
+        
+        /// <summary>
+        /// chkAllUserSettings control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkAllUserSettings;
         
         /// <summary>
         /// PhBrowseTree control.
