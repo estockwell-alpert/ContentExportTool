@@ -605,15 +605,6 @@
         <input runat="server" id="txtDownloadToken" style="display: none;" />
 
         <div>
-            <asp:PlaceHolder runat="server" ID="PhApiMessage" Visible="False">
-                <div class="scMessageBar scWarning">
-                    <div class="scMessageBarIcon"></div>
-                    <div class="scMessageBarTextContainer">
-                        <div class="scMessageBarTitle">The Sitecore Item API is not enabled in your site.</div>
-                        <div class="scMessageBarText">To improve browsing performance, turn on the  <a target="_blank" href="https://sdn.sitecore.net/upload/sdn5/modules/sitecore%20item%20web%20api/sitecore_item_web_api_developer_guide_sc65-66-usletter.pdf#page=12">Sitecore Item API</a></div>
-                    </div>
-                </div>
-            </asp:PlaceHolder>
             <div class="container feedback">
                 <asp:Literal runat="server" ID="litFeedback"></asp:Literal>
             </div>

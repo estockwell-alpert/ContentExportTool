@@ -123,6 +123,17 @@
     });
 });
 
+function getFields(node) {
+    if (!($(node).parent().hasClass("loaded"))) {
+        // load children
+        var itemId = $(node).parent().attr("data-id");
+
+        loadFields(itemId, $(node).parent());
+    }
+
+    expandOrClose(node);
+}
+
 function expandNode(node) {
 
     if (!($(node).parent().hasClass("loaded"))) {
@@ -132,6 +143,10 @@ function expandNode(node) {
         loadChildren(itemId, $(node).parent());
     }
 
+    expandOrClose(node);
+}
+
+function expandOrClose(node) {
     if ($(node).parent().hasClass("expanded")) {
 
         var children = $(node).parent().find("li");
@@ -155,6 +170,41 @@ function getItemChildren(pathOrId) {
     });
 }
 
+function getFieldsAsync(pathOrId) {
+    return $.ajax({
+        method: "get",
+        url: "/sitecore/shell/applications/contentexport/contentexport.aspx",
+        data: { getfields: true, startitem: pathOrId }
+    });
+}
+
+function loadFields(id, parentNode) {
+    var ul = $(parentNode).find(".field-list");
+    var innerHtml = "";
+
+    getFieldsAsync(id).then(function (results) {
+        if (results.length) {
+            var children = results;
+
+            for (var i = 0; i < children.length; i++) {
+                var child = children[i];
+
+                var hasChildren = child.HasChildren;
+                var id = child.Id;
+                var name = child.Name;
+                var path = child.Path;
+
+                var fieldNode = "<li data-name='" + name + "'><a class='field-node' href='javascript:void(0)' onclick='selectBrowseNode($(this));' ondblclick='selectBrowseNode($(this));addTemplate();' data-id='" + id + "' data-name='" + name + "'>" + name + "</a></li>";
+
+                innerHtml += fieldNode;
+            }
+            $(ul).append(innerHtml);
+
+            $(parentNode).addClass("loaded");
+        }
+    });
+}
+
 
 function loadChildren(id, parentNode) {
     var innerHtml = "<ul>";
@@ -171,7 +221,7 @@ function loadChildren(id, parentNode) {
                 var name = child.Name;
                 var path = child.Path;
 
-                var childNode = "<li data-name='" + name + "' data-id='" + id + "'>";
+                var childNode = "<li data-name='" + name + "' data-id='" + id + "' data-path='" + path + "'>";
 
                 if (hasChildren) {
                     childNode += "<a class='browse-expand' onclick='expandNode($(this))'>+</a>";
@@ -200,7 +250,7 @@ function loadChildren(id, parentNode) {
 }
 
 function getClickableBrowseItem(path, name) {
-    return "<a class='sitecore-node' href='javascript:void(0)' ondblclick='selectNode($(this));addTemplate();' onclick='selectNode($(this));' data-path='" + path + "'>" + name + "</a>"; 
+    return "<a class='sitecore-node' href='javascript:void(0)' ondblclick='selectNode($(this));addTemplate();' onclick='selectNode($(this));' data-path='" + path + "' data-name='" + name + "'>" + name + "</a>"; 
 }
 
 function isTemplate(node) {
@@ -246,8 +296,9 @@ function selectBrowseNode(node) {
 function addTemplate() {
     var name = $(".temp-selected").html();
     var node = $(".select-box a[data-name='" + name + "']");
+    var path = $(node).attr("data-path");
     $(node).addClass("disabled").removeClass("selected");
-    $(".selected-box-list").append("<li><a class='addedTemplate' href='javascript:void(0);' onclick='selectAddedTemplate($(this))' ondblclick='selectAddedTemplate($(this));removeTemplate()' data-name='" + name + "' >" + name + "</a></li>");
+    $(".selected-box-list").append("<li><a class='addedTemplate' href='javascript:void(0);' onclick='selectAddedTemplate($(this))' ondblclick='selectAddedTemplate($(this));removeTemplate()' data-name='" + name + "' data-path='" + path + "'>" + name + "</a></li>");
     $(".temp-selected").html("");
 
     $(".selected-box .select-node-btn").removeClass("disabled");
@@ -291,10 +342,21 @@ function closeFieldModal() {
 }
 
 function confirmFieldSelection() {
-    var fieldString = getSelectedString();
+    var fieldString = getSelectedFields();
     $("#inputFields").html(fieldString);
     closeFieldModal();
+}
 
+function getSelectedFields() {
+    var selectedString = "";
+    var selectedItems = $(".selected-box ul li");
+    for (var i = 0; i < selectedItems.length; i++) {
+        if (i > 0) {
+            selectedString += ", ";
+        }
+        selectedString += $(selectedItems[i]).find("a").html();
+    }
+    return selectedString;
 }
 
 function getSelectedString() {
@@ -304,7 +366,7 @@ function getSelectedString() {
         if (i > 0) {
             selectedString += ", ";
         }
-        selectedString += $(selectedItems[i]).find("a").html();
+        selectedString += $(selectedItems[i]).find("a").attr("data-path")
     }
     return selectedString;
 }
