@@ -596,6 +596,13 @@
             });
         </script>
     </asp:PlaceHolder>
+    <asp:PlaceHolder runat="server" ID="phDeleteScript" Visible="False">
+        <script>
+            $(document).ready(function () {
+                alert("You cannot delete another user's saved settings");
+            });
+        </script>
+    </asp:PlaceHolder>
     <form id="form1" runat="server">
         <div class="loading-modal">
             <div class="loading-box">
@@ -626,6 +633,7 @@
                         <asp:DropDownList runat="server" ID="ddSavedSettings" AutoPostBack="True" OnSelectedIndexChanged="ddSavedSettings_OnSelectedIndexChanged" />
                         <a runat="server" visible="False" id="btnDeletePrompt" class="btn" onclick="confirmDelete()">Delete</a>
                         <asp:Button runat="server" ID="btnDeleteSavedSetting" OnClick="btnDeleteSavedSetting_OnClick" CssClass="hidden btn-delete" /><br />
+                        <asp:CheckBox runat="server" AutoPostBack="True" OnCheckedChanged="chkAllUserSettings_OnCheckedChanged" ID="chkAllUserSettings"/><span class="notes">Show settings for all users</span>
                     </div>
                 </div>
                 <div class="container">

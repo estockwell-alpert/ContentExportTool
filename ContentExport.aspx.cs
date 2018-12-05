@@ -25,7 +25,7 @@ namespace ContentExportTool
         #region Construction 
 
         private Database _db;
-        private string _settingsFilePath = AppDomain.CurrentDomain.BaseDirectory + @"\sitecore\admin\ContentExportSettings.txt";
+        private string _settingsItemPath = "/sitecore/system/Modules/Content Export Tool/Saved Settings";
         private List<FieldData> _fieldsList;
 
         protected void Page_Load(object sender, EventArgs e)
@@ -37,6 +37,7 @@ namespace ContentExportTool
             _db = Sitecore.Configuration.Factory.GetDatabase(dbName);
             litSavedMessage.Text = String.Empty;
             phOverwriteScript.Visible = false;
+            phDeleteScript.Visible = false;
             litFastQueryTest.Text = String.Empty;
             if (!IsPostBack)
             {
@@ -121,16 +122,36 @@ namespace ContentExportTool
             return installedLanguages.ToList();
         }
 
-        protected void SetSavedSettingsDropdown()
+        protected void SetSavedSettingsDropdown(bool allUsers = false)
         {
-            var settingsNames = new List<string>();
-            settingsNames.Insert(0, "");
+            var settings = new List<ExportSettings>();
+            
+            var savedSettings = ReadSettingsFromFile(allUsers);
 
-            var savedSettings = ReadSettingsFromFile();
-            if (savedSettings != null)
-                settingsNames.AddRange(savedSettings.Settings.Select(x => x.Name).ToList());
+            if (savedSettings != null && savedSettings.Settings != null)
+            {
+                settings = savedSettings.Settings;
+            }
 
-            ddSavedSettings.DataSource = settingsNames;
+            foreach (var setting in settings)
+            {
+                if (setting.UserId != GetUserId())
+                {
+                    setting.Name += " [" + setting.UserId + "]";
+                }
+            }
+
+            settings.Insert(0, new ExportSettings()
+            {
+                Data = null,
+                ID = "",
+                Name = "",
+                UserId = ""
+            });
+                     
+            ddSavedSettings.DataSource = settings;
+            ddSavedSettings.DataValueField = "ID";
+            ddSavedSettings.DataTextField = "Name";
             ddSavedSettings.DataBind();
         }
 
@@ -260,8 +281,7 @@ namespace ContentExportTool
 
         protected string GetAvailableTemplates()
         {
-            var database = ddDatabase.SelectedValue;
-            SetDatabase(database);
+            SetDatabase("master");
             var startItem = _db.GetItem("/sitecore/templates");
 
             StringBuilder html = new StringBuilder("<ul>");
@@ -327,8 +347,7 @@ namespace ContentExportTool
 
         protected string GetAvailableFields()
         {
-            var database = ddDatabase.SelectedValue;
-            SetDatabase(database);
+            SetDatabase("master");
 
             string html = "<ul>";
 
@@ -1468,14 +1487,15 @@ namespace ContentExportTool
             {
                 Name = saveName,
                 Data = settingsData,
-                UserId = GetUserId()
+                UserId = GetUserId(),
+                ID = Guid.NewGuid().ToString()
             };
 
             var serializer = new JavaScriptSerializer();
 
-            var savedSettings = ReadSettingsFromFile();
+            var savedSettings = ReadSettingsFromFile(true);
 
-            if (savedSettings == null)
+            if (savedSettings == null || savedSettings.Settings == null)
             {
                 var settingsList = new SettingsList();
                 settingsList.Settings = new List<ExportSettings>()
@@ -1483,11 +1503,12 @@ namespace ContentExportTool
                     settingsObject
                 };
                 var settingsJson = serializer.Serialize(settingsList);
-                File.WriteAllText(_settingsFilePath, settingsJson);
+
+                EditSavedSettingsItem(settingsJson);
             }
             else
             {
-                if (savedSettings.Settings.Any(x => x.Name == saveName))
+                if (savedSettings.Settings.Any(x => x.Name == saveName && x.UserId == GetUserId()))
                 {
                     phOverwriteScript.Visible = true;
                     return;
@@ -1495,26 +1516,55 @@ namespace ContentExportTool
 
                 savedSettings.Settings.Insert(0, settingsObject);
                 var settingsListJson = serializer.Serialize(savedSettings);
-                File.WriteAllText(_settingsFilePath, settingsListJson);
+                EditSavedSettingsItem(settingsListJson);
             }
             litSavedMessage.Text = "Saved!";
             SetSavedSettingsDropdown();
-            ddSavedSettings.SelectedValue = saveName;
+            ddSavedSettings.SelectedValue = settingsObject.ID;
+        }
+
+        protected void EditSavedSettingsItem(string settingsJson)
+        {
+            var settingsItem = Sitecore.Configuration.Factory.GetDatabase("master").GetItem(_settingsItemPath);
+            settingsItem.Editing.BeginEdit();
+            settingsItem["Settings"] = settingsJson;
+            settingsItem.Editing.EndEdit();
+        }
+
+        protected ExportSettings GetSettingsFromFile(SettingsList savedSettings, string settingsId)
+        {
+            var selectedSettings = savedSettings.Settings.FirstOrDefault(x => x.ID == settingsId);
+            if (selectedSettings == null)
+            {
+                var settingName = settingsId;
+                if (settingName.Contains("["))
+                {
+                    settingName = settingName.Substring(0, settingName.IndexOf("[")).Trim();
+                }
+                selectedSettings = savedSettings.Settings.FirstOrDefault(x => x.Name == settingName);
+            }
+            return selectedSettings;
         }
 
         protected void ddSavedSettings_OnSelectedIndexChanged(object sender, EventArgs e)
         {
-            var settingsName = ddSavedSettings.SelectedValue;
-            if (string.IsNullOrWhiteSpace(settingsName))
+            PhBrowseTree.Visible = false;
+            PhBrowseTemplates.Visible = false;
+            PhBrowseFields.Visible = false;
+
+            var settingsId = ddSavedSettings.SelectedValue;
+            if (string.IsNullOrWhiteSpace(settingsId))
             {
                 btnDeletePrompt.Visible = false;
                 ClearAll();
                 return;
             }
             btnDeletePrompt.Visible = true;
-            var savedSettings = ReadSettingsFromFile();
+            var savedSettings = ReadSettingsFromFile(chkAllUserSettings.Checked);
             if (savedSettings == null) return;
-            var selectedSettings = savedSettings.Settings.FirstOrDefault(x => x.Name == settingsName);
+
+            var selectedSettings = GetSettingsFromFile(savedSettings, settingsId);
+
             var settings = selectedSettings.Data;
 
             if (!string.IsNullOrWhiteSpace(settings.Database))
@@ -1695,7 +1745,8 @@ namespace ContentExportTool
             if (setting == null) return;
             setting.Data = settingsData;
             var settingsListJson = serializer.Serialize(savedSettings);
-            File.WriteAllText(_settingsFilePath, settingsListJson);
+
+            EditSavedSettingsItem(settingsListJson);
 
             litSavedMessage.Text = "Saved!";
             SetSavedSettingsDropdown();
@@ -1708,17 +1759,24 @@ namespace ContentExportTool
 
         protected void btnDeleteSavedSetting_OnClick(object sender, EventArgs e)
         {
-            var settingsName = ddSavedSettings.SelectedValue;
-            var savedSettings = ReadSettingsFromFile();
+            PhBrowseTree.Visible = false;
+            PhBrowseTemplates.Visible = false;
+            PhBrowseFields.Visible = false;
 
-            var setting = savedSettings.Settings.FirstOrDefault(x => x.Name == settingsName);
+            var settingsId = ddSavedSettings.SelectedValue;
+            var savedSettings = ReadSettingsFromFile(true);
+
+            var setting = GetSettingsFromFile(savedSettings, settingsId);
             var serializer = new JavaScriptSerializer();
-            if (setting != null)
+            if (setting != null && setting.UserId == GetUserId())
             {
                 savedSettings.Settings.Remove(setting);
                 var settingsListJson = serializer.Serialize(savedSettings);
-                File.WriteAllText(_settingsFilePath, settingsListJson);
+                EditSavedSettingsItem(settingsListJson);
                 SetSavedSettingsDropdown();
+            }else if (setting != null && setting.UserId != GetUserId())
+            {
+                phDeleteScript.Visible = true;
             }
         }
 
@@ -2171,24 +2229,37 @@ namespace ContentExportTool
             PhBrowseTemplates.Visible = hideFields;
         }
 
-        protected SettingsList ReadSettingsFromFile()
+        protected SettingsList ReadSettingsFromFile(bool allUsers = false)
         {
+            _db = Sitecore.Configuration.Factory.GetDatabase("master");
             var serializer = new JavaScriptSerializer();
 
-            if (!File.Exists(_settingsFilePath))
+            var settingsItem = _db.GetItem(_settingsItemPath);
+            if (settingsItem == null)
             {
-                return null;
+                var settingsFolder = _db.GetItem("/sitecore/system/Modules/Content Export Tool");
+                settingsItem = settingsFolder.Add("Saved Settings", _db.GetTemplate(new ID("{6DB332FA-2FB1-4C7B-AEA5-CC6A8665BF77}")));
             }
 
-            var fileContents = File.ReadAllText(_settingsFilePath);
+            var fileContents = settingsItem.Fields["Settings"].Value;
+            if (fileContents == null || String.IsNullOrEmpty(fileContents)) return new SettingsList();
             // convert into a list of settings
             var settingsList = serializer.Deserialize<SettingsList>(fileContents);
 
             // get settings that belong to current user
             var userId = GetUserId();
-            if (userId != null)
+            if (userId != null && settingsList.Settings != null && !allUsers)
             {
                 settingsList.Settings = settingsList.Settings.Where(x => string.IsNullOrWhiteSpace(x.UserId) || x.UserId == userId).ToList();
+            }
+
+            if (settingsList != null && settingsList.Settings != null)
+            {
+                foreach (var setting in settingsList.Settings)
+                {
+                    if (String.IsNullOrEmpty(setting.ID))
+                        setting.ID = setting.Name;
+                }
             }
 
             return settingsList;
@@ -2228,7 +2299,11 @@ namespace ContentExportTool
 
         #endregion
 
-       
+        protected void chkAllUserSettings_OnCheckedChanged(object sender, EventArgs e)
+        {
+            var allUsers = chkAllUserSettings.Checked;
+            SetSavedSettingsDropdown(allUsers);
+        }
     }
 
     #region Classes
@@ -2260,9 +2335,10 @@ namespace ContentExportTool
 
     public class ExportSettings
     {
-        public string UserId;
-        public string Name;
-        public ExportSettingsData Data;
+        public string UserId { get; set; }
+        public string Name { get; set; }
+        public ExportSettingsData Data { get; set; }
+        public string ID { get; set; }
     }
 
     public class ExportSettingsData
