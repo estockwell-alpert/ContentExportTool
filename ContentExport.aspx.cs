@@ -2188,6 +2188,7 @@ namespace ContentExportTool
             var downloadToken = txtDownloadToken.Value;
             var responseCookie = new HttpCookie("DownloadToken");
             responseCookie.Value = downloadToken;
+			responseCookie.HttpOnly = false;
             responseCookie.Expires = DateTime.Now.AddDays(1);
             Response.Cookies.Add(responseCookie);
             Response.Output.Write(responseValue);
