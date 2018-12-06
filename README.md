@@ -11,6 +11,10 @@ Sitecore 6.5 or higher<br />
 You must be logged into Sitecore to access the tool<br />
 Access the tool in the Sitecore start menu or at [your site]/sitecore/admin/ContentExport.aspx
 
+# Documentation:
+https://ericastockwellalpert.wordpress.com/2017/08/24/content-export-tool-for-sitecore/
+https://ericastockwellalpert.wordpress.com/2018/11/30/sitecore-content-importing-use-a-csv-file-to-create-or-edit-sitecore-content/
+
 # Files Included in Package:
  core:/sitecore/content/Applications/Content Export <br/>
  core:/sitecore/content/Documents and settings/All users/Start menu/Right/Content Export <br/>
