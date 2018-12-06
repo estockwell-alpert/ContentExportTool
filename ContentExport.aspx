@@ -325,6 +325,10 @@
             font-size: 14px;
         }
 
+        .selector-box.left {
+            padding-top: 10px;
+        }
+
         .selected-box {
             width: 48%;
             height: 100%;
@@ -579,6 +583,13 @@
             display: block;
             font-weight: 600;
         }
+
+        .selector-box img.scSpinner {
+            position: absolute;
+            top: 3px;
+            background: white;
+            left: -2px;
+        }
     </style>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
@@ -641,8 +652,6 @@
                     <asp:PlaceHolder runat="server" ID="PhBrowseTree">
                         <div class="modal browse-modal">
                             <div class="selector-box left">
-                                <input class="field-search" type="text" placeholder="search" onkeyup="browseSearch($(this))" />
-                                <a class="clear-search" href="javascript:void(0)" onclick="clearSearch($(this))">X</a>
                                 <asp:Literal runat="server" ID="litSitecoreContentTree"></asp:Literal>
                             </div>
                             <div class="selection-box">
@@ -661,8 +670,6 @@
                     <asp:PlaceHolder runat="server" ID="PhBrowseTemplates">
                         <div class="modal browse-modal templates">
                             <div class="select-box left" id="templateLinks">
-                                <input class="field-search" type="text" placeholder="search" onkeyup="browseSearch($(this))" />
-                                <a class="clear-search" href="javascript:void(0)" onclick="clearSearch($(this))">X</a>
                                 <asp:Literal runat="server" ID="litBrowseTemplates"></asp:Literal>
                             </div>
                             <div class="arrows">
@@ -686,8 +693,6 @@
                     <asp:PlaceHolder runat="server" ID="PhBrowseFields">
                         <div class="modal browse-modal fields">
                             <div class="select-box left">
-                                <input class="field-search" type="text" placeholder="search" onkeyup="browseSearch($(this))" />
-                                <a class="clear-search" href="javascript:void(0)" onclick="clearSearch($(this))">X</a>
                                 <asp:Literal runat="server" ID="litBrowseFields"></asp:Literal>
                             </div>
                             <div class="arrows">

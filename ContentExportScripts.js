@@ -12,16 +12,16 @@
             $(".loading-modal").hide();
             expireCookie("DownloadToken");
         } else {
-            setTimeout(function() {
+            setTimeout(function () {
                 checkIfFileDownloaded(downloadToken)
-            }, 1000)              
+            }, 1000)
         }
     }
 
     function getCookie(name) {
         var parts = document.cookie.split(name + "=");
         if (parts.length == 2) return parts.pop().split(";").shift();
-    }  
+    }
 
     function expireCookie(cName) {
         document.cookie =
@@ -42,7 +42,7 @@
         checkIfFileDownloaded(downloadToken);
     });
 
-    $(".import-btn").on("click", function() {
+    $(".import-btn").on("click", function () {
         $(".loading-modal").show();
     })
 
@@ -83,7 +83,7 @@
         removeSavedMessage();
     });
 
-    $(".clear-section-btn").on("click", function() {
+    $(".clear-section-btn").on("click", function () {
         $(this).parent().find("input").val("");
         removeSavedMessage();
     })
@@ -114,7 +114,7 @@
         removeSavedMessage();
     });
 
-    $("#chkAdvancedSelectionOn").on("change", function() {
+    $("#chkAdvancedSelectionOn").on("change", function () {
         if ($(this).prop("checked")) {
             $(this).parent().addClass("disabled");
         } else {
@@ -166,7 +166,7 @@ function getItemChildren(pathOrId) {
     return $.ajax({
         method: "get",
         url: "/sitecore/shell/applications/contentexport/contentexport.aspx",
-        data: { getitems: true, startitem : pathOrId }
+        data: { getitems: true, startitem: pathOrId }
     });
 }
 
@@ -180,6 +180,7 @@ function getFieldsAsync(pathOrId) {
 
 function loadFields(id, parentNode) {
     var ul = $(parentNode).find(".field-list");
+    $(ul).append("<img class='scSpinner' width='10' src='/sitecore/shell/themes/standard/Images/ProgressIndicator/sc-spinner32.gif'/>");
     var innerHtml = "";
 
     getFieldsAsync(id).then(function (results) {
@@ -198,6 +199,7 @@ function loadFields(id, parentNode) {
 
                 innerHtml += fieldNode;
             }
+            $(ul).find(".scSpinner").remove();
             $(ul).append(innerHtml);
 
             $(parentNode).addClass("loaded");
@@ -207,6 +209,7 @@ function loadFields(id, parentNode) {
 
 
 function loadChildren(id, parentNode) {
+    $(parentNode).append("<img class='scSpinner' width='10' src='/sitecore/shell/themes/standard/Images/ProgressIndicator/sc-spinner32.gif'/>");
     var innerHtml = "<ul>";
     var templates = isTemplate(parentNode);
     getItemChildren(id).then(function (results) {
@@ -242,15 +245,16 @@ function loadChildren(id, parentNode) {
                 innerHtml += childNode;
             }
             innerHtml += "</ul>";
+            $(parentNode).find(".scSpinner").remove();
             $(parentNode).append(innerHtml);
 
             $(parentNode).addClass("loaded");
-        } 
+        }
     });
 }
 
 function getClickableBrowseItem(path, name) {
-    return "<a class='sitecore-node' href='javascript:void(0)' ondblclick='selectNode($(this));addTemplate();' onclick='selectNode($(this));' data-path='" + path + "' data-name='" + name + "'>" + name + "</a>"; 
+    return "<a class='sitecore-node' href='javascript:void(0)' ondblclick='selectNode($(this));addTemplate();' onclick='selectNode($(this));' data-path='" + path + "' data-name='" + name + "'>" + name + "</a>";
 }
 
 function isTemplate(node) {
