@@ -9,8 +9,10 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Script.Serialization;
+using System.Web.UI.WebControls;
 using Sitecore;
 using Sitecore.Collections;
+using Sitecore.ContentSearch.Utilities;
 using Sitecore.Data;
 using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
@@ -69,11 +71,11 @@ namespace ContentExportTool
             PhBrowseFields.Visible = false;
             var databaseNames = Sitecore.Configuration.Factory.GetDatabaseNames().ToList();
             // make web the default database
-            var webDb = databaseNames.FirstOrDefault(x => x.ToLower().Contains("web"));
-            if (webDb != null)
+            var masterDb = databaseNames.FirstOrDefault(x => x.ToLower().Contains("master"));
+            if (masterDb != null)
             {
-                databaseNames.Remove(webDb);
-                databaseNames.Insert(0, webDb);
+                databaseNames.Remove(masterDb);
+                databaseNames.Insert(0, masterDb);
             }
             ddDatabase.DataSource = databaseNames;
             ddDatabase.DataBind();
@@ -87,6 +89,8 @@ namespace ContentExportTool
             radDateRangeOr.Checked = true;
 
             SetSavedSettingsDropdown();
+            _db = Sitecore.Configuration.Factory.GetDatabase(databaseNames.FirstOrDefault());
+            SetLanguageList();
         }
 
         protected bool OpenAdvancedOptions()
@@ -120,6 +124,13 @@ namespace ContentExportTool
             var installedLanguages = LanguageManager.GetLanguages(_db);
 
             return installedLanguages.ToList();
+        }
+
+        protected void SetLanguageList()
+        {
+            var languages = LanguageManager.GetLanguages(_db);
+            var langList = languages.Select(x => x.Name).OrderBy(x => x);
+            litLanguageList.Text = String.Join(", ", langList);
         }
 
         protected void SetSavedSettingsDropdown(bool allUsers = false)
@@ -526,7 +537,7 @@ namespace ContentExportTool
 
                             if (allLanguages || !string.IsNullOrWhiteSpace(selectedLanguage))
                             {
-                                itemLine += item.Language.GetDisplayName() + ",";
+                                itemLine += item.Language.Name + ",";
                             }
 
                             if (includeDateCreated)
@@ -1133,11 +1144,13 @@ namespace ContentExportTool
                 var itemNameIndex = 0;
                 var itemTemplateIndex = 0;
                 var itemsImported = 0;
+                var languageIndex = 0;
 
                 using (TextReader tr = new StreamReader(file.InputStream))
                 {
                     CsvParser csv = new CsvParser(tr);
                     List<string[]> rows = csv.GetRows();
+                    var language = LanguageManager.DefaultLanguage;
                     for (var i = 0; i < rows.Count; i++)
                     {
                         var line = i;
@@ -1149,6 +1162,7 @@ namespace ContentExportTool
                             itemPathIndex = fieldsMap.FindIndex(x => x.ToLower() == "item path");
                             itemTemplateIndex = fieldsMap.FindIndex(x => x.ToLower() == "template");
                             itemNameIndex = fieldsMap.FindIndex(x => x.ToLower() == "name");
+                            languageIndex = fieldsMap.FindIndex(x => x.ToLower() == "language");
                         }
                         else
                         {
@@ -1158,64 +1172,101 @@ namespace ContentExportTool
                             {
                                 path = "/sitecore/content" + (path.StartsWith("/") ? "" : "/") + path;
                             }
-
-                            // if we are editing items, then the current item = Item Path; if we are creatign items, then are our item is created under Item Path item
-                            Item item = _db.GetItem(path);
-                            if (item == null)
+                           
+                            if (languageIndex > -1 && !String.IsNullOrEmpty(cells[languageIndex]))
                             {
-                                output += "Line " + (line + 1) + " skipped; could not find " + path + "<br/>";
-                                continue;
+                                var selectedLanguage = LanguageManager.GetLanguage(cells[languageIndex]);
+                                if (selectedLanguage != null) language = selectedLanguage;
                             }
-                            if (createItems)
+
+                            using (new LanguageSwitcher(language))
                             {
-                                if (itemNameIndex == -1 || itemTemplateIndex == -1)
+
+                                // if we are editing items, then the current item = Item Path; if we are creatign items, then are our item is created under Item Path item
+                                Item item = !createItems ? _db.GetItem(path, language) : _db.GetItem(path);
+                                if (item == null)
                                 {
-                                    output += "Name and Template columns are required to create items<br/>";
-                                    litUploadResponse.Text = output;
-                                    return;
-                                }
-                                var name = cells[itemNameIndex];
-                                var template = cells[itemTemplateIndex];
-                                if (String.IsNullOrEmpty(name) || String.IsNullOrEmpty(template))
-                                {
-                                    output += "Line " + (line + 1) + " skipped; name or template not specified<br/>";
+                                    output += "Line " + (line + 1) + " skipped; could not find " + path + "<br/>";
                                     continue;
                                 }
-                                var templateItem = _db.GetTemplate(template);
-                                if (templateItem == null)
+                                if (createItems)
                                 {
-                                    output += "Line " + (line + 1) + " skipped; could not find template<br/>";
-                                    continue;
-                                }
-                                try
-                                {
-                                    if (chkNoDuplicates.Checked)
+                                    if (itemNameIndex == -1 || itemTemplateIndex == -1)
                                     {
-                                        var newItemPath = item.Paths.FullPath + "/" + name;
-                                        var existingItem = _db.GetItem(newItemPath);
-                                        if (existingItem != null && existingItem.TemplateID == templateItem.ID)
+                                        output += "Name and Template columns are required to create items<br/>";
+                                        litUploadResponse.Text = output;
+                                        return;
+                                    }
+                                    var name = cells[itemNameIndex].Trim();
+                                    var template = cells[itemTemplateIndex];
+                                    if (String.IsNullOrEmpty(name) || String.IsNullOrEmpty(template))
+                                    {
+                                        output += "Line " + (line + 1) + " skipped; name or template not specified<br/>";
+                                        continue;
+                                    }
+                                    var templateItem = _db.GetTemplate(template);
+                                    if (templateItem == null)
+                                    {
+                                        output += "Line " + (line + 1) + " skipped; could not find template<br/>";
+                                        continue;
+                                    }
+                                    try
+                                    {
+
+                                        if (chkNoDuplicates.Checked)
                                         {
-                                            output += "Line " + (line + 1) + " skipped; item with that name already exists at that location<br/>";
+                                            var newItemPath = item.Paths.FullPath + "/" + name;
+                                            var existingItem = _db.GetItem(newItemPath, language);
+                                            if (existingItem != null && existingItem.TemplateID == templateItem.ID &&
+                                                existingItem.Versions.Count > 0)
+                                            {
+                                                output += "Line " + (line + 1) +
+                                                          " skipped; item with that name already exists at that location<br/>";
+                                                continue;
+                                            }
+                                        }
+
+                                        var newItem = item.Add(name, templateItem);
+                                        // additional check for duplicates
+                                        var itemsAtPath =
+                                            item.Children.Where(
+                                                x =>
+                                                    x.Name.ToLower() == newItem.Name &&
+                                                    x.TemplateID == newItem.TemplateID);
+                                        if (itemsAtPath.Count() > 1)
+                                        {
+                                            newItem.Delete();
+                                            output += "Line " + (line + 1) +
+                                                      " skipped; item with that name already exists at that location<br/>";
                                             continue;
                                         }
-                                    }
 
-                                    var newItem = item.Add(name, templateItem);
-                                    item = newItem;
-                                    if (item == null)
+                                        item = newItem;
+                                        if (item == null)
+                                        {
+                                            output += "Line " + (line + 1) + " skipped; could not create item<br/>";
+                                            continue;
+                                        }
+
+                                    }
+                                    catch (Exception ex)
                                     {
-                                        output += "Line " + (line + 1) + " skipped; could not create item<br/>";
+                                        output += "Line " + (line + 1) +
+                                                  " skipped; could not create item - invalid item name<br/>";
                                         continue;
                                     }
                                 }
-                                catch (Exception ex)
+                                else
                                 {
-                                    output += "Line " + (line + 1) + " skipped; could not create item - invalid item name<br/>";
-                                    continue;
+                                    if (item.Versions.Count == 0)
+                                    {
+                                        item = item.Versions.AddVersion();
+                                    }
                                 }
+                                EditItem(item, cells, itemPathIndex, itemNameIndex, itemTemplateIndex, languageIndex, fieldsMap, i,
+                                    ref output);
+                                itemsImported++;
                             }
-                            EditItem(item, cells, itemPathIndex, itemNameIndex, itemTemplateIndex, fieldsMap, i, ref output);
-                            itemsImported++;
                         }
                     }
                 }
@@ -1239,13 +1290,13 @@ namespace ContentExportTool
             }
         }
 
-        protected void EditItem(Item item, string[] cells, int itemPathIndex, int itemNameIndex, int itemTemplateIndex, List<string> fieldsMap, int line, ref string output)
+        protected void EditItem(Item item, string[] cells, int itemPathIndex, int itemNameIndex, int itemTemplateIndex, int langIndex, List<string> fieldsMap, int line, ref string output)
         {
             item.Editing.BeginEdit();
             for (var i = 0; i < cells.Length; i++)
             {
                 // skip path, name, and template fields
-                if (i == itemPathIndex || i == itemNameIndex || i == itemTemplateIndex) continue;
+                if (i == itemPathIndex || i == itemNameIndex || i == itemTemplateIndex || i == langIndex) continue;
                 if (i > fieldsMap.Count - 1)
                 {
                     output += "Line " + (line + 1) + ": Column " + i + " ('" + cells[i] +  "') not used, no corresponding Field in Header<br/>";
@@ -2281,7 +2332,9 @@ namespace ContentExportTool
             Response.Buffer = true;
             Response.AddHeader("content-disposition", string.Format("attachment;filename={0}.csv", fileName));
             Response.Charset = "";
-            Response.ContentType = "application/vnd.ms-excel";
+            Response.ContentType = "text/csv";
+            Response.ContentEncoding = System.Text.Encoding.UTF8;
+
         }
 
         protected void SetCookieAndResponse(string responseValue)
