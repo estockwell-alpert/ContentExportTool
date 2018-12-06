@@ -28,7 +28,7 @@
             encodeURIComponent(cName) + "=deleted; expires=" + new Date(0).toUTCString();
     }
 
-    $(".browse-btn").on("click", function () {
+    $(".browse-btn", ".save-btn-decoy").on("click", function () {
         $(".feedback").empty();
         $(".loading-modal").show();
     });

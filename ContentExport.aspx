@@ -721,7 +721,7 @@
                         <span class="header">Database</span>
                         <asp:DropDownList runat="server" ID="ddDatabase" CssClass="ddDatabase" />
                         <input runat="server" class="txtCustomDatabase" id="txtCustomDatabase" style="display: none" />
-                        <span class="notes">Select database. Defaults to web</span>
+                        <span class="notes">Select database</span>
                     </div>
                     <div class="row">
                         <span class="header">Include ID</span>
@@ -976,6 +976,13 @@
                                             </li>
                                         </ul></li>
                                     <li>Note: The import function currently supports string, image, and link fields. It does not support more complex field types, such as droplists or multilists.</li>
+                                    <li>If you want to <b>create</b> new language versions of <b>existing items</b>, use the EDIT option</li>
+                                    <li><b>Language Versions</b>: To specify language, add a <b>Language</b> column. If no language is specified, all items will be created/edited in the default language
+                                        <ul>
+                                            <li><b>Accepted language values:</b> </li>
+                                            <li><asp:Literal ID="litLanguageList" runat="server"></asp:Literal></li>
+                                        </ul>
+                                    </li>
                                 </ul>
 
                             </div>
