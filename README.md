@@ -14,10 +14,13 @@ Access the tool in the Sitecore start menu or at [your site]/sitecore/admin/Cont
 # Files Included in Package:
  core:/sitecore/content/Applications/Content Export <br/>
  core:/sitecore/content/Documents and settings/All users/Start menu/Right/Content Export <br/>
+ master:/sitecore/system/Modules/Content Export Tool <br/>
+ master:/sitecore/templates/Modules/Content Export Tool/ <br/>
  /sitecore/admin/ContentExport.aspx	<br/>
  /sitecore/admin/ContentExport.aspx.cs	<br/>
  /sitecore/admin/ContentExport.aspx.designer.cs <br/>	
  /sitecore/admin/ContentExportScripts.js <br/>
- /temp/IconCache/Network/16x16/download.png	
- /temp/IconCache/Network/24x24/download.png	
- /temp/IconCache/Network/32x32/download.png	
+ /temp/IconCache/Network/16x16/download.png	<br/>
+ /temp/IconCache/Network/24x24/download.png	<br/>
+ /temp/IconCache/Network/32x32/download.png	<br/>
+ /sitecore/shell/Themes/Standard/Images/ProgressIndicator/sc-spinner32.gif
