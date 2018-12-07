@@ -3,26 +3,24 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Script.Serialization;
-using System.Web.UI.WebControls;
+using System.Web.UI;
 using Sitecore;
 using Sitecore.Collections;
-using Sitecore.ContentSearch.Utilities;
 using Sitecore.Data;
 using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
 using Sitecore.Data.Managers;
 using Sitecore.Globalization;
+using Sitecore.Sites;
 using ImageField = Sitecore.Data.Fields.ImageField;
 
 namespace ContentExportTool
 {
-    public partial class ContentExport : Sitecore.sitecore.admin.AdminPage
+    public partial class ContentExport : Page
     {
         #region Construction 
 
@@ -31,7 +29,7 @@ namespace ContentExportTool
         private List<FieldData> _fieldsList;
 
         protected void Page_Load(object sender, EventArgs e)
-        {
+        {           
             divAdvOptions.Attributes["class"] = "advanced";
             litUploadResponse.Text = String.Empty;
             litFeedback.Text = String.Empty;
@@ -167,7 +165,13 @@ namespace ContentExportTool
 
         protected override void OnInit(EventArgs e)
         {
-            base.CheckSecurity(true); //Required!
+            if (Sitecore.Context.User == null || !Sitecore.Context.User.IsAuthenticated || Sitecore.Context.User.Name.EndsWith("\\anonymous"))
+            {
+                SiteContext site = Sitecore.Context.Site;
+                if (site == null)
+                    return;
+                this.Response.Redirect(string.Format("{0}?returnUrl={1}", (object)site.LoginPage, (object)HttpUtility.UrlEncode(this.Request.Url.PathAndQuery)));
+            }
             base.OnInit(e);
         }
 
@@ -1239,6 +1243,13 @@ namespace ContentExportTool
                                     }
                                     catch (Exception ex)
                                     {
+                                        if (ex.Message.Contains("Add access required"))
+                                        {
+                                            output += "Line " + (line + 1) +
+                                                  " skipped; could not create item - Add access required<br/>";
+                                            continue;
+                                        }
+
                                         output += "Line " + (line + 1) +
                                                   " skipped; could not create item - invalid item name<br/>";
                                         continue;
@@ -1251,9 +1262,20 @@ namespace ContentExportTool
                                         item = item.Versions.AddVersion();
                                     }
                                 }
-                                EditItem(item, cells, itemPathIndex, itemNameIndex, itemTemplateIndex, languageIndex, fieldsMap, i,
-                                    ref output);
-                                itemsImported++;
+                                try
+                                {
+                                    EditItem(item, cells, itemPathIndex, itemNameIndex, itemTemplateIndex, languageIndex,
+                                        fieldsMap, i,
+                                        ref output);
+                                    itemsImported++;
+                                }
+                                catch (Exception ex)
+                                {
+                                    if (ex.Message.Contains("The current user does not have write access to this item"))
+                                    {
+                                        output += "Line " + (line + 1) + " skipped; you do not have write access to this item<br/>";
+                                    }
+                                }
                             }
                         }
                     }
