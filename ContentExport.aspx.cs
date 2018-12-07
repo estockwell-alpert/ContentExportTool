@@ -64,6 +64,7 @@ namespace ContentExportTool
 
         protected void SetupForm()
         {
+            radImport.Checked = true;
             chkNoDuplicates.Checked = true;
             txtSaveSettingsName.Value = string.Empty;
             PhBrowseModal.Visible = false;
@@ -400,7 +401,6 @@ namespace ContentExportTool
             foreach (var template in templateList)
             {
                 var fields = template.Fields.Where(x => x.Name[0] != '_');
-                fields = fields.OrderBy(x => x.Name);
                 fields = fields.OrderBy(x => x.Name).Where(x => !String.IsNullOrEmpty(x.Name));
                 if (fields.Any())
                 {
@@ -1114,15 +1114,6 @@ namespace ContentExportTool
         #endregion
 
         #region Run Export
-        protected void btnCreateItems_OnClick(object sender, EventArgs e)
-        {
-            ProcessImport(true);
-        }
-
-        protected void btnEditItems_OnClick(object sender, EventArgs e)
-        {
-            ProcessImport(false);
-        }
 
         protected void ProcessImport(bool createItems)
         {
@@ -1195,13 +1186,13 @@ namespace ContentExportTool
                                         return;
                                     }
                                     var name = cells[itemNameIndex].Trim();
-                                    var template = cells[itemTemplateIndex];
-                                    if (String.IsNullOrEmpty(name) || String.IsNullOrEmpty(template))
+                                    var templatePath = cells[itemTemplateIndex];
+                                    if (String.IsNullOrEmpty(name) || String.IsNullOrEmpty(templatePath))
                                     {
                                         output += "Line " + (line + 1) + " skipped; name or template not specified<br/>";
                                         continue;
                                     }
-                                    var templateItem = _db.GetTemplate(template);
+                                    var templateItem = _db.GetItem(templatePath);
                                     if (templateItem == null)
                                     {
                                         output += "Line " + (line + 1) + " skipped; could not find template<br/>";
@@ -1209,7 +1200,7 @@ namespace ContentExportTool
                                     }
                                     try
                                     {
-
+                                        var template = _db.GetTemplate(templateItem.ID);
                                         if (chkNoDuplicates.Checked)
                                         {
                                             var newItemPath = item.Paths.FullPath + "/" + name;
@@ -1223,7 +1214,7 @@ namespace ContentExportTool
                                             }
                                         }
 
-                                        var newItem = item.Add(name, templateItem);
+                                        var newItem = item.Add(name, template);
                                         // additional check for duplicates
                                         var itemsAtPath =
                                             item.Children.Where(
@@ -1444,15 +1435,39 @@ namespace ContentExportTool
         }
 
         protected void btnDownloadCSVTemplate_OnClick(object sender, EventArgs e)
-        {
-            StartResponse("CSVImportTemplate");
+        {            
+            var db = Sitecore.Configuration.Factory.GetDatabase("master");
+
+            var template = txtSampleTemplate.Text;
+
             using (StringWriter sw = new StringWriter())
             {
-                var headingString = "Item Path,Template,Name,Field1,Field2,Field3";
-                sw.WriteLine(headingString);
+                var headingString = "Item Path,Template,Name";
+                var item = String.IsNullOrEmpty(template)
+                    ? null
+                    : db.GetItem(template);
+                if (item == null)
+                {
+                    StartResponse("CSVImportTemplate");
+                    headingString += ",Field1,Field2,Field3;";
+                    sw.WriteLine(headingString);
+                }
+                else
+                {
+                    StartResponse("CSVImportTemplate - " + item.Name);
+                    var templateItem = db.GetTemplate(item.ID);
+                    var fields = templateItem.Fields.Where(x => x.Name[0] != '_');
+                    fields = fields.OrderBy(x => x.Name).Where(x => !String.IsNullOrEmpty(x.Name));
+                    headingString = fields.Aggregate(headingString, (current, field) => current + ("," + field.Name));
+                    sw.WriteLine(headingString);
+                    sw.WriteLine("," + template + "," + fields.Aggregate("", (current, field) => current + ","));
+                }
+                
                 SetCookieAndResponse(sw.ToString());
             }
         }
+
+
         #endregion
 
         #region Test Fast Query
@@ -2337,6 +2352,11 @@ namespace ContentExportTool
         {
             var allUsers = chkAllUserSettings.Checked;
             SetSavedSettingsDropdown(allUsers);
+        }
+
+        protected void btnBeginImport_OnClick(object sender, EventArgs e)
+        {
+            ProcessImport(radImport.Checked);
         }
     }
 

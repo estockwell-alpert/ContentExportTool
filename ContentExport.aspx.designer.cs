@@ -607,31 +607,22 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.FileUpload btnFileUpload;
         
         /// <summary>
-        /// btnDownloadCSVTemplate control.
+        /// radImport control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnDownloadCSVTemplate;
+        protected global::System.Web.UI.HtmlControls.HtmlInputRadioButton radImport;
         
         /// <summary>
-        /// btnCreateItems control.
+        /// radUpdate control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnCreateItems;
-        
-        /// <summary>
-        /// btnEditItems control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnEditItems;
+        protected global::System.Web.UI.HtmlControls.HtmlInputRadioButton radUpdate;
         
         /// <summary>
         /// chkNoDuplicates control.
@@ -641,6 +632,33 @@ namespace ContentExportTool {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.CheckBox chkNoDuplicates;
+        
+        /// <summary>
+        /// btnBeginImport control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnBeginImport;
+        
+        /// <summary>
+        /// txtSampleTemplate control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtSampleTemplate;
+        
+        /// <summary>
+        /// btnDownloadCSVTemplate control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnDownloadCSVTemplate;
         
         /// <summary>
         /// litLanguageList control.

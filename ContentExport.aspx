@@ -139,7 +139,8 @@
 
         .modal.browse-modal {
             z-index: 999;
-            position: absolute;
+            position: fixed;
+            top: 20%;
             background: white;
             border: 2px solid rgb(38, 148, 192);
             width: 700px;
@@ -163,7 +164,7 @@
 
         .modal.browse-modal ul {
             list-style: none;
-            width: 100%;
+            width: auto;
             margin-top: 0;
         }
 
@@ -349,7 +350,7 @@
             display: none;
         }
 
-        .modal.browse-moal a.selected, .modal.browse-moal a:hover,
+        .modal.browse-modal a.selected, .modal.browse-moal a:hover,
         .modal.browse-modal.fields a.selected, .modal.browse-modal.fields a:hover {
             font-weight: bold;
         }
@@ -591,6 +592,26 @@
             background: white;
             left: -2px;
         }
+
+        .btnSampleLink {
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: rgb(38, 148, 192);
+            padding-left: 0;
+        }
+
+        #singleTemplate .content {
+            height: 90%;
+            overflow: scroll;
+            overflow-x: hidden;
+        }
+
+        #singleTemplate .buttons {
+            float: right;
+            padding-right: 20px;
+        }
+
     </style>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
@@ -743,23 +764,16 @@
                         <textarea runat="server" id="inputTemplates" cols="60" row="5"></textarea><asp:Button runat="server" ID="btnBrowseTemplates" OnClick="btnBrowseTemplates_OnClick" CssClass="browse-btn" Text="Browse" />
                         <span class="border-notes">Enter template names and/or IDs separated by commas, or use Browse to select.
                             <br />
-                            Items will only be exported if their template is in this list. If this field is left blank, all templates will be included.</span><br />
-                        <br />
+                            Items will only be exported if their template is in this list. If this field is left blank, all templates will be included.</span>
                         <div class="hints">
                             <a class="show-hints">Hints</a>
                             <span class="notes">Example: Standard Page, {12345678-901-2345-6789-012345678901}
                             </span>
                         </div>
-                    </div>
-                    <div class="row">
-                        <span class="header">Include Template Name</span>
                         <asp:CheckBox runat="server" ID="chkIncludeTemplate" />
-                        <span class="notes">Check this box to include the template name with each item</span>
-                    </div>
-                    <div class="row">
-                        <span class="header">Include Templates that Inherit Selected Templates</span>
+                        <span class="notes"><b style="color: black">Include Template Name</b> - Check this box to include the template name with each item</span><br />
                         <asp:CheckBox runat="server" ID="chkIncludeInheritance" />
-                        <span class="notes">Check this box toinclude any templates that inherit selected templates</span>
+                        <span class="notes"><b style="color: black">Include Inheritors</b> - Check this box toinclude any templates that inherit selected templates</span>
                     </div>
                     <div class="row">
                         <span class="header">Fields</span>
@@ -898,36 +912,54 @@
                                 <asp:FileUpload runat="server" ID="btnFileUpload" Text="Upload File" />
                                 <span class="" style="display: block; margin-top: 10px;">
                                     <b>Getting Started</b><br/>
-                                    To create new items CSV must include the following fields: Item Path, Template, Name. In the Item Path field, put in the path of the parent item.
-                                    <br/>
-                                    To edit existing items, CSV must include Item Path
-                                    <br/>
+                                    To create new items, CSV must include the following fields: <b>Item Path</b>, <b>Template</b>, <b>Name</b>. In the Item Path field, put in the path of the parent item.
+                                    <br/><br/>
+                                    To edit existing items, CSV must include <b>Item Path</b>
+                                    <br/><br/>
                                     By default, the import will NOT overwrite exising items, but will only create new items.
                                     <br />
-                                    To overwrite existing items, check off the radio button below.
-                                    <br />
-                                    
-                                    <br />
-                                    <br />
-                                    <b>Download CSV Template: </b>
-                                    <asp:Button runat="server" ID="btnDownloadCSVTemplate" Text="Download Template" OnClick="btnDownloadCSVTemplate_OnClick"/>
-                                    <br/><br/><br/>
-                                </span>
-
-                                <div class="row">
-                                    <asp:Button runat="server" CssClass="import-btn" ID="btnCreateItems" OnClick="btnCreateItems_OnClick" Text="Create Items" />
-                                    <asp:Button runat="server" CssClass="import-btn" ID="btnEditItems" OnClick="btnEditItems_OnClick" Text="Edit Items" />
-                                </div>
+                                    To overwrite existing items, uncheck the checkbox below
+                                    <br /><br/>
+                                      
+                                    <input name="radDateRange" type="radio" runat="server" id="radImport" /><span><b>Create</b></span> new items using a specified Template (existing items will be ignored)<br/>
+                                    <input name="radDateRange" type="radio" runat="server" id="radUpdate" /><span><b>Update</b></span> existing items based on the item <b>Id</b> or <b>path</b> (new items will not be created)                              
+                                    <br/><br/>
+                                </span>                               
                                 
                                 <div class="row">
                                     <asp:CheckBox runat="server" ID="chkNoDuplicates"/><span class="notes"><b style="color: black">Do not create duplicates</b></span><br />
                                     <span class="notes">If this box is checked off, Create Items will not create a new item if an item with the same name and template already exists in that location</span>
                                 </div>
+
+                                <asp:Button runat="server" ID="btnBeginImport" Text="Begin Import" OnClick="btnBeginImport_OnClick"/>
+                                
+                                <br /><br/>
+
+
+                                <a href="javascript:void(0)" class="btnSampleLink">Download Sample CSV</a>
+
+                                <div class="modal browse-modal" style="display: none" id="singleTemplateModal">
+                                    <div style="width: 100%" class="select-box left" id="singleTemplate">
+                                        <div class="content">
+                                            <b style="padding: 0 20px;">Select a template to generate a sample CSV, or just click Download to get a basic CSV sample</b>
+                                            <ul style="margin-top: 10px;">
+                                                <li data-name="templates" data-id="{3C1715FE-6A13-4FCF-845F-DE308BA9741D}"><a class="browse-expand" onclick="expandNode($(this))">+</a><span></span><span>templates</span></li>
+                                            </ul>
+                                        </div>
+                                        <div class="buttons">
+                                            <asp:TextBox runat="server" Style="display: none" ID="txtSampleTemplate"></asp:TextBox>
+                                            <a class="btn start-import" onclick="downloadSample()">Download</a>
+                                            <a class="btn close-modal" onclick="closeTemplatesModal()">Cancel</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <asp:Button style="display: none;" runat="server" ID="btnDownloadCSVTemplate" Text="Download Sample" OnClick="btnDownloadCSVTemplate_OnClick" />
                                 
                                 <h3>READ ME!</h3>
                                 <p>Use the import tool carefully! Make sure to review all modified items in Sitecore before publishing.
-                                    <br/><br/>The <b>Edit Items</b> button will only edit existing items (found using the Item Path) and will ignore items that are not found.
-                                    <br/><br/>The <b>Create Items</b> button will create new items under the Item Path. An item will be created even if an item with the same path already exists, unless you check off "Do not create duplicates"
+                                    <br/><br/>The <b>Update</b> option will only edit existing items (found using the Item Path) and will ignore items that are not found.
+                                    <br/><br/>The <b>Import</b> button will create new items under the Item Path. An item will not be created if an item with the same path and template already exists, unless you uncheck "Do not create duplicates"
                                 </p>
                                 
                                 <h3>Tips:</h3>

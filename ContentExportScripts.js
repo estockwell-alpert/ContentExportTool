@@ -1,39 +1,19 @@
-﻿$(document).ready(function () {
+﻿$(document).ready(function() {
 
     $("#txtStartDateCr, #txtStartDatePb, #txtEndDateCr, #txtEndDatePu").datepicker();
 
+    $(".btnSampleLink").on("click", function() {
+        $("#singleTemplateModal").show();
+    });
+
     var loadingModalHtml = "<div class='loading-modal'><div class='loading-box'><div class='loader'></div></div></div>";
-
-    function checkIfFileDownloaded(downloadToken) {
-        var token = getCookie("DownloadToken");
-
-        if ((token == downloadToken)) {
-            //$("#loading-text").html("");
-            $(".loading-modal").hide();
-            expireCookie("DownloadToken");
-        } else {
-            setTimeout(function () {
-                checkIfFileDownloaded(downloadToken)
-            }, 1000)
-        }
-    }
-
-    function getCookie(name) {
-        var parts = document.cookie.split(name + "=");
-        if (parts.length == 2) return parts.pop().split(";").shift();
-    }
-
-    function expireCookie(cName) {
-        document.cookie =
-            encodeURIComponent(cName) + "=deleted; expires=" + new Date(0).toUTCString();
-    }
 
     $(".browse-btn", ".save-btn-decoy").on("click", function () {
         $(".feedback").empty();
         $(".loading-modal").show();
     });
 
-    $("#btnRunExport, #btnRunExportDupe, #btnAdvancedSearch").on("click", function () {
+    $("#btnRunExport, #btnRunExportDupe, #btnAdvancedSearch", ".start-import").on("click", function () {
         $(".feedback").empty();
         $(".loading-modal").show();
         //$("#loading-text").html(loadingModalHtml);
@@ -41,10 +21,6 @@
         $("#txtDownloadToken").val(downloadToken)
         checkIfFileDownloaded(downloadToken);
     });
-
-    $(".import-btn").on("click", function () {
-        $(".loading-modal").show();
-    })
 
     $(".advanced-btn").on("click", function () {
         if ($(this).parent().hasClass("open")) {
@@ -211,7 +187,7 @@ function loadFields(id, parentNode) {
 function loadChildren(id, parentNode) {
     $(parentNode).append("<img class='scSpinner' width='10' src='/sitecore/shell/themes/standard/Images/ProgressIndicator/sc-spinner32.gif'/>");
     var innerHtml = "<ul>";
-    var templates = isTemplate();
+    var templates = isTemplate() || $(parentNode).parents("#singleTemplateModal").length === 1;
     getItemChildren(id).then(function (results) {
         if (results.length) {
             var children = results;
@@ -251,6 +227,30 @@ function loadChildren(id, parentNode) {
             $(parentNode).addClass("loaded");
         }
     });
+}
+
+function checkIfFileDownloaded(downloadToken) {
+    var token = getCookie("DownloadToken");
+
+    if ((token == downloadToken)) {
+        //$("#loading-text").html("");
+        $(".loading-modal").hide();
+        expireCookie("DownloadToken");
+    } else {
+        setTimeout(function () {
+            checkIfFileDownloaded(downloadToken)
+        }, 1000)
+    }
+}
+
+function getCookie(name) {
+    var parts = document.cookie.split(name + "=");
+    if (parts.length == 2) return parts.pop().split(";").shift();
+}
+
+function expireCookie(cName) {
+    document.cookie =
+        encodeURIComponent(cName) + "=deleted; expires=" + new Date(0).toUTCString();
 }
 
 function getClickableBrowseItem(path, name) {
@@ -299,6 +299,20 @@ function selectAddedTemplate(node) {
     $(".browse-modal a").removeClass("selected");
     $(node).addClass("selected");
     $(".temp-selected-remove").html($(node).html());
+}
+
+function downloadSample() {
+    var templateNode = $("#singleTemplate").find(".selected");
+    $("#txtSampleTemplate").val(templateNode.attr("data-path"));
+    $("#singleTemplate .close-modal").click();
+    
+    var downloadToken = new Date().getTime();
+    $("#txtDownloadToken").val(downloadToken);
+
+    $("#btnDownloadCSVTemplate").click();
+    $(".loading-modal").show();
+
+    checkIfFileDownloaded(downloadToken);
 }
 
 function removeTemplate() {
