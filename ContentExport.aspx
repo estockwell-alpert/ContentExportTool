@@ -349,12 +349,12 @@
             display: none;
         }
 
-        .modal.browse-modal.templates a.selected, .modal.browse-modal.templates a:hover,
+        .modal.browse-moal a.selected, .modal.browse-moal a:hover,
         .modal.browse-modal.fields a.selected, .modal.browse-modal.fields a:hover {
             font-weight: bold;
         }
 
-        .modal.browse-modal.templates a .modal.browse-modal.fields a {
+        .modal.browse-moal a .modal.browse-modal.fields a {
             font-weight: normal;
             font-size: 14px;
         }
@@ -374,11 +374,11 @@
             top: -13px;
         }
 
-        .modal.browse-modal.templates a {
+        .modal.browse-moal a {
             font-weight: normal;
         }
 
-        .modal.browse-modal.templates span {
+        .modal.browse-moal span {
             color: darkgray;
             margin-left: 5px;
         }
@@ -424,6 +424,7 @@
             width: 100%;
             padding-left: 0;
             margin: 0;
+            padding-top: 10px;
         }
 
         .modal.browse-modal ul.selected-box-list li {
@@ -584,7 +585,7 @@
             font-weight: 600;
         }
 
-        .selector-box img.scSpinner {
+        .select-box img.scSpinner {
             position: absolute;
             top: 3px;
             background: white;
@@ -647,30 +648,12 @@
                         <asp:CheckBox runat="server" AutoPostBack="True" OnCheckedChanged="chkAllUserSettings_OnCheckedChanged" ID="chkAllUserSettings"/><span class="notes">Show settings for all users</span>
                     </div>
                 </div>
-                <div class="container">
+                <div class="container">                
 
-                    <asp:PlaceHolder runat="server" ID="PhBrowseTree">
-                        <div class="modal browse-modal">
-                            <div class="selector-box left">
-                                <asp:Literal runat="server" ID="litSitecoreContentTree"></asp:Literal>
-                            </div>
-                            <div class="selection-box">
-                                <div class="selection-box-inner">
-                                    <span class="header">Selected node:</span><br />
-                                    <span class="selected-node">(No node selected)</span>
-                                    <div class="browse-btns">
-                                        <a href="javascript:void(0)" class="btn disabled select-node-btn" onclick="confirmSelection();">Select</a>
-                                        <a class="btn close-modal" onclick="closeTreeBox()">Cancel</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </asp:PlaceHolder>
-
-                    <asp:PlaceHolder runat="server" ID="PhBrowseTemplates">
-                        <div class="modal browse-modal templates">
+                    <asp:PlaceHolder runat="server" ID="PhBrowseModal">
+                        <div class="" runat="server" id="divBrowseContainer">
                             <div class="select-box left" id="templateLinks">
-                                <asp:Literal runat="server" ID="litBrowseTemplates"></asp:Literal>
+                                <asp:Literal runat="server" ID="litBrowseTree"></asp:Literal>
                             </div>
                             <div class="arrows">
                                 <a class="btn" onclick="addTemplate()">&raquo;</a>
@@ -683,7 +666,7 @@
                                 </ul>
                                 <div class="browse-btns">
                                     <a href="javascript:void" class="btn clear-selections" onclick="clearModalSelections();">Clear</a>
-                                    <a href="javascript:void(0)" class="btn disabled select-node-btn" onclick="confirmTemplateSelection();">Select</a>
+                                    <a href="javascript:void(0)" class="btn disabled select-node-btn" onclick="confirmBrowseSelection();">Select</a>
                                     <a class="btn close-modal" onclick="closeTemplatesModal()">Cancel</a>
                                 </div>
                             </div>
@@ -734,12 +717,11 @@
                         <span class="notes">Check this box to include the item name</span>
                     </div>
                     <div class="row">
-                        <span class="header">Start Item</span>
+                        <span class="header">Start Item(s)</span>
                         <a class="clear-btn" data-id="inputStartitem">clear</a>
-                        <input runat="server" id="inputStartitem" /><asp:Button runat="server" ID="btnBrowse" OnClick="btnBrowse_OnClick" CssClass="browse-btn" Text="Browse" />
-                        <span class="border-notes">Enter the path or ID of the starting node, or use Browse* to select.<br />
-                            Only content beneath and including this node will be exported. If field is left blank, the starting node will be /sitecore/content.<br />
-                            *Browse might take a while to load</span>
+                        <textarea runat="server" id="inputStartitem" /><asp:Button runat="server" ID="btnBrowse" OnClick="btnBrowse_OnClick" CssClass="browse-btn" Text="Browse" />
+                        <span class="border-notes">Enter the path or ID of each starting node, or use Browse to select.<br />
+                            Only content beneath and including this node will be exported. If field is left blank, the starting node will be /sitecore/content.</span>
                     </div>
                     <div class="row">
                         <span>OR</span>
@@ -750,7 +732,7 @@
                         <input runat="server" id="txtFastQuery" />
                         <asp:Button runat="server" ID="btnTestFastQuery" OnClick="btnTestFastQuery_OnClick" Text="Test" />
                         <span class="border-notes">Enter a fast query to run a filtered export. You can use the Templates box as well.<br />
-                            Example: fast:/sitecore/content/Home//*[@__Updated >= '20140610' and @__Updated <'20140611']</span><br />
+                            Example: fast:/sitecore/content/Home//*[@__Updated >= '20180101' and @__Updated <= '20181231']</span><br />
                         <span class="lit-fast-query">
                             <asp:Literal runat="server" ID="litFastQueryTest"></asp:Literal>
                         </span>
@@ -836,13 +818,7 @@
                                     <input type="text" runat="server" id="txtEndDatePu" autocomplete="off" />
                                     <span class="border-notes">Only return items last published between the selected time span</span>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <span class="header">Multiple Start Items</span>
-                                <a class="clear-btn" data-id="inputMultiStartItem">clear</a>
-                                <textarea cols="60" row="5" runat="server" id="inputMultiStartItem"></textarea>
-                                <span class="border-notes">Enter multiple start paths or item IDs separated by comma to include items under separate starting nodes; can be used in tandem with Start Item/ fast query</span><br />
-                            </div>
+                            </div>                            
                             <div class="row">
                                 <span class="header">Only include items with layout</span>
                                 <asp:CheckBox runat="server" ID="chkItemsWithLayout" />
@@ -921,7 +897,8 @@
                                 <%--                                <span class="header"><b>Advanced Search:</b></span>--%>
                                 <asp:FileUpload runat="server" ID="btnFileUpload" Text="Upload File" />
                                 <span class="" style="display: block; margin-top: 10px;">
-                                    <b>Important:</b>To create new items CSV must include the following fields: Item Path, Template, Name. In the Item Path field, put in the path of the parent item.
+                                    <b>Getting Started</b><br/>
+                                    To create new items CSV must include the following fields: Item Path, Template, Name. In the Item Path field, put in the path of the parent item.
                                     <br/>
                                     To edit existing items, CSV must include Item Path
                                     <br/>

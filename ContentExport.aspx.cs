@@ -66,8 +66,7 @@ namespace ContentExportTool
         {
             chkNoDuplicates.Checked = true;
             txtSaveSettingsName.Value = string.Empty;
-            PhBrowseTree.Visible = false;
-            PhBrowseTemplates.Visible = false;
+            PhBrowseModal.Visible = false;
             PhBrowseFields.Visible = false;
             var databaseNames = Sitecore.Configuration.Factory.GetDatabaseNames().ToList();
             // make web the default database
@@ -100,7 +99,6 @@ namespace ContentExportTool
                     !String.IsNullOrEmpty(txtEndDateCr.Value) ||
                     !String.IsNullOrEmpty(txtStartDatePb.Value) ||
                     !String.IsNullOrEmpty(txtEndDatePu.Value) ||
-                    !String.IsNullOrEmpty(inputMultiStartItem.Value) ||
                     !String.IsNullOrEmpty(txtFileName.Value) ||
                     chkIncludeIds.Checked ||
                     chkIncludeRawHtml.Checked ||
@@ -225,10 +223,10 @@ namespace ContentExportTool
 
         protected void btnBrowse_OnClick(object sender, EventArgs e)
         {
-            litSitecoreContentTree.Text = GetSitecoreTreeHtml();
-            PhBrowseTree.Visible = true;
+            litBrowseTree.Text = GetSitecoreTreeHtml();
+            divBrowseContainer.Attributes["class"] = "modal browse-modal content";
+            PhBrowseModal.Visible = true;
             PhBrowseFields.Visible = false;
-            PhBrowseTemplates.Visible = false;
         }
 
         protected string GetSitecoreTreeHtml()
@@ -284,10 +282,10 @@ namespace ContentExportTool
 
         protected void btnBrowseTemplates_OnClick(object sender, EventArgs e)
         {
-            litBrowseTemplates.Text = GetAvailableTemplates();
-            PhBrowseTemplates.Visible = true;
+            litBrowseTree.Text = GetAvailableTemplates();
+            divBrowseContainer.Attributes["class"] = "modal browse-modal templates";
+            PhBrowseModal.Visible = true;
             PhBrowseFields.Visible = false;
-            PhBrowseTree.Visible = false;
         }
 
         protected string GetAvailableTemplates()
@@ -352,8 +350,7 @@ namespace ContentExportTool
         {
             litBrowseFields.Text = GetAvailableFields();
             PhBrowseFields.Visible = true;
-            PhBrowseTree.Visible = false;
-            PhBrowseTemplates.Visible = false;
+            PhBrowseModal.Visible = false;
         }
 
         protected string GetAvailableFields()
@@ -1494,8 +1491,7 @@ namespace ContentExportTool
         protected void btnSaveSettings_OnClick(object sender, EventArgs e)
         {
             PhBrowseFields.Visible = false;
-            PhBrowseTemplates.Visible = false;
-            PhBrowseTree.Visible = false;
+            PhBrowseModal.Visible = false;
 
             var saveName = txtSaveSettingsName.Value;
 
@@ -1516,7 +1512,6 @@ namespace ContentExportTool
                 GetAllLanguages = chkAllLanguages.Checked,
                 IncludeName = chkIncludeName.Checked,
                 IncludeInheritance = chkIncludeInheritance.Checked,
-                MultipleStartPaths = inputMultiStartItem.Value,
                 DateCreated = chkDateCreated.Checked,
                 DateModified = chkDateModified.Checked,
                 CreatedBy = chkCreatedBy.Checked,
@@ -1599,8 +1594,7 @@ namespace ContentExportTool
 
         protected void ddSavedSettings_OnSelectedIndexChanged(object sender, EventArgs e)
         {
-            PhBrowseTree.Visible = false;
-            PhBrowseTemplates.Visible = false;
+            PhBrowseModal.Visible = false;
             PhBrowseFields.Visible = false;
 
             var settingsId = ddSavedSettings.SelectedValue;
@@ -1641,7 +1635,6 @@ namespace ContentExportTool
             chkAllLanguages.Checked = settings.GetAllLanguages;
             chkIncludeName.Checked = settings.IncludeName;
             chkIncludeInheritance.Checked = settings.IncludeInheritance;
-            inputMultiStartItem.Value = settings.MultipleStartPaths;
             chkDateCreated.Checked = settings.DateCreated;
             chkDateModified.Checked = settings.DateModified;
             chkCreatedBy.Checked = settings.CreatedBy;
@@ -1683,7 +1676,6 @@ namespace ContentExportTool
                 !String.IsNullOrEmpty(settings.EndDateCr) ||
                 !String.IsNullOrEmpty(settings.StartDatePb) ||
                 !String.IsNullOrEmpty(settings.EndDatePb) ||
-                !String.IsNullOrEmpty(settings.MultipleStartPaths) ||
                 settings.RequireLayout ||
                 settings.IncludeLinkedIds ||
                 settings.IncludeRaw ||
@@ -1732,7 +1724,6 @@ namespace ContentExportTool
             chkDateModified.Checked = false;
             chkCreatedBy.Checked = false;
             chkModifiedBy.Checked = false;
-            inputMultiStartItem.Value = string.Empty;
             chkIncludeName.Checked = false;
             chkReferrers.Checked = false;
             txtFileName.Value = string.Empty;
@@ -1746,8 +1737,7 @@ namespace ContentExportTool
             radDateRangeOr.Checked = true;
             radDateRangeAnd.Checked = false;
 
-            PhBrowseTree.Visible = false;
-            PhBrowseTemplates.Visible = false;
+            PhBrowseModal.Visible = false;
             PhBrowseFields.Visible = false;
         }
 
@@ -1776,7 +1766,6 @@ namespace ContentExportTool
                 GetAllLanguages = chkAllLanguages.Checked,
                 IncludeName  = chkIncludeName.Checked,
                 IncludeInheritance = chkIncludeInheritance.Checked,
-                MultipleStartPaths = inputMultiStartItem.Value,
                 DateCreated = chkDateCreated.Checked,
                 DateModified = chkDateModified.Checked,
                 CreatedBy = chkCreatedBy.Checked,
@@ -1810,8 +1799,7 @@ namespace ContentExportTool
 
         protected void btnDeleteSavedSetting_OnClick(object sender, EventArgs e)
         {
-            PhBrowseTree.Visible = false;
-            PhBrowseTemplates.Visible = false;
+            PhBrowseModal.Visible = false;
             PhBrowseFields.Visible = false;
 
             var settingsId = ddSavedSettings.SelectedValue;
@@ -2052,9 +2040,10 @@ namespace ContentExportTool
             {
                 var queryItems = _db.SelectItems(fastQuery);
                 exportItems = queryItems.ToList();
-            }else if (!string.IsNullOrWhiteSpace(inputMultiStartItem.Value))
+            }else
             {
-                var startItems = inputMultiStartItem.Value.Split(',');
+                var startItems = inputStartitem.Value.Split(',');
+                if (string.IsNullOrWhiteSpace(startNode)) startItems = new String[] { "/sitecore/content" };
                 foreach (var startItem in startItems)
                 {
                     Item item = _db.GetItem(startItem.Trim());
@@ -2065,13 +2054,6 @@ namespace ContentExportTool
                     exportItems.Add(item);
                     exportItems.AddRange(descendants);
                 }
-            }
-            else
-            {
-                Item startItem = _db.GetItem(startNode);
-                var descendants = startItem.Axes.GetDescendants();
-                exportItems.Add(startItem);
-                exportItems.AddRange(descendants);
             }
        
             // created AND published filters
@@ -2275,9 +2257,8 @@ namespace ContentExportTool
 
         protected void HideModals(bool hideBrowse, bool hideTemplates, bool hideFields)
         {
-            PhBrowseTree.Visible = hideBrowse;
-            PhBrowseFields.Visible = hideTemplates;
-            PhBrowseTemplates.Visible = hideFields;
+            PhBrowseModal.Visible = hideBrowse && hideTemplates;
+            PhBrowseFields.Visible = hideFields;
         }
 
         protected SettingsList ReadSettingsFromFile(bool allUsers = false)

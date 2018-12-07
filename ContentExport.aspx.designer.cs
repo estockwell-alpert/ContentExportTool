@@ -130,40 +130,31 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.CheckBox chkAllUserSettings;
         
         /// <summary>
-        /// PhBrowseTree control.
+        /// PhBrowseModal control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.PlaceHolder PhBrowseTree;
+        protected global::System.Web.UI.WebControls.PlaceHolder PhBrowseModal;
         
         /// <summary>
-        /// litSitecoreContentTree control.
+        /// divBrowseContainer control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal litSitecoreContentTree;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl divBrowseContainer;
         
         /// <summary>
-        /// PhBrowseTemplates control.
+        /// litBrowseTree control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.PlaceHolder PhBrowseTemplates;
-        
-        /// <summary>
-        /// litBrowseTemplates control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal litBrowseTemplates;
+        protected global::System.Web.UI.WebControls.Literal litBrowseTree;
         
         /// <summary>
         /// PhBrowseFields control.
@@ -244,7 +235,7 @@ namespace ContentExportTool {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputText inputStartitem;
+        protected global::System.Web.UI.HtmlControls.HtmlTextArea inputStartitem;
         
         /// <summary>
         /// btnBrowse control.
@@ -461,15 +452,6 @@ namespace ContentExportTool {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlInputText txtEndDatePu;
-        
-        /// <summary>
-        /// inputMultiStartItem control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlTextArea inputMultiStartItem;
         
         /// <summary>
         /// chkItemsWithLayout control.

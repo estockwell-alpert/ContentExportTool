@@ -211,7 +211,7 @@ function loadFields(id, parentNode) {
 function loadChildren(id, parentNode) {
     $(parentNode).append("<img class='scSpinner' width='10' src='/sitecore/shell/themes/standard/Images/ProgressIndicator/sc-spinner32.gif'/>");
     var innerHtml = "<ul>";
-    var templates = isTemplate(parentNode);
+    var templates = isTemplate();
     getItemChildren(id).then(function (results) {
         if (results.length) {
             var children = results;
@@ -257,9 +257,8 @@ function getClickableBrowseItem(path, name) {
     return "<a class='sitecore-node' href='javascript:void(0)' ondblclick='selectNode($(this));addTemplate();' onclick='selectNode($(this));' data-path='" + path + "' data-name='" + name + "'>" + name + "</a>";
 }
 
-function isTemplate(node) {
-    var templateParent = $(node).parents("#templateLinks");
-    if (templateParent.length > 0) {
+function isTemplate() {
+    if($("#divBrowseContainer").hasClass("templates")) {
         return true;
     }
     return false;
@@ -268,19 +267,7 @@ function isTemplate(node) {
 function selectNode(node) {
 
     // if link is in the template model:
-    if (isTemplate(node)) {
-        selectBrowseNode(node);
-    } else {
-        $(".select-node-btn").removeClass("disabled");
-        var nodePath = $(node).attr("data-path");
-        $(".selected-node").html(nodePath);
-    }
-}
-
-function confirmSelection() {
-    var nodePath = $(".selected-node").html();
-    closeTreeBox();
-    $("#inputStartitem").val(nodePath);
+    selectBrowseNode(node);
 }
 
 function closeTreeBox() {
@@ -309,7 +296,7 @@ function addTemplate() {
 }
 
 function selectAddedTemplate(node) {
-    $(".browse-modal.templates a").removeClass("selected");
+    $(".browse-modal a").removeClass("selected");
     $(node).addClass("selected");
     $(".temp-selected-remove").html($(node).html());
 }
@@ -331,14 +318,19 @@ function enableDisableSelect() {
     }
 }
 
-function confirmTemplateSelection() {
-    var templateString = getSelectedString();
-    $("#inputTemplates").html(templateString);
+function confirmBrowseSelection() {
+    var str = getSelectedString();
+    if (isTemplate()) {
+        $("#inputTemplates").html(str);
+    } else {
+        $("#inputStartitem").html(str);
+    }
+    
     closeTemplatesModal();
 }
 
 function closeTemplatesModal() {
-    $(".browse-modal.templates").hide();
+    $(".browse-modal").hide();
 }
 
 function closeFieldModal() {
