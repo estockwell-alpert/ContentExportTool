@@ -785,10 +785,17 @@
                         <asp:CheckBox runat="server" ID="chkComponentFields" />
                         <span class="notes"><b style="color: black">Include Component Fields</b> - This will export the values of fields that are on a page's component items as well as on the page item itself</span>
                     </div>
-                                    
+                                                        
                     <div runat="server" ID="divAdvOptions">
                         <a class="advanced-btn">Advanced Options</a>
                         <div class="advanced-inner">
+                            <div class="row advanced-search">
+                                <span class="header"><b>Component Audit</b></span>
+                                <span class="notes">
+                                    Run this export to audit the components on each Sitecore item. You can use the Start Item, Template and Created/Published Date filters and Language options to select items. The exported data will include the name of the component, the page it is on, and any associated datasource item
+                                </span><br/><br/>
+                                <asp:Button runat="server" ID="btnComponentAuduit" OnClick="btnComponentAuduit_OnClick" Text="Run Audit"/>
+                            </div>
                             <div class="row advanced-search">
                                 <span class="header"><b>Advanced Search:</b></span>
                                 <input runat="server" id="txtAdvancedSearch" /><asp:Button runat="server" ID="btnAdvancedSearch" OnClick="btnAdvancedSearch_OnClick" Text="Go" />

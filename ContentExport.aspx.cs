@@ -15,6 +15,7 @@ using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
 using Sitecore.Data.Managers;
 using Sitecore.Globalization;
+using Sitecore.Layouts;
 using Sitecore.Sites;
 using ImageField = Sitecore.Data.Fields.ImageField;
 
@@ -468,14 +469,6 @@ namespace ContentExportTool
 
                 var allLanguages = chkAllLanguages.Checked;
                 var selectedLanguage = ddLanguages.SelectedValue;
-
-                var templateString = inputTemplates.Value;
-                var templates = templateString.ToLower().Split(',').Select(x => x.Trim()).ToList();
-
-                if (chkIncludeInheritance.Checked && !String.IsNullOrEmpty(templateString))
-                {                    
-                    templates.AddRange(GetInheritors(templates));
-                }
                                   
                 List<Item> items = GetItems();
 
@@ -2064,12 +2057,15 @@ namespace ContentExportTool
         }
 
         public List<Item> GetItems()
-        {
-            var startNode = inputStartitem.Value;
-            if (string.IsNullOrWhiteSpace(startNode)) startNode = "/sitecore/content";
-
+        {            
             var templateString = inputTemplates.Value;
             var templates = templateString.ToLower().Split(',').Select(x => x.Trim()).ToList();
+
+            if (chkIncludeInheritance.Checked && !String.IsNullOrEmpty(templateString))
+            {
+                templates.AddRange(GetInheritors(templates));
+            }
+
             var fastQuery = txtFastQuery.Value;
 
             var exportItems = new List<Item>();
@@ -2079,8 +2075,10 @@ namespace ContentExportTool
                 exportItems = queryItems.ToList();
             }else
             {
-                var startItems = inputStartitem.Value.Split(',');
-                if (string.IsNullOrWhiteSpace(startNode)) startItems = new String[] { "/sitecore/content" };
+                var startNode = inputStartitem.Value;
+                List<String> startItems;
+                if (string.IsNullOrWhiteSpace(startNode)) startItems = new List<String> { "/sitecore/content" };
+                else startItems = inputStartitem.Value.Split(',').ToList();
                 foreach (var startItem in startItems)
                 {
                     Item item = _db.GetItem(startItem.Trim());
@@ -2380,7 +2378,99 @@ namespace ContentExportTool
         {
             ProcessImport(radImport.Checked);
         }
+
+        protected void btnComponentAuduit_OnClick(object sender, EventArgs e)
+        {
+            litFastQueryTest.Text = "";
+
+            try
+            {
+                if (!SetDatabase())
+                {
+                    litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
+                    return;
+                }
+
+
+                if (_db == null)
+                {
+                    litFeedback.Text = "Invalid database. Selected database does not exist.";
+                    return;
+                }
+                var items = GetItems();
+
+                StartResponse(!string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "ComponentAudit");
+
+                using (StringWriter sw = new StringWriter())
+                {
+                    var headingString = "Item Path,Component Name,Datasource Item, Datasource Template,Placeholder";
+
+                    sw.WriteLine(headingString);
+
+                    var allLanguages = chkAllLanguages.Checked;
+                    var selectedLanguage = ddLanguages.SelectedValue;
+
+                    foreach (var baseItem in items)
+                    {
+                        try
+                        {
+                            var itemVersions = GetItemVersions(baseItem, allLanguages, selectedLanguage);
+
+                            foreach (var item in itemVersions)
+                            {
+                                if (item == null) continue;
+
+                                var itemPath = item.Paths.ContentPath;
+                                if (String.IsNullOrEmpty(itemPath)) continue;
+
+                                if (!DoesItemHasPresentationDetails(item)) continue;
+
+                                var renderings =
+                                    item.Visualization.GetRenderings(Sitecore.Context.Device, true).ToList();
+                                if (renderings == null || renderings.Count == 0) continue;
+
+                                foreach (var rendering in renderings)
+                                {
+                                    try
+                                    {
+                                        var renderingItem = rendering.RenderingItem;
+                                        if (renderingItem == null) continue;
+                                        var datasourceId = renderingItem.DataSource;
+                                        var name = renderingItem.Name;
+                                        var datasource = String.IsNullOrEmpty(datasourceId)
+                                            ? null
+                                            : _db.GetItem(datasourceId);
+
+                                        var itemLine = String.Format("{0},{1},{2},{3},{4}", itemPath, name,
+                                            datasource == null ? "" : datasource.Paths.ContentPath,
+                                            datasource == null ? "" : datasource.TemplateName, rendering.Placeholder);
+                                        sw.WriteLine(itemLine);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            
+                        }
+                    }
+
+                    SetCookieAndResponse(sw.ToString());
+
+                }
+            }
+            catch (Exception ex)
+            {
+                litFeedback.Text = "<span style='color:red'>" + ex + "</span>";
+            }
+        }
     }
+
+    
 
     #region Classes
 
