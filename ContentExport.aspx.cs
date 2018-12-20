@@ -470,7 +470,7 @@ namespace ContentExportTool
                 var allLanguages = chkAllLanguages.Checked;
                 var selectedLanguage = ddLanguages.SelectedValue;
                                   
-                List<Item> items = GetItems();
+                List<Item> items = GetItems(!chkNoChildren.Checked);
 
                 _fieldsList = new List<FieldData>();
                 var fields = fieldString.Split(',').Select(x => x.Trim()).Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
@@ -2056,7 +2056,7 @@ namespace ContentExportTool
             _db = Sitecore.Configuration.Factory.GetDatabase(databaseName);
         }
 
-        public List<Item> GetItems()
+        public List<Item> GetItems(bool children = true)
         {            
             var templateString = inputTemplates.Value;
             var templates = templateString.ToLower().Split(',').Select(x => x.Trim()).ToList();
@@ -2084,10 +2084,14 @@ namespace ContentExportTool
                     Item item = _db.GetItem(startItem.Trim());
                     if (item == null)
                         continue;
-
-                    var descendants = item.Axes.GetDescendants();
+                                       
                     exportItems.Add(item);
-                    exportItems.AddRange(descendants);
+                    if (children)
+                    {
+                        var descendants = item.Axes.GetDescendants();
+                        exportItems.AddRange(descendants);
+                    }
+
                 }
             }
        
@@ -2397,7 +2401,7 @@ namespace ContentExportTool
                     litFeedback.Text = "Invalid database. Selected database does not exist.";
                     return;
                 }
-                var items = GetItems();
+                var items = GetItems(!chkNoChildren.Checked);
 
                 StartResponse(!string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "ComponentAudit");
 
@@ -2433,10 +2437,8 @@ namespace ContentExportTool
                                 {
                                     try
                                     {
-                                        var renderingItem = rendering.RenderingItem;
-                                        if (renderingItem == null) continue;
-                                        var datasourceId = renderingItem.DataSource;
-                                        var name = renderingItem.Name;
+                                        var datasourceId = rendering.Settings.DataSource;
+                                        var name = rendering.WebEditDisplayName;
                                         var datasource = String.IsNullOrEmpty(datasourceId)
                                             ? null
                                             : _db.GetItem(datasourceId);

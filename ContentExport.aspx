@@ -743,6 +743,9 @@
                         <textarea runat="server" id="inputStartitem" /><asp:Button runat="server" ID="btnBrowse" OnClick="btnBrowse_OnClick" CssClass="browse-btn" Text="Browse" />
                         <span class="border-notes">Enter the path or ID of each starting node, or use Browse to select.<br />
                             Only content beneath and including this node will be exported. If field is left blank, the starting node will be /sitecore/content.</span>
+                        
+                        <asp:CheckBox runat="server" ID="chkNoChildren"/><span class="notes"><b style="color:black">No children</b> (only include the items selected above)</span><br/><br/>
+
                     </div>
                     <div class="row">
                         <span>OR</span>
