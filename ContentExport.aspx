@@ -139,7 +139,8 @@
 
         .modal.browse-modal {
             z-index: 999;
-            position: absolute;
+            position: fixed;
+            top: 20%;
             background: white;
             border: 2px solid rgb(38, 148, 192);
             width: 700px;
@@ -163,7 +164,7 @@
 
         .modal.browse-modal ul {
             list-style: none;
-            width: 100%;
+            width: auto;
             margin-top: 0;
         }
 
@@ -349,12 +350,12 @@
             display: none;
         }
 
-        .modal.browse-modal.templates a.selected, .modal.browse-modal.templates a:hover,
+        .modal.browse-modal a.selected, .modal.browse-moal a:hover,
         .modal.browse-modal.fields a.selected, .modal.browse-modal.fields a:hover {
             font-weight: bold;
         }
 
-        .modal.browse-modal.templates a .modal.browse-modal.fields a {
+        .modal.browse-moal a .modal.browse-modal.fields a {
             font-weight: normal;
             font-size: 14px;
         }
@@ -374,11 +375,11 @@
             top: -13px;
         }
 
-        .modal.browse-modal.templates a {
+        .modal.browse-moal a {
             font-weight: normal;
         }
 
-        .modal.browse-modal.templates span {
+        .modal.browse-moal span {
             color: darkgray;
             margin-left: 5px;
         }
@@ -424,6 +425,7 @@
             width: 100%;
             padding-left: 0;
             margin: 0;
+            padding-top: 10px;
         }
 
         .modal.browse-modal ul.selected-box-list li {
@@ -584,12 +586,32 @@
             font-weight: 600;
         }
 
-        .selector-box img.scSpinner {
+        .select-box img.scSpinner {
             position: absolute;
             top: 3px;
             background: white;
             left: -2px;
         }
+
+        .btnSampleLink {
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: rgb(38, 148, 192);
+            padding-left: 0;
+        }
+
+        #singleTemplate .content {
+            height: 90%;
+            overflow: scroll;
+            overflow-x: hidden;
+        }
+
+        #singleTemplate .buttons {
+            float: right;
+            padding-right: 20px;
+        }
+
     </style>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
@@ -647,30 +669,12 @@
                         <asp:CheckBox runat="server" AutoPostBack="True" OnCheckedChanged="chkAllUserSettings_OnCheckedChanged" ID="chkAllUserSettings"/><span class="notes">Show settings for all users</span>
                     </div>
                 </div>
-                <div class="container">
+                <div class="container">                
 
-                    <asp:PlaceHolder runat="server" ID="PhBrowseTree">
-                        <div class="modal browse-modal">
-                            <div class="selector-box left">
-                                <asp:Literal runat="server" ID="litSitecoreContentTree"></asp:Literal>
-                            </div>
-                            <div class="selection-box">
-                                <div class="selection-box-inner">
-                                    <span class="header">Selected node:</span><br />
-                                    <span class="selected-node">(No node selected)</span>
-                                    <div class="browse-btns">
-                                        <a href="javascript:void(0)" class="btn disabled select-node-btn" onclick="confirmSelection();">Select</a>
-                                        <a class="btn close-modal" onclick="closeTreeBox()">Cancel</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </asp:PlaceHolder>
-
-                    <asp:PlaceHolder runat="server" ID="PhBrowseTemplates">
-                        <div class="modal browse-modal templates">
+                    <asp:PlaceHolder runat="server" ID="PhBrowseModal">
+                        <div class="" runat="server" id="divBrowseContainer">
                             <div class="select-box left" id="templateLinks">
-                                <asp:Literal runat="server" ID="litBrowseTemplates"></asp:Literal>
+                                <asp:Literal runat="server" ID="litBrowseTree"></asp:Literal>
                             </div>
                             <div class="arrows">
                                 <a class="btn" onclick="addTemplate()">&raquo;</a>
@@ -683,7 +687,7 @@
                                 </ul>
                                 <div class="browse-btns">
                                     <a href="javascript:void" class="btn clear-selections" onclick="clearModalSelections();">Clear</a>
-                                    <a href="javascript:void(0)" class="btn disabled select-node-btn" onclick="confirmTemplateSelection();">Select</a>
+                                    <a href="javascript:void(0)" class="btn disabled select-node-btn" onclick="confirmBrowseSelection();">Select</a>
                                     <a class="btn close-modal" onclick="closeTemplatesModal()">Cancel</a>
                                 </div>
                             </div>
@@ -734,12 +738,14 @@
                         <span class="notes">Check this box to include the item name</span>
                     </div>
                     <div class="row">
-                        <span class="header">Start Item</span>
+                        <span class="header">Start Item(s)</span>
                         <a class="clear-btn" data-id="inputStartitem">clear</a>
-                        <input runat="server" id="inputStartitem" /><asp:Button runat="server" ID="btnBrowse" OnClick="btnBrowse_OnClick" CssClass="browse-btn" Text="Browse" />
-                        <span class="border-notes">Enter the path or ID of the starting node, or use Browse* to select.<br />
-                            Only content beneath and including this node will be exported. If field is left blank, the starting node will be /sitecore/content.<br />
-                            *Browse might take a while to load</span>
+                        <textarea runat="server" id="inputStartitem" /><asp:Button runat="server" ID="btnBrowse" OnClick="btnBrowse_OnClick" CssClass="browse-btn" Text="Browse" />
+                        <span class="border-notes">Enter the path or ID of each starting node, or use Browse to select.<br />
+                            Only content beneath and including this node will be exported. If field is left blank, the starting node will be /sitecore/content.</span>
+                        
+                        <asp:CheckBox runat="server" ID="chkNoChildren"/><span class="notes"><b style="color:black">No children</b> (only include the items selected above)</span><br/><br/>
+
                     </div>
                     <div class="row">
                         <span>OR</span>
@@ -750,7 +756,7 @@
                         <input runat="server" id="txtFastQuery" />
                         <asp:Button runat="server" ID="btnTestFastQuery" OnClick="btnTestFastQuery_OnClick" Text="Test" />
                         <span class="border-notes">Enter a fast query to run a filtered export. You can use the Templates box as well.<br />
-                            Example: fast:/sitecore/content/Home//*[@__Updated >= '20140610' and @__Updated <'20140611']</span><br />
+                            Example: fast:/sitecore/content/Home//*[@__Updated >= '20180101' and @__Updated <= '20181231']</span><br />
                         <span class="lit-fast-query">
                             <asp:Literal runat="server" ID="litFastQueryTest"></asp:Literal>
                         </span>
@@ -761,23 +767,16 @@
                         <textarea runat="server" id="inputTemplates" cols="60" row="5"></textarea><asp:Button runat="server" ID="btnBrowseTemplates" OnClick="btnBrowseTemplates_OnClick" CssClass="browse-btn" Text="Browse" />
                         <span class="border-notes">Enter template names and/or IDs separated by commas, or use Browse to select.
                             <br />
-                            Items will only be exported if their template is in this list. If this field is left blank, all templates will be included.</span><br />
-                        <br />
+                            Items will only be exported if their template is in this list. If this field is left blank, all templates will be included.</span>
                         <div class="hints">
                             <a class="show-hints">Hints</a>
                             <span class="notes">Example: Standard Page, {12345678-901-2345-6789-012345678901}
                             </span>
                         </div>
-                    </div>
-                    <div class="row">
-                        <span class="header">Include Template Name</span>
                         <asp:CheckBox runat="server" ID="chkIncludeTemplate" />
-                        <span class="notes">Check this box to include the template name with each item</span>
-                    </div>
-                    <div class="row">
-                        <span class="header">Include Templates that Inherit Selected Templates</span>
+                        <span class="notes"><b style="color: black">Include Template Name</b> - Check this box to include the template name with each item</span><br />
                         <asp:CheckBox runat="server" ID="chkIncludeInheritance" />
-                        <span class="notes">Check this box toinclude any templates that inherit selected templates</span>
+                        <span class="notes"><b style="color: black">Include Inheritors</b> - Check this box toinclude any templates that inherit selected templates</span>
                     </div>
                     <div class="row">
                         <span class="header">Fields</span>
@@ -789,10 +788,17 @@
                         <asp:CheckBox runat="server" ID="chkComponentFields" />
                         <span class="notes"><b style="color: black">Include Component Fields</b> - This will export the values of fields that are on a page's component items as well as on the page item itself</span>
                     </div>
-                                    
+                                                        
                     <div runat="server" ID="divAdvOptions">
                         <a class="advanced-btn">Advanced Options</a>
                         <div class="advanced-inner">
+                            <div class="row advanced-search">
+                                <span class="header"><b>Component Audit</b></span>
+                                <span class="notes">
+                                    Run this export to audit the components on each Sitecore item. You can use the Start Item, Template and Created/Published Date filters and Language options to select items. The exported data will include the name of the component, the page it is on, and any associated datasource item
+                                </span><br/><br/>
+                                <asp:Button runat="server" ID="btnComponentAuduit" OnClick="btnComponentAuduit_OnClick" Text="Run Audit"/>
+                            </div>
                             <div class="row advanced-search">
                                 <span class="header"><b>Advanced Search:</b></span>
                                 <input runat="server" id="txtAdvancedSearch" /><asp:Button runat="server" ID="btnAdvancedSearch" OnClick="btnAdvancedSearch_OnClick" Text="Go" />
@@ -836,13 +842,7 @@
                                     <input type="text" runat="server" id="txtEndDatePu" autocomplete="off" />
                                     <span class="border-notes">Only return items last published between the selected time span</span>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <span class="header">Multiple Start Items</span>
-                                <a class="clear-btn" data-id="inputMultiStartItem">clear</a>
-                                <textarea cols="60" row="5" runat="server" id="inputMultiStartItem"></textarea>
-                                <span class="border-notes">Enter multiple start paths or item IDs separated by comma to include items under separate starting nodes; can be used in tandem with Start Item/ fast query</span><br />
-                            </div>
+                            </div>                            
                             <div class="row">
                                 <span class="header">Only include items with layout</span>
                                 <asp:CheckBox runat="server" ID="chkItemsWithLayout" />
@@ -921,36 +921,55 @@
                                 <%--                                <span class="header"><b>Advanced Search:</b></span>--%>
                                 <asp:FileUpload runat="server" ID="btnFileUpload" Text="Upload File" />
                                 <span class="" style="display: block; margin-top: 10px;">
-                                    <b>Important:</b>To create new items CSV must include the following fields: Item Path, Template, Name. In the Item Path field, put in the path of the parent item.
-                                    <br/>
-                                    To edit existing items, CSV must include Item Path
-                                    <br/>
+                                    <b>Getting Started</b><br/>
+                                    To create new items, CSV must include the following fields: <b>Item Path</b>, <b>Template</b>, <b>Name</b>. In the Item Path field, put in the path of the parent item.
+                                    <br/><br/>
+                                    To edit existing items, CSV must include <b>Item Path</b>
+                                    <br/><br/>
                                     By default, the import will NOT overwrite exising items, but will only create new items.
                                     <br />
-                                    To overwrite existing items, check off the radio button below.
-                                    <br />
-                                    
-                                    <br />
-                                    <br />
-                                    <b>Download CSV Template: </b>
-                                    <asp:Button runat="server" ID="btnDownloadCSVTemplate" Text="Download Template" OnClick="btnDownloadCSVTemplate_OnClick"/>
-                                    <br/><br/><br/>
-                                </span>
-
-                                <div class="row">
-                                    <asp:Button runat="server" CssClass="import-btn" ID="btnCreateItems" OnClick="btnCreateItems_OnClick" Text="Create Items" />
-                                    <asp:Button runat="server" CssClass="import-btn" ID="btnEditItems" OnClick="btnEditItems_OnClick" Text="Edit Items" />
-                                </div>
+                                    To overwrite existing items, uncheck the checkbox below
+                                    <br /><br/>
+                                      
+                                    <input name="radDateRange" type="radio" runat="server" id="radImport" /><span><b>Create</b></span> new items using a specified Template (existing items will be ignored)<br/>
+                                    <input name="radDateRange" type="radio" runat="server" id="radUpdate" /><span><b>Update</b></span> existing items based on the item <b>Id</b> or <b>path</b> (new items will not be created)                              
+                                    <br/><br/>
+                                </span>                               
                                 
                                 <div class="row">
                                     <asp:CheckBox runat="server" ID="chkNoDuplicates"/><span class="notes"><b style="color: black">Do not create duplicates</b></span><br />
                                     <span class="notes">If this box is checked off, Create Items will not create a new item if an item with the same name and template already exists in that location</span>
                                 </div>
+
+                                <asp:Button runat="server" ID="btnBeginImport" Text="Begin Import" OnClick="btnBeginImport_OnClick"/>
+                                
+                                <br /><br/>
+
+
+                                <a href="javascript:void(0)" class="btnSampleLink">Download Sample CSV</a>
+
+                                <div class="modal browse-modal" style="display: none" id="singleTemplateModal">
+                                    <div style="width: 100%" class="select-box left" id="singleTemplate">
+                                        <div class="content">
+                                            <b style="padding: 0 20px;">Select a template to generate a sample CSV, or just click Download to get a basic CSV sample</b>
+                                            <ul style="margin-top: 10px;">
+                                                <li data-name="templates" data-id="{3C1715FE-6A13-4FCF-845F-DE308BA9741D}"><a class="browse-expand" onclick="expandNode($(this))">+</a><span></span><span>templates</span></li>
+                                            </ul>
+                                        </div>
+                                        <div class="buttons">
+                                            <asp:TextBox runat="server" Style="display: none" ID="txtSampleTemplate"></asp:TextBox>
+                                            <a class="btn start-import" onclick="downloadSample()">Download</a>
+                                            <a class="btn close-modal" onclick="closeTemplatesModal()">Cancel</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <asp:Button style="display: none;" runat="server" ID="btnDownloadCSVTemplate" Text="Download Sample" OnClick="btnDownloadCSVTemplate_OnClick" />
                                 
                                 <h3>READ ME!</h3>
                                 <p>Use the import tool carefully! Make sure to review all modified items in Sitecore before publishing.
-                                    <br/><br/>The <b>Edit Items</b> button will only edit existing items (found using the Item Path) and will ignore items that are not found.
-                                    <br/><br/>The <b>Create Items</b> button will create new items under the Item Path. An item will be created even if an item with the same path already exists, unless you check off "Do not create duplicates"
+                                    <br/><br/>The <b>Update</b> option will only edit existing items (found using the Item Path) and will ignore items that are not found.
+                                    <br/><br/>The <b>Import</b> button will create new items under the Item Path. An item will not be created if an item with the same path and template already exists, unless you uncheck "Do not create duplicates"
                                 </p>
                                 
                                 <h3>Tips:</h3>

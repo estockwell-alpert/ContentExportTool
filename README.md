@@ -9,7 +9,7 @@ Sitecore 6.5 or higher<br />
 
 # To use:
 You must be logged into Sitecore to access the tool<br />
-Access the tool in the Sitecore start menu or at [your site]/sitecore/admin/ContentExport.aspx
+Access the tool in the Sitecore start menu or at [your site]/sitecore/shell/applications/contentexport/ContentExport.aspx
 
 # Documentation:
 https://ericastockwellalpert.wordpress.com/2017/08/24/content-export-tool-for-sitecore/
@@ -20,10 +20,10 @@ https://ericastockwellalpert.wordpress.com/2018/11/30/sitecore-content-importing
  core:/sitecore/content/Documents and settings/All users/Start menu/Right/Content Export <br/>
  master:/sitecore/system/Modules/Content Export Tool <br/>
  master:/sitecore/templates/Modules/Content Export Tool/ <br/>
- /sitecore/admin/ContentExport.aspx	<br/>
- /sitecore/admin/ContentExport.aspx.cs	<br/>
- /sitecore/admin/ContentExport.aspx.designer.cs <br/>	
- /sitecore/admin/ContentExportScripts.js <br/>
+ /sitecore/shell/applications/contentexport/ContentExport.aspx	<br/>
+ /sitecore/shell/applications/contentexport/ContentExport.aspx.cs	<br/>
+ /sitecore/shell/applications/contentexport/ContentExport.aspx.designer.cs <br/>	
+ /sitecore/shell/applications/contentexport/ContentExportScripts.js <br/>
  /temp/IconCache/Network/16x16/download.png	<br/>
  /temp/IconCache/Network/24x24/download.png	<br/>
  /temp/IconCache/Network/32x32/download.png	<br/>

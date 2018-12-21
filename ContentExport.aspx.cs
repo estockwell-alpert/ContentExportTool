@@ -3,26 +3,25 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Script.Serialization;
-using System.Web.UI.WebControls;
+using System.Web.UI;
 using Sitecore;
 using Sitecore.Collections;
-using Sitecore.ContentSearch.Utilities;
 using Sitecore.Data;
 using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
 using Sitecore.Data.Managers;
 using Sitecore.Globalization;
+using Sitecore.Layouts;
+using Sitecore.Sites;
 using ImageField = Sitecore.Data.Fields.ImageField;
 
 namespace ContentExportTool
 {
-    public partial class ContentExport : Sitecore.sitecore.admin.AdminPage
+    public partial class ContentExport : Page
     {
         #region Construction 
 
@@ -31,7 +30,7 @@ namespace ContentExportTool
         private List<FieldData> _fieldsList;
 
         protected void Page_Load(object sender, EventArgs e)
-        {
+        {           
             divAdvOptions.Attributes["class"] = "advanced";
             litUploadResponse.Text = String.Empty;
             litFeedback.Text = String.Empty;
@@ -64,10 +63,10 @@ namespace ContentExportTool
 
         protected void SetupForm()
         {
+            radImport.Checked = true;
             chkNoDuplicates.Checked = true;
             txtSaveSettingsName.Value = string.Empty;
-            PhBrowseTree.Visible = false;
-            PhBrowseTemplates.Visible = false;
+            PhBrowseModal.Visible = false;
             PhBrowseFields.Visible = false;
             var databaseNames = Sitecore.Configuration.Factory.GetDatabaseNames().ToList();
             // make web the default database
@@ -100,7 +99,6 @@ namespace ContentExportTool
                     !String.IsNullOrEmpty(txtEndDateCr.Value) ||
                     !String.IsNullOrEmpty(txtStartDatePb.Value) ||
                     !String.IsNullOrEmpty(txtEndDatePu.Value) ||
-                    !String.IsNullOrEmpty(inputMultiStartItem.Value) ||
                     !String.IsNullOrEmpty(txtFileName.Value) ||
                     chkIncludeIds.Checked ||
                     chkIncludeRawHtml.Checked ||
@@ -168,7 +166,13 @@ namespace ContentExportTool
 
         protected override void OnInit(EventArgs e)
         {
-            base.CheckSecurity(true); //Required!
+            if (Sitecore.Context.User == null || !Sitecore.Context.User.IsAuthenticated || Sitecore.Context.User.Name.EndsWith("\\anonymous"))
+            {
+                SiteContext site = Sitecore.Context.Site;
+                if (site == null)
+                    return;
+                this.Response.Redirect(string.Format("{0}?returnUrl={1}", (object)site.LoginPage, (object)HttpUtility.UrlEncode(this.Request.Url.PathAndQuery)));
+            }
             base.OnInit(e);
         }
 
@@ -225,10 +229,10 @@ namespace ContentExportTool
 
         protected void btnBrowse_OnClick(object sender, EventArgs e)
         {
-            litSitecoreContentTree.Text = GetSitecoreTreeHtml();
-            PhBrowseTree.Visible = true;
+            litBrowseTree.Text = GetSitecoreTreeHtml();
+            divBrowseContainer.Attributes["class"] = "modal browse-modal content";
+            PhBrowseModal.Visible = true;
             PhBrowseFields.Visible = false;
-            PhBrowseTemplates.Visible = false;
         }
 
         protected string GetSitecoreTreeHtml()
@@ -284,10 +288,10 @@ namespace ContentExportTool
 
         protected void btnBrowseTemplates_OnClick(object sender, EventArgs e)
         {
-            litBrowseTemplates.Text = GetAvailableTemplates();
-            PhBrowseTemplates.Visible = true;
+            litBrowseTree.Text = GetAvailableTemplates();
+            divBrowseContainer.Attributes["class"] = "modal browse-modal templates";
+            PhBrowseModal.Visible = true;
             PhBrowseFields.Visible = false;
-            PhBrowseTree.Visible = false;
         }
 
         protected string GetAvailableTemplates()
@@ -352,8 +356,7 @@ namespace ContentExportTool
         {
             litBrowseFields.Text = GetAvailableFields();
             PhBrowseFields.Visible = true;
-            PhBrowseTree.Visible = false;
-            PhBrowseTemplates.Visible = false;
+            PhBrowseModal.Visible = false;
         }
 
         protected string GetAvailableFields()
@@ -403,7 +406,6 @@ namespace ContentExportTool
             foreach (var template in templateList)
             {
                 var fields = template.Fields.Where(x => x.Name[0] != '_');
-                fields = fields.OrderBy(x => x.Name);
                 fields = fields.OrderBy(x => x.Name).Where(x => !String.IsNullOrEmpty(x.Name));
                 if (fields.Any())
                 {
@@ -467,16 +469,8 @@ namespace ContentExportTool
 
                 var allLanguages = chkAllLanguages.Checked;
                 var selectedLanguage = ddLanguages.SelectedValue;
-
-                var templateString = inputTemplates.Value;
-                var templates = templateString.ToLower().Split(',').Select(x => x.Trim()).ToList();
-
-                if (chkIncludeInheritance.Checked && !String.IsNullOrEmpty(templateString))
-                {                    
-                    templates.AddRange(GetInheritors(templates));
-                }
                                   
-                List<Item> items = GetItems();
+                List<Item> items = GetItems(!chkNoChildren.Checked);
 
                 _fieldsList = new List<FieldData>();
                 var fields = fieldString.Split(',').Select(x => x.Trim()).Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
@@ -1117,15 +1111,6 @@ namespace ContentExportTool
         #endregion
 
         #region Run Export
-        protected void btnCreateItems_OnClick(object sender, EventArgs e)
-        {
-            ProcessImport(true);
-        }
-
-        protected void btnEditItems_OnClick(object sender, EventArgs e)
-        {
-            ProcessImport(false);
-        }
 
         protected void ProcessImport(bool createItems)
         {
@@ -1198,13 +1183,13 @@ namespace ContentExportTool
                                         return;
                                     }
                                     var name = cells[itemNameIndex].Trim();
-                                    var template = cells[itemTemplateIndex];
-                                    if (String.IsNullOrEmpty(name) || String.IsNullOrEmpty(template))
+                                    var templatePath = cells[itemTemplateIndex];
+                                    if (String.IsNullOrEmpty(name) || String.IsNullOrEmpty(templatePath))
                                     {
                                         output += "Line " + (line + 1) + " skipped; name or template not specified<br/>";
                                         continue;
                                     }
-                                    var templateItem = _db.GetTemplate(template);
+                                    var templateItem = _db.GetItem(templatePath);
                                     if (templateItem == null)
                                     {
                                         output += "Line " + (line + 1) + " skipped; could not find template<br/>";
@@ -1212,7 +1197,7 @@ namespace ContentExportTool
                                     }
                                     try
                                     {
-
+                                        var template = _db.GetTemplate(templateItem.ID);
                                         if (chkNoDuplicates.Checked)
                                         {
                                             var newItemPath = item.Paths.FullPath + "/" + name;
@@ -1226,7 +1211,7 @@ namespace ContentExportTool
                                             }
                                         }
 
-                                        var newItem = item.Add(name, templateItem);
+                                        var newItem = item.Add(name, template);
                                         // additional check for duplicates
                                         var itemsAtPath =
                                             item.Children.Where(
@@ -1251,6 +1236,13 @@ namespace ContentExportTool
                                     }
                                     catch (Exception ex)
                                     {
+                                        if (ex.Message.Contains("Add access required"))
+                                        {
+                                            output += "Line " + (line + 1) +
+                                                  " skipped; could not create item - Add access required<br/>";
+                                            continue;
+                                        }
+
                                         output += "Line " + (line + 1) +
                                                   " skipped; could not create item - invalid item name<br/>";
                                         continue;
@@ -1263,9 +1255,20 @@ namespace ContentExportTool
                                         item = item.Versions.AddVersion();
                                     }
                                 }
-                                EditItem(item, cells, itemPathIndex, itemNameIndex, itemTemplateIndex, languageIndex, fieldsMap, i,
-                                    ref output);
-                                itemsImported++;
+                                try
+                                {
+                                    EditItem(item, cells, itemPathIndex, itemNameIndex, itemTemplateIndex, languageIndex,
+                                        fieldsMap, i,
+                                        ref output);
+                                    itemsImported++;
+                                }
+                                catch (Exception ex)
+                                {
+                                    if (ex.Message.Contains("The current user does not have write access to this item"))
+                                    {
+                                        output += "Line " + (line + 1) + " skipped; you do not have write access to this item<br/>";
+                                    }
+                                }
                             }
                         }
                     }
@@ -1447,15 +1450,39 @@ namespace ContentExportTool
         }
 
         protected void btnDownloadCSVTemplate_OnClick(object sender, EventArgs e)
-        {
-            StartResponse("CSVImportTemplate");
+        {            
+            var db = Sitecore.Configuration.Factory.GetDatabase("master");
+
+            var template = txtSampleTemplate.Text;
+
             using (StringWriter sw = new StringWriter())
             {
-                var headingString = "Item Path,Template,Name,Field1,Field2,Field3";
-                sw.WriteLine(headingString);
+                var headingString = "Item Path,Template,Name";
+                var item = String.IsNullOrEmpty(template)
+                    ? null
+                    : db.GetItem(template);
+                if (item == null)
+                {
+                    StartResponse("CSVImportTemplate");
+                    headingString += ",Field1,Field2,Field3;";
+                    sw.WriteLine(headingString);
+                }
+                else
+                {
+                    StartResponse("CSVImportTemplate - " + item.Name);
+                    var templateItem = db.GetTemplate(item.ID);
+                    var fields = templateItem.Fields.Where(x => x.Name[0] != '_');
+                    fields = fields.OrderBy(x => x.Name).Where(x => !String.IsNullOrEmpty(x.Name));
+                    headingString = fields.Aggregate(headingString, (current, field) => current + ("," + field.Name));
+                    sw.WriteLine(headingString);
+                    sw.WriteLine("," + template + "," + fields.Aggregate("", (current, field) => current + ","));
+                }
+                
                 SetCookieAndResponse(sw.ToString());
             }
         }
+
+
         #endregion
 
         #region Test Fast Query
@@ -1494,8 +1521,7 @@ namespace ContentExportTool
         protected void btnSaveSettings_OnClick(object sender, EventArgs e)
         {
             PhBrowseFields.Visible = false;
-            PhBrowseTemplates.Visible = false;
-            PhBrowseTree.Visible = false;
+            PhBrowseModal.Visible = false;
 
             var saveName = txtSaveSettingsName.Value;
 
@@ -1516,7 +1542,6 @@ namespace ContentExportTool
                 GetAllLanguages = chkAllLanguages.Checked,
                 IncludeName = chkIncludeName.Checked,
                 IncludeInheritance = chkIncludeInheritance.Checked,
-                MultipleStartPaths = inputMultiStartItem.Value,
                 DateCreated = chkDateCreated.Checked,
                 DateModified = chkDateModified.Checked,
                 CreatedBy = chkCreatedBy.Checked,
@@ -1531,7 +1556,8 @@ namespace ContentExportTool
                 EndDateCr = txtEndDateCr.Value,
                 StartDatePb = txtStartDatePb.Value,
                 EndDatePb = txtEndDatePu.Value,
-                DateRangeAnd = radDateRangeAnd.Checked
+                DateRangeAnd = radDateRangeAnd.Checked,
+                NoChildren = chkNoChildren.Checked
             };
 
             var settingsObject = new ExportSettings()
@@ -1599,8 +1625,7 @@ namespace ContentExportTool
 
         protected void ddSavedSettings_OnSelectedIndexChanged(object sender, EventArgs e)
         {
-            PhBrowseTree.Visible = false;
-            PhBrowseTemplates.Visible = false;
+            PhBrowseModal.Visible = false;
             PhBrowseFields.Visible = false;
 
             var settingsId = ddSavedSettings.SelectedValue;
@@ -1641,7 +1666,6 @@ namespace ContentExportTool
             chkAllLanguages.Checked = settings.GetAllLanguages;
             chkIncludeName.Checked = settings.IncludeName;
             chkIncludeInheritance.Checked = settings.IncludeInheritance;
-            inputMultiStartItem.Value = settings.MultipleStartPaths;
             chkDateCreated.Checked = settings.DateCreated;
             chkDateModified.Checked = settings.DateModified;
             chkCreatedBy.Checked = settings.CreatedBy;
@@ -1657,6 +1681,7 @@ namespace ContentExportTool
             txtEndDateCr.Value = settings.EndDateCr;
             txtStartDatePb.Value = settings.StartDatePb;
             txtEndDatePu.Value = settings.EndDatePb;
+            chkNoChildren.Checked = settings.NoChildren;
 
             if (settings.DateRangeAnd)
             {
@@ -1683,7 +1708,6 @@ namespace ContentExportTool
                 !String.IsNullOrEmpty(settings.EndDateCr) ||
                 !String.IsNullOrEmpty(settings.StartDatePb) ||
                 !String.IsNullOrEmpty(settings.EndDatePb) ||
-                !String.IsNullOrEmpty(settings.MultipleStartPaths) ||
                 settings.RequireLayout ||
                 settings.IncludeLinkedIds ||
                 settings.IncludeRaw ||
@@ -1732,7 +1756,6 @@ namespace ContentExportTool
             chkDateModified.Checked = false;
             chkCreatedBy.Checked = false;
             chkModifiedBy.Checked = false;
-            inputMultiStartItem.Value = string.Empty;
             chkIncludeName.Checked = false;
             chkReferrers.Checked = false;
             txtFileName.Value = string.Empty;
@@ -1745,9 +1768,10 @@ namespace ContentExportTool
             chkNeverPublish.Checked = false;
             radDateRangeOr.Checked = true;
             radDateRangeAnd.Checked = false;
+            chkNoChildren.Checked = false;
+            chkComponentFields.Checked = false;
 
-            PhBrowseTree.Visible = false;
-            PhBrowseTemplates.Visible = false;
+            PhBrowseModal.Visible = false;
             PhBrowseFields.Visible = false;
         }
 
@@ -1776,7 +1800,6 @@ namespace ContentExportTool
                 GetAllLanguages = chkAllLanguages.Checked,
                 IncludeName  = chkIncludeName.Checked,
                 IncludeInheritance = chkIncludeInheritance.Checked,
-                MultipleStartPaths = inputMultiStartItem.Value,
                 DateCreated = chkDateCreated.Checked,
                 DateModified = chkDateModified.Checked,
                 CreatedBy = chkCreatedBy.Checked,
@@ -1784,7 +1807,8 @@ namespace ContentExportTool
                 NeverPublish = chkNeverPublish.Checked,
                 RequireLayout = chkItemsWithLayout.Checked,
                 Referrers = chkReferrers.Checked,
-                FileName = txtFileName.Value
+                FileName = txtFileName.Value,
+                NoChildren = chkNoChildren.Checked
             };
 
             var serializer = new JavaScriptSerializer();
@@ -1810,8 +1834,7 @@ namespace ContentExportTool
 
         protected void btnDeleteSavedSetting_OnClick(object sender, EventArgs e)
         {
-            PhBrowseTree.Visible = false;
-            PhBrowseTemplates.Visible = false;
+            PhBrowseModal.Visible = false;
             PhBrowseFields.Visible = false;
 
             var settingsId = ddSavedSettings.SelectedValue;
@@ -2038,13 +2061,16 @@ namespace ContentExportTool
             _db = Sitecore.Configuration.Factory.GetDatabase(databaseName);
         }
 
-        public List<Item> GetItems()
-        {
-            var startNode = inputStartitem.Value;
-            if (string.IsNullOrWhiteSpace(startNode)) startNode = "/sitecore/content";
-
+        public List<Item> GetItems(bool children = true)
+        {            
             var templateString = inputTemplates.Value;
             var templates = templateString.ToLower().Split(',').Select(x => x.Trim()).ToList();
+
+            if (chkIncludeInheritance.Checked && !String.IsNullOrEmpty(templateString))
+            {
+                templates.AddRange(GetInheritors(templates));
+            }
+
             var fastQuery = txtFastQuery.Value;
 
             var exportItems = new List<Item>();
@@ -2052,26 +2078,26 @@ namespace ContentExportTool
             {
                 var queryItems = _db.SelectItems(fastQuery);
                 exportItems = queryItems.ToList();
-            }else if (!string.IsNullOrWhiteSpace(inputMultiStartItem.Value))
+            }else
             {
-                var startItems = inputMultiStartItem.Value.Split(',');
+                var startNode = inputStartitem.Value;
+                List<String> startItems;
+                if (string.IsNullOrWhiteSpace(startNode)) startItems = new List<String> { "/sitecore/content" };
+                else startItems = inputStartitem.Value.Split(',').ToList();
                 foreach (var startItem in startItems)
                 {
                     Item item = _db.GetItem(startItem.Trim());
                     if (item == null)
                         continue;
-
-                    var descendants = item.Axes.GetDescendants();
+                                       
                     exportItems.Add(item);
-                    exportItems.AddRange(descendants);
+                    if (children)
+                    {
+                        var descendants = item.Axes.GetDescendants();
+                        exportItems.AddRange(descendants);
+                    }
+
                 }
-            }
-            else
-            {
-                Item startItem = _db.GetItem(startNode);
-                var descendants = startItem.Axes.GetDescendants();
-                exportItems.Add(startItem);
-                exportItems.AddRange(descendants);
             }
        
             // created AND published filters
@@ -2275,9 +2301,8 @@ namespace ContentExportTool
 
         protected void HideModals(bool hideBrowse, bool hideTemplates, bool hideFields)
         {
-            PhBrowseTree.Visible = hideBrowse;
-            PhBrowseFields.Visible = hideTemplates;
-            PhBrowseTemplates.Visible = hideFields;
+            PhBrowseModal.Visible = hideBrowse && hideTemplates;
+            PhBrowseFields.Visible = hideFields;
         }
 
         protected SettingsList ReadSettingsFromFile(bool allUsers = false)
@@ -2357,7 +2382,102 @@ namespace ContentExportTool
             var allUsers = chkAllUserSettings.Checked;
             SetSavedSettingsDropdown(allUsers);
         }
+
+        protected void btnBeginImport_OnClick(object sender, EventArgs e)
+        {
+            ProcessImport(radImport.Checked);
+        }
+
+        protected void btnComponentAuduit_OnClick(object sender, EventArgs e)
+        {
+            litFastQueryTest.Text = "";
+
+            try
+            {
+                if (!SetDatabase())
+                {
+                    litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
+                    return;
+                }
+
+
+                if (_db == null)
+                {
+                    litFeedback.Text = "Invalid database. Selected database does not exist.";
+                    return;
+                }
+                var items = GetItems(!chkNoChildren.Checked);
+
+                StartResponse(!string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "ComponentAudit");
+
+                using (StringWriter sw = new StringWriter())
+                {
+                    var headingString = "Item Path,Component Name,Datasource Item, Datasource Template,Placeholder";
+
+                    sw.WriteLine(headingString);
+
+                    var allLanguages = chkAllLanguages.Checked;
+                    var selectedLanguage = ddLanguages.SelectedValue;
+
+                    foreach (var baseItem in items)
+                    {
+                        try
+                        {
+                            var itemVersions = GetItemVersions(baseItem, allLanguages, selectedLanguage);
+
+                            foreach (var item in itemVersions)
+                            {
+                                if (item == null) continue;
+
+                                var itemPath = item.Paths.ContentPath;
+                                if (String.IsNullOrEmpty(itemPath)) continue;
+
+                                if (!DoesItemHasPresentationDetails(item)) continue;
+
+                                var renderings =
+                                    item.Visualization.GetRenderings(Sitecore.Context.Device, true).ToList();
+                                if (renderings == null || renderings.Count == 0) continue;
+
+                                foreach (var rendering in renderings)
+                                {
+                                    try
+                                    {
+                                        var datasourceId = rendering.Settings.DataSource;
+                                        var name = rendering.WebEditDisplayName;
+                                        var datasource = String.IsNullOrEmpty(datasourceId)
+                                            ? null
+                                            : _db.GetItem(datasourceId);
+
+                                        var itemLine = String.Format("{0},{1},{2},{3},{4}", itemPath, name,
+                                            datasource == null ? "" : datasource.Paths.ContentPath,
+                                            datasource == null ? "" : datasource.TemplateName, rendering.Placeholder);
+                                        sw.WriteLine(itemLine);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            
+                        }
+                    }
+
+                    SetCookieAndResponse(sw.ToString());
+
+                }
+            }
+            catch (Exception ex)
+            {
+                litFeedback.Text = "<span style='color:red'>" + ex + "</span>";
+            }
+        }
     }
+
+    
 
     #region Classes
 
@@ -2427,6 +2547,7 @@ namespace ContentExportTool
         public string StartDatePb;
         public string EndDatePb;
         public bool DateRangeAnd;
+        public bool NoChildren;
     }
 
     public class FieldData
