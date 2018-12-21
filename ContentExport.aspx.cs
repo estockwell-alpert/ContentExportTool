@@ -1769,6 +1769,7 @@ namespace ContentExportTool
             radDateRangeOr.Checked = true;
             radDateRangeAnd.Checked = false;
             chkNoChildren.Checked = false;
+            chkComponentFields.Checked = false;
 
             PhBrowseModal.Visible = false;
             PhBrowseFields.Visible = false;
