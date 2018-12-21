@@ -15,6 +15,9 @@ Access the tool in the Sitecore start menu or at [your site]/sitecore/shell/appl
 https://ericastockwellalpert.wordpress.com/2017/08/24/content-export-tool-for-sitecore/
 https://ericastockwellalpert.wordpress.com/2018/11/30/sitecore-content-importing-use-a-csv-file-to-create-or-edit-sitecore-content/
 
+# Security:
+Sitecore users can only view/export items that they have read permissions on. In the import feature, users can only create or modify items if they have write permissions.
+
 # Files Included in Package:
  core:/sitecore/content/Applications/Content Export <br/>
  core:/sitecore/content/Documents and settings/All users/Start menu/Right/Content Export <br/>
