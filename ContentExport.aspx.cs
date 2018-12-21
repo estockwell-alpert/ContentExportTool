@@ -1556,7 +1556,8 @@ namespace ContentExportTool
                 EndDateCr = txtEndDateCr.Value,
                 StartDatePb = txtStartDatePb.Value,
                 EndDatePb = txtEndDatePu.Value,
-                DateRangeAnd = radDateRangeAnd.Checked
+                DateRangeAnd = radDateRangeAnd.Checked,
+                NoChildren = chkNoChildren.Checked
             };
 
             var settingsObject = new ExportSettings()
@@ -1680,6 +1681,7 @@ namespace ContentExportTool
             txtEndDateCr.Value = settings.EndDateCr;
             txtStartDatePb.Value = settings.StartDatePb;
             txtEndDatePu.Value = settings.EndDatePb;
+            chkNoChildren.Checked = settings.NoChildren;
 
             if (settings.DateRangeAnd)
             {
@@ -1766,6 +1768,7 @@ namespace ContentExportTool
             chkNeverPublish.Checked = false;
             radDateRangeOr.Checked = true;
             radDateRangeAnd.Checked = false;
+            chkNoChildren.Checked = false;
 
             PhBrowseModal.Visible = false;
             PhBrowseFields.Visible = false;
@@ -1803,7 +1806,8 @@ namespace ContentExportTool
                 NeverPublish = chkNeverPublish.Checked,
                 RequireLayout = chkItemsWithLayout.Checked,
                 Referrers = chkReferrers.Checked,
-                FileName = txtFileName.Value
+                FileName = txtFileName.Value,
+                NoChildren = chkNoChildren.Checked
             };
 
             var serializer = new JavaScriptSerializer();
@@ -2542,6 +2546,7 @@ namespace ContentExportTool
         public string StartDatePb;
         public string EndDatePb;
         public bool DateRangeAnd;
+        public bool NoChildren;
     }
 
     public class FieldData
