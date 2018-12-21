@@ -13,14 +13,22 @@
         $(".loading-modal").show();
     });
 
-    $("#btnRunExport, #btnRunExportDupe, #btnAdvancedSearch", ".start-import").on("click", function () {
+    $("#btnComponentAudit").on("click", function() {
+        showModal();
+    })
+
+    $("#btnRunExport, #btnRunExportDupe, #btnAdvancedSearch", ".start-import", "#btnComponentAudit").on("click", function () {
+        showModal();
+    });
+
+    var showModal = function() {
         $(".feedback").empty();
         $(".loading-modal").show();
         //$("#loading-text").html(loadingModalHtml);
         var downloadToken = new Date().getTime();
         $("#txtDownloadToken").val(downloadToken)
         checkIfFileDownloaded(downloadToken);
-    });
+    }
 
     $(".advanced-btn").on("click", function () {
         if ($(this).parent().hasClass("open")) {

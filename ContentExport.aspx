@@ -797,7 +797,7 @@
                                 <span class="notes">
                                     Run this export to audit the components on each Sitecore item. You can use the Start Item, Template and Created/Published Date filters and Language options to select items. The exported data will include the name of the component, the page it is on, and any associated datasource item
                                 </span><br/><br/>
-                                <asp:Button runat="server" ID="btnComponentAuduit" OnClick="btnComponentAuduit_OnClick" Text="Run Audit"/>
+                                <asp:Button runat="server" ID="btnComponentAudit" OnClick="btnComponentAudit_OnClick" Text="Run Audit"/>
                             </div>
                             <div class="row advanced-search">
                                 <span class="header"><b>Advanced Search:</b></span>

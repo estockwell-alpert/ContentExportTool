@@ -2388,7 +2388,7 @@ namespace ContentExportTool
             ProcessImport(radImport.Checked);
         }
 
-        protected void btnComponentAuduit_OnClick(object sender, EventArgs e)
+        protected void btnComponentAudit_OnClick(object sender, EventArgs e)
         {
             litFastQueryTest.Text = "";
 
@@ -2443,7 +2443,7 @@ namespace ContentExportTool
                                     try
                                     {
                                         var datasourceId = rendering.Settings.DataSource;
-                                        var name = rendering.WebEditDisplayName;
+                                        var name = rendering.RenderingItem != null ? rendering.RenderingItem.Name : "";
                                         var datasource = String.IsNullOrEmpty(datasourceId)
                                             ? null
                                             : _db.GetItem(datasourceId);
