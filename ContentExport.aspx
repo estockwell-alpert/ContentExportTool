@@ -623,6 +623,10 @@
             display: inline-block;
             vertical-align: top;
         }
+
+        select#ddSavedSettings {
+            min-width: 60%;
+        }
     </style>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
