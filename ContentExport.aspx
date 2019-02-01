@@ -8,12 +8,13 @@
         .advanced.open-default .advanced-inner {
             display: block;
         }
-         body {
-             background-color: rgb(240, 240, 240) !important;
-             font-family: 'Open Sans', Arial, sans-serif;
-             font-size: 12px;
-             color: #131313;
-         }
+
+        body {
+            background-color: rgb(240, 240, 240) !important;
+            font-family: 'Open Sans', Arial, sans-serif;
+            font-size: 12px;
+            color: #131313;
+        }
 
         .header {
             display: block;
@@ -63,20 +64,20 @@
             cursor: pointer;
         }
 
-        .advanced .advanced-btn:after {
-            border-style: solid;
-            border-width: 0.25em 0.25em 0 0;
-            content: '';
-            display: inline-block;
-            height: 0.45em;
-            left: 0.15em;
-            position: relative;
-            vertical-align: top;
-            width: 0.45em;
-            top: 0;
-            transform: rotate(135deg);
-            margin-left: 5px;
-        }
+            .advanced .advanced-btn:after {
+                border-style: solid;
+                border-width: 0.25em 0.25em 0 0;
+                content: '';
+                display: inline-block;
+                height: 0.45em;
+                left: 0.15em;
+                position: relative;
+                vertical-align: top;
+                width: 0.45em;
+                top: 0;
+                transform: rotate(135deg);
+                margin-left: 5px;
+            }
 
         .advanced.open a.advanced-btn:after {
             top: 0.3em;
@@ -97,9 +98,9 @@
             max-width: 80%;
         }
 
-        input[type='text'].hasDatepicker {
-            width: 175px;
-        }
+            input[type='text'].hasDatepicker {
+                width: 175px;
+            }
 
         a.clear-btn, .show-hints {
             cursor: pointer;
@@ -168,10 +169,10 @@
             margin-top: 0;
         }
 
-        .modal.browse-modal ul li {
-            position: relative;
-            left: -20px;
-        }
+            .modal.browse-modal ul li {
+                position: relative;
+                left: -20px;
+            }
 
         .modal.browse-modal li ul {
             display: none;
@@ -187,9 +188,9 @@
             color: black;
         }
 
-        .modal.browse-modal a:hover {
-            font-weight: bold;
-        }
+            .modal.browse-modal a:hover {
+                font-weight: bold;
+            }
 
         .modal.browse-modal .browse-expand {
             color: rgb(38, 148, 192);
@@ -211,9 +212,9 @@
             height: auto;
         }
 
-        .main-btns .left {
-            float: left;
-        }
+            .main-btns .left {
+                float: left;
+            }
 
         .save-settings-box {
             border: 1px solid #aaa;
@@ -224,9 +225,9 @@
             position: fixed;
         }
 
-        .save-settings-box input[type="text"] {
-            width: 200px;
-        }
+            .save-settings-box input[type="text"] {
+                width: 200px;
+            }
 
         .save-settings-close {
             position: absolute;
@@ -245,9 +246,9 @@
             display: none;
         }
 
-        .error-message.server {
-            display: block;
-        }
+            .error-message.server {
+                display: block;
+            }
 
         span.save-message {
             color: rgb(38, 148, 192);
@@ -326,9 +327,9 @@
             font-size: 14px;
         }
 
-        .selector-box.left, .select-box.left {
-            padding-top: 10px;
-        }
+            .selector-box.left, .select-box.left {
+                padding-top: 10px;
+            }
 
         .selected-box {
             width: 48%;
@@ -393,11 +394,11 @@
             pointer-events: initial;
         }
 
-        .advanced-search.disabled input[type="text"], .advanced-search.disabled textarea {
-            pointer-events: none;
-            background-color: #ddd;
-            border: 1px solid #aaa;
-        }
+            .advanced-search.disabled input[type="text"], .advanced-search.disabled textarea {
+                pointer-events: none;
+                background-color: #ddd;
+                border: 1px solid #aaa;
+            }
 
         .browse-modal li span {
             margin-left: 10px;
@@ -497,14 +498,14 @@
             font-size: 14px;
         }
 
-        .modal span.api-message a {
-            color: blue;
-            text-decoration: underline;
-        }
+            .modal span.api-message a {
+                color: blue;
+                text-decoration: underline;
+            }
 
-        .modal span.api-message a:hover {
-            font-weight: normal;
-        }
+                .modal span.api-message a:hover {
+                    font-weight: normal;
+                }
 
         .loader {
             border: 16px solid #f3f3f3; /* Light grey */
@@ -563,28 +564,28 @@
             align-items: center;
         }
 
-        .scMessageBar.scWarning .scMessageBarIcon {
-            background-image: url(/sitecore/shell/themes/standard/Images/warning_yellow.png);
-            background-color: #E0B406;
-        }
+            .scMessageBar.scWarning .scMessageBarIcon {
+                background-image: url(/sitecore/shell/themes/standard/Images/warning_yellow.png);
+                background-color: #E0B406;
+            }
 
-        .scMessageBar .scMessageBarIcon {
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: 32px;
-            min-width: 50px;
-            min-height: 50px;
-            align-self: stretch;
-        }
+            .scMessageBar .scMessageBarIcon {
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 32px;
+                min-width: 50px;
+                min-height: 50px;
+                align-self: stretch;
+            }
 
-        .scMessageBar .scMessageBarTextContainer {
-            padding: 11px 14px;
-        }
+            .scMessageBar .scMessageBarTextContainer {
+                padding: 11px 14px;
+            }
 
-        .scMessageBar .scMessageBarTextContainer .scMessageBarTitle {
-            display: block;
-            font-weight: 600;
-        }
+                .scMessageBar .scMessageBarTextContainer .scMessageBarTitle {
+                    display: block;
+                    font-weight: 600;
+                }
 
         .select-box img.scSpinner {
             position: absolute;
@@ -612,6 +613,16 @@
             padding-right: 20px;
         }
 
+        input[type="checkbox"] + span.notes {
+            display: inline-block;
+            width: 88%;
+            margin-bottom: 5px;
+        }
+
+        input[type="checkbox"] {
+            display: inline-block;
+            vertical-align: top;
+        }
     </style>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
@@ -639,7 +650,7 @@
     <form id="form1" runat="server">
         <div class="loading-modal">
             <div class="loading-box">
-                <img class="scSpinner" src="/sitecore/shell/themes/standard/Images/ProgressIndicator/sc-spinner32.gif" border="0" alt="" width="40px"/>
+                <img class="scSpinner" src="/sitecore/shell/themes/standard/Images/ProgressIndicator/sc-spinner32.gif" border="0" alt="" width="40px" />
             </div>
         </div>
         <input runat="server" id="txtDownloadToken" style="display: none;" />
@@ -666,10 +677,10 @@
                         <asp:DropDownList runat="server" ID="ddSavedSettings" AutoPostBack="True" OnSelectedIndexChanged="ddSavedSettings_OnSelectedIndexChanged" />
                         <a runat="server" visible="False" id="btnDeletePrompt" class="btn" onclick="confirmDelete()">Delete</a>
                         <asp:Button runat="server" ID="btnDeleteSavedSetting" OnClick="btnDeleteSavedSetting_OnClick" CssClass="hidden btn-delete" /><br />
-                        <asp:CheckBox runat="server" AutoPostBack="True" OnCheckedChanged="chkAllUserSettings_OnCheckedChanged" ID="chkAllUserSettings"/><span class="notes">Show settings for all users</span>
+                        <asp:CheckBox runat="server" AutoPostBack="True" OnCheckedChanged="chkAllUserSettings_OnCheckedChanged" ID="chkAllUserSettings" /><span class="notes">Show settings for all users</span>
                     </div>
                 </div>
-                <div class="container">                
+                <div class="container">
 
                     <asp:PlaceHolder runat="server" ID="PhBrowseModal">
                         <div class="" runat="server" id="divBrowseContainer">
@@ -743,8 +754,9 @@
                         <textarea runat="server" id="inputStartitem" /><asp:Button runat="server" ID="btnBrowse" OnClick="btnBrowse_OnClick" CssClass="browse-btn" Text="Browse" />
                         <span class="border-notes">Enter the path or ID of each starting node, or use Browse to select.<br />
                             Only content beneath and including this node will be exported. If field is left blank, the starting node will be /sitecore/content.</span>
-                        
-                        <asp:CheckBox runat="server" ID="chkNoChildren"/><span class="notes"><b style="color:black">No children</b> (only include the items selected above)</span><br/><br/>
+
+                        <asp:CheckBox runat="server" ID="chkNoChildren" /><span class="notes"><b style="color: black">No children</b> (only include the items selected above)</span><br />
+                        <br />
 
                     </div>
                     <div class="row">
@@ -783,21 +795,30 @@
                         <a class="clear-btn" data-id="inputFields">clear</a>
                         <textarea runat="server" id="inputFields" cols="60" row="5"></textarea><asp:Button runat="server" ID="btnBrowseFields" OnClick="btnBrowseFields_OnClick" CssClass="browse-btn" Text="Browse" />
                         <span class="border-notes">Enter field names or IDs separated by commas, or use Browse to select fields.</span>
-                        <asp:CheckBox runat="server" ID="chkAllFields" />
-                        <span class="notes"><b style="color: black">All Fields</b> - This will export the values of <b>all fields</b> of every included item. <b>This may take a while.</b></span><br />
-                        <asp:CheckBox runat="server" ID="chkComponentFields" />
-                        <span class="notes"><b style="color: black">Include Component Fields</b> - This will export the values of fields that are on a page's component items as well as on the page item itself</span>
+                        <div class="">
+                            <asp:CheckBox runat="server" ID="chkAllFields" />
+                            <span class="notes"><b style="color: black">All Fields</b> - This will export the values of <b>all fields</b> of every included item. <b>This may take a while.</b></span>
+                        </div>
+                        <div class="">
+                            <asp:CheckBox runat="server" ID="chkComponentFields" />
+                            <span class="notes"><b style="color: black">Include Component Fields</b> - This will export the values of fields that are on a page's component items as well as on the page item itself</span>
+                        </div>
+                        <div class="">
+                            <asp:CheckBox runat="server" ID="chkDroplistName" />
+                            <span class="notes"><b style="color: black">Droplist/Multilist/Treelist:</b><span style="color: black"> Export item names only (not full path)</span><br/>By default reference fields (droplist, multilist, etc) will export the full path of each selected item. Check this box to export name only</b></span><br />
+                        </div>
                     </div>
-                                                        
-                    <div runat="server" ID="divAdvOptions">
+
+                    <div runat="server" id="divAdvOptions">
                         <a class="advanced-btn">Advanced Options</a>
                         <div class="advanced-inner">
                             <div class="row advanced-search">
                                 <span class="header"><b>Component Audit</b></span>
-                                <span class="notes">
-                                    Run this export to audit the components on each Sitecore item. You can use the Start Item, Template and Created/Published Date filters and Language options to select items. The exported data will include the name of the component, the page it is on, and any associated datasource item
-                                </span><br/><br/>
-                                <asp:Button runat="server" ID="btnComponentAudit" OnClick="btnComponentAudit_OnClick" Text="Run Audit"/>
+                                <span class="notes">Run this export to audit the components on each Sitecore item. You can use the Start Item, Template and Created/Published Date filters and Language options to select items. The exported data will include the name of the component, the page it is on, and any associated datasource item
+                                </span>
+                                <br />
+                                <br />
+                                <asp:Button runat="server" ID="btnComponentAudit" OnClick="btnComponentAudit_OnClick" Text="Run Audit" />
                             </div>
                             <div class="row advanced-search">
                                 <span class="header"><b>Advanced Search:</b></span>
@@ -842,12 +863,13 @@
                                     <input type="text" runat="server" id="txtEndDatePu" autocomplete="off" />
                                     <span class="border-notes">Only return items last published between the selected time span</span>
                                 </div>
-                            </div>                            
+                            </div>
                             <div class="row">
-                                <span class="header">Only include items with layout</span>
+                                <span class="header"><b>Only include items with layout</b></span>
                                 <asp:CheckBox runat="server" ID="chkItemsWithLayout" />
                                 <span class="notes">Check this box to only include items that have a layout, i.e. template pages and not components</span>
                             </div>
+
                             <div class="row">
                                 <span class="header">Include linked item IDs </span>
                                 <asp:CheckBox runat="server" ID="chkIncludeLinkedIds" />
@@ -917,33 +939,39 @@
                         <a class="advanced-btn">Content Import</a>
                         <div class="advanced-inner">
                             <div class="row advanced-search">
-                                <span style="color:red" class="uploadResponse"><asp:Literal runat="server" id="litUploadResponse"></asp:Literal></span>
+                                <span style="color: red" class="uploadResponse">
+                                    <asp:Literal runat="server" ID="litUploadResponse"></asp:Literal></span>
                                 <%--                                <span class="header"><b>Advanced Search:</b></span>--%>
                                 <asp:FileUpload runat="server" ID="btnFileUpload" Text="Upload File" />
                                 <span class="" style="display: block; margin-top: 10px;">
-                                    <b>Getting Started</b><br/>
+                                    <b>Getting Started</b><br />
                                     To create new items, CSV must include the following fields: <b>Item Path</b>, <b>Template</b>, <b>Name</b>. In the Item Path field, put in the path of the parent item.
-                                    <br/><br/>
+                                    <br />
+                                    <br />
                                     To edit existing items, CSV must include <b>Item Path</b>
-                                    <br/><br/>
+                                    <br />
+                                    <br />
                                     By default, the import will NOT overwrite exising items, but will only create new items.
                                     <br />
                                     To overwrite existing items, uncheck the checkbox below
-                                    <br /><br/>
-                                      
-                                    <input name="radDateRange" type="radio" runat="server" id="radImport" /><span><b>Create</b></span> new items using a specified Template (existing items will be ignored)<br/>
+                                    <br />
+                                    <br />
+
+                                    <input name="radDateRange" type="radio" runat="server" id="radImport" /><span><b>Create</b></span> new items using a specified Template (existing items will be ignored)<br />
                                     <input name="radDateRange" type="radio" runat="server" id="radUpdate" /><span><b>Update</b></span> existing items based on the item <b>Id</b> or <b>path</b> (new items will not be created)                              
-                                    <br/><br/>
-                                </span>                               
-                                
+                                    <br />
+                                    <br />
+                                </span>
+
                                 <div class="row">
-                                    <asp:CheckBox runat="server" ID="chkNoDuplicates"/><span class="notes"><b style="color: black">Do not create duplicates</b></span><br />
+                                    <asp:CheckBox runat="server" ID="chkNoDuplicates" /><span class="notes"><b style="color: black">Do not create duplicates</b></span><br />
                                     <span class="notes">If this box is checked off, Create Items will not create a new item if an item with the same name and template already exists in that location</span>
                                 </div>
 
-                                <asp:Button runat="server" ID="btnBeginImport" Text="Begin Import" OnClick="btnBeginImport_OnClick"/>
-                                
-                                <br /><br/>
+                                <asp:Button runat="server" ID="btnBeginImport" Text="Begin Import" OnClick="btnBeginImport_OnClick" />
+
+                                <br />
+                                <br />
 
 
                                 <a href="javascript:void(0)" class="btnSampleLink">Download Sample CSV</a>
@@ -964,42 +992,48 @@
                                     </div>
                                 </div>
 
-                                <asp:Button style="display: none;" runat="server" ID="btnDownloadCSVTemplate" Text="Download Sample" OnClick="btnDownloadCSVTemplate_OnClick" />
-                                
+                                <asp:Button Style="display: none;" runat="server" ID="btnDownloadCSVTemplate" Text="Download Sample" OnClick="btnDownloadCSVTemplate_OnClick" />
+
                                 <h3>READ ME!</h3>
-                                <p>Use the import tool carefully! Make sure to review all modified items in Sitecore before publishing.
-                                    <br/><br/>The <b>Update</b> option will only edit existing items (found using the Item Path) and will ignore items that are not found.
-                                    <br/><br/>The <b>Import</b> button will create new items under the Item Path. An item will not be created if an item with the same path and template already exists, unless you uncheck "Do not create duplicates"
+                                <p>
+                                    Use the import tool carefully! Make sure to review all modified items in Sitecore before publishing.
+                                    <br />
+                                    <br />
+                                    The <b>Update</b> option will only edit existing items (found using the Item Path) and will ignore items that are not found.
+                                    <br />
+                                    <br />
+                                    The <b>Import</b> button will create new items under the Item Path. An item will not be created if an item with the same path and template already exists, unless you uncheck "Do not create duplicates"
                                 </p>
-                                
+
                                 <h3>Tips:</h3>
                                 <ul>
                                     <li>Files should be uploaded in <b>csv</b> format</li>
                                     <li>Item Path and Template can be either a full Sitecore path or a Guid ID</li>
                                     <li>Add a column for every field that you want to add/change content for with the field name or ID (e.g. replace Field1 in the example template with a valid field name)
-                                        <ul><li>If you are editing content, it is recommended to export all the items with all fields you want to modify first, edit that file and then upload it</li>
- 
+                                        <ul>
+                                            <li>If you are editing content, it is recommended to export all the items with all fields you want to modify first, edit that file and then upload it</li>
+
                                         </ul>
                                     </li>
                                     <li>If you are modifying existing content, for best results run an export on that content first, make  your changes in the downloaded file and re-upload that file to import.</li>
-                                    <li> To <b>edit</b> content, Item Path must be the path of the item you with to edit.<br/>
-                                        
+                                    <li>To <b>edit</b> content, Item Path must be the path of the item you with to edit.<br />
+
                                     </li>
                                     <li>To <b>create</b> content, the Item Path must be the path of the parent item you wish to create the new item under (parent item must already exist);
                                         <ul>
-                                            <li>
-                                                Make sure to include Name and Template when creating items
+                                            <li>Make sure to include Name and Template when creating items
                                             </li>
-                                            <li>
-                                                Name and Template are not necessary for editing items
+                                            <li>Name and Template are not necessary for editing items
                                             </li>
-                                        </ul></li>
+                                        </ul>
+                                    </li>
                                     <li>Note: The import function currently supports string, image, and link fields. It does not support more complex field types, such as droplists or multilists.</li>
-                                    
+
                                     <li><b>Language Versions</b>: To specify language, add a <b>Language</b> column. If no language is specified, all items will be created/edited in the default language
                                         <ul>
                                             <li><b>Accepted language values:</b> </li>
-                                            <li><asp:Literal ID="litLanguageList" runat="server"></asp:Literal></li>
+                                            <li>
+                                                <asp:Literal ID="litLanguageList" runat="server"></asp:Literal></li>
                                         </ul>
                                     </li>
                                     <li>If you want to <b>create</b> new language versions of <b>existing items</b>, use the <b>EDIT</b> option</li>

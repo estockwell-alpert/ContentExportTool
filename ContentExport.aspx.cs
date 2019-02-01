@@ -929,7 +929,7 @@ namespace ContentExportTool
             }
             else
             {
-                itemLine += refField.TargetItem.Paths.ContentPath + ",";
+                itemLine += (chkDroplistName.Checked ? refField.TargetItem.Name : refField.TargetItem.Paths.ContentPath) + ",";
                 if (includeLinkedIds)
                 {
                     itemLine += refField.TargetID + ",";
@@ -966,9 +966,9 @@ namespace ContentExportTool
                 {
                     if (!first)
                     {
-                        data += ";";
+                        data += "; ";
                     }
-                    var url = i.Paths.ContentPath;
+                    var url = (chkDroplistName.Checked ? i.Name : i.Paths.ContentPath) ;
                     data += url;
                     first = false;
                 }
@@ -1557,7 +1557,8 @@ namespace ContentExportTool
                 StartDatePb = txtStartDatePb.Value,
                 EndDatePb = txtEndDatePu.Value,
                 DateRangeAnd = radDateRangeAnd.Checked,
-                NoChildren = chkNoChildren.Checked
+                NoChildren = chkNoChildren.Checked,
+                RefNameOnly = chkDroplistName.Checked
             };
 
             var settingsObject = new ExportSettings()
@@ -1657,6 +1658,7 @@ namespace ContentExportTool
             chkIncludeRawHtml.Checked = settings.IncludeRaw;
             chkWorkflowName.Checked = settings.Workflow;
             chkWorkflowState.Checked = settings.WorkflowState;
+            chkDroplistName.Checked = settings.RefNameOnly;
 
             var languages = GetSiteLanguages();
             if (languages.Any(x => x.GetDisplayName() == settings.SelectedLanguage))
@@ -1808,7 +1810,8 @@ namespace ContentExportTool
                 RequireLayout = chkItemsWithLayout.Checked,
                 Referrers = chkReferrers.Checked,
                 FileName = txtFileName.Value,
-                NoChildren = chkNoChildren.Checked
+                NoChildren = chkNoChildren.Checked,
+                RefNameOnly = chkDroplistName.Checked
             };
 
             var serializer = new JavaScriptSerializer();
@@ -2548,6 +2551,7 @@ namespace ContentExportTool
         public string EndDatePb;
         public bool DateRangeAnd;
         public bool NoChildren;
+        public bool RefNameOnly;
     }
 
     public class FieldData
