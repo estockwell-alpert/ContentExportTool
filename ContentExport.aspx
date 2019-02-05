@@ -669,7 +669,7 @@
                         <span class="header">Enter a name to save: </span>
                         <input runat="server" id="txtSaveSettingsName" />
                         <input type="button" class="save-btn-decoy" value="Save Settings" />
-                        <asp:Button runat="server" ID="btnSaveSettings" OnClick="btnSaveSettings_OnClick" Text="Save Settings" /><span class="save-message">
+                        <asp:Button class="spinner-btn" runat="server" ID="btnSaveSettings" OnClick="btnSaveSettings_OnClick" Text="Save Settings" /><span class="save-message">
                             <asp:Literal runat="server" ID="litSavedMessage"></asp:Literal></span>
                         <asp:Button runat="server" ID="btnOverWriteSettings" OnClick="btnOverWriteSettings_OnClick" CssClass="hidden btn-overwrite" />
 
@@ -680,7 +680,7 @@
                         <span class="header">Saved settings: </span>
                         <asp:DropDownList runat="server" ID="ddSavedSettings" AutoPostBack="True" OnSelectedIndexChanged="ddSavedSettings_OnSelectedIndexChanged" />
                         <a runat="server" visible="False" id="btnDeletePrompt" class="btn" onclick="confirmDelete()">Delete</a>
-                        <asp:Button runat="server" ID="btnDeleteSavedSetting" OnClick="btnDeleteSavedSetting_OnClick" CssClass="hidden btn-delete" /><br />
+                        <asp:Button class="spinner-btn" runat="server" ID="btnDeleteSavedSetting" OnClick="btnDeleteSavedSetting_OnClick" CssClass="hidden btn-delete" /><br />
                         <asp:CheckBox runat="server" AutoPostBack="True" OnCheckedChanged="chkAllUserSettings_OnCheckedChanged" ID="chkAllUserSettings" /><span class="notes">Show settings for all users</span>
                     </div>
                 </div>
@@ -733,7 +733,7 @@
                     </asp:PlaceHolder>
 
                     <div class="row">
-                        <asp:Button runat="server" ID="btnRunExport" OnClick="btnRunExport_OnClick" Text="Run Export" /><br />
+                        <asp:Button class="spinner-btn" runat="server" ID="btnRunExport" OnClick="btnRunExport_OnClick" Text="Run Export" /><br />
                         <asp:Button runat="server" ID="btnClearAll" Text="Clear All" OnClick="btnClearAll_OnClick" CssClass="btn-clear-all" />
                     </div>
                     <div class="row">
@@ -822,11 +822,11 @@
                                 </span>
                                 <br />
                                 <br />
-                                <asp:Button runat="server" ID="btnComponentAudit" OnClick="btnComponentAudit_OnClick" Text="Run Audit" />
+                                <asp:Button class="spinner-btn" runat="server" ID="btnComponentAudit" OnClick="btnComponentAudit_OnClick" Text="Run Audit" />
                             </div>
                             <div class="row advanced-search">
                                 <span class="header"><b>Advanced Search:</b></span>
-                                <input runat="server" id="txtAdvancedSearch" /><asp:Button runat="server" ID="btnAdvancedSearch" OnClick="btnAdvancedSearch_OnClick" Text="Go" />
+                                <input runat="server" id="txtAdvancedSearch" /><asp:Button class="spinner-btn" runat="server" ID="btnAdvancedSearch" OnClick="btnAdvancedSearch_OnClick" Text="Go" />
                                 <span class="border-notes">Export all items that contain the search text in a field. 
                                     <br />
                                     By default, this will check ALL fields on each item; if fields are specified in the Fields box, only those fields will be searched
@@ -889,6 +889,11 @@
                                 <span class="notes">Include the paths of all items that refer to each item</span>
                             </div>
                             <div class="row">
+                                <span class="header">Related Items</span>
+                                <asp:CheckBox runat="server" ID="chkRelateItems" />
+                                <span class="notes">Include the paths of all items the each item refers to</span>
+                            </div>
+                            <div class="row">
                                 <span class="header">Date Created</span>
                                 <asp:CheckBox runat="server" ID="chkDateCreated" />
                             </div>
@@ -933,12 +938,40 @@
                                 <input runat="server" id="txtFileName" />
                             </div>
                             <div class="row">
-                                <asp:Button runat="server" ID="btnRunExportDupe" OnClick="btnRunExport_OnClick" Text="Run Export" />
+                                <asp:Button class="spinner-btn" runat="server" ID="btnRunExportDupe" OnClick="btnRunExport_OnClick" Text="Run Export" />
                             </div>
                         </div>
                     </div>
                     <br />
                     <br />
+                    <div class="advanced open open-default">
+                        <a class="advanced-btn">Package Export</a>
+                        <div class="advanced-inner">
+                            <div class="row advanced-search">
+                                <h3>Package Export</h3>
+                                <p>Export a <b>Sitecore Package</b> instead of a CSV file</p>
+                                <p>This will generate a Sitecore Package of all of the items that would be included in the Export. Run the standard CSV export first to see what will be included.</p>
+                                
+                                <div class="row">
+                                    <asp:CheckBox runat="server" ID="chkIncludeRelatedItems" /><span class="notes"><b style="color: black">Include Related Items</b></span><br />
+                                    <span class="notes">Include all related items of each exported item in the package</span>
+                                </div>
+                                
+                                <div class="row">
+                                    <asp:CheckBox runat="server" ID="chkIncludeSubitems" /><span class="notes"><b style="color: black">Include Subitems</b></span><br />
+                                    <span style="color:black" class="notes">Include all subitems of each exported item in the package. <br />This will include <b>all subitems of every exported item</b>, ignoring filters such as Template type
+                                        <br/>This will negate the <b>No children</b> checkbox
+                                    </span>
+                                </div>
+
+                                <asp:Button runat="server" class="spinner-btn" ID="btnPackageExport" Text="Begin Package Export" OnClick="btnPackageExport_OnClick" />
+                                <br/><br/>
+                                <asp:Button runat="server" class="spinner-btn" ID="btnPackageSummary" Text="Get Package Summary" OnClick="btnPackageSummary_OnClick" /><br/>
+                                <span class="notes">Download a CSV file that shows all of the items included in the package</span>
+                            </div>
+                        </div>
+                    </div>
+                    <br/><br />
                     <div class="advanced open open-default">
                         <a class="advanced-btn">Content Import</a>
                         <div class="advanced-inner">
@@ -990,13 +1023,13 @@
                                         </div>
                                         <div class="buttons">
                                             <asp:TextBox runat="server" Style="display: none" ID="txtSampleTemplate"></asp:TextBox>
-                                            <a class="btn start-import" onclick="downloadSample()">Download</a>
+                                            <a class="btn start-import spinner-button" onclick="downloadSample()">Download</a>
                                             <a class="btn close-modal" onclick="closeTemplatesModal()">Cancel</a>
                                         </div>
                                     </div>
                                 </div>
 
-                                <asp:Button Style="display: none;" runat="server" ID="btnDownloadCSVTemplate" Text="Download Sample" OnClick="btnDownloadCSVTemplate_OnClick" />
+                                <asp:Button class="spinner-btn" Style="display: none;" runat="server" ID="btnDownloadCSVTemplate" Text="Download Sample" OnClick="btnDownloadCSVTemplate_OnClick" />
 
                                 <h3>READ ME!</h3>
                                 <p>

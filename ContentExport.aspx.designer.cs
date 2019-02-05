@@ -517,6 +517,15 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.CheckBox chkReferrers;
         
         /// <summary>
+        /// chkRelateItems control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkRelateItems;
+        
+        /// <summary>
         /// chkDateCreated control.
         /// </summary>
         /// <remarks>
@@ -614,6 +623,42 @@ namespace ContentExportTool {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnRunExportDupe;
+        
+        /// <summary>
+        /// chkIncludeRelatedItems control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkIncludeRelatedItems;
+        
+        /// <summary>
+        /// chkIncludeSubitems control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkIncludeSubitems;
+        
+        /// <summary>
+        /// btnPackageExport control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnPackageExport;
+        
+        /// <summary>
+        /// btnPackageSummary control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnPackageSummary;
         
         /// <summary>
         /// litUploadResponse control.

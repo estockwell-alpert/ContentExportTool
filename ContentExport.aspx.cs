@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -15,8 +16,15 @@ using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
 using Sitecore.Data.Managers;
 using Sitecore.Globalization;
+using Sitecore.Install;
+using Sitecore.Install.Framework;
+using Sitecore.Install.Items;
+using Sitecore.Install.Zip;
 using Sitecore.Layouts;
+using Sitecore.Links;
 using Sitecore.Sites;
+using System.Runtime.InteropServices;
+using Sitecore.Shell.Applications.Install;
 using ImageField = Sitecore.Data.Fields.ImageField;
 
 namespace ContentExportTool
@@ -103,6 +111,7 @@ namespace ContentExportTool
                     chkIncludeIds.Checked ||
                     chkIncludeRawHtml.Checked ||
                     chkReferrers.Checked ||
+                    chkRelateItems.Checked ||
                     chkDateCreated.Checked ||
                     chkDateModified.Checked ||
                     chkCreatedBy.Checked ||
@@ -466,6 +475,7 @@ namespace ContentExportTool
                 var includeModifiedBy = chkModifiedBy.Checked;
                 var neverPublish = chkNeverPublish.Checked;
                 var includeReferrers = chkReferrers.Checked;
+                var includeRelated = chkRelateItems.Checked;
 
                 var allLanguages = chkAllLanguages.Checked;
                 var selectedLanguage = ddLanguages.SelectedValue;
@@ -499,7 +509,8 @@ namespace ContentExportTool
                                         + (neverPublish ? "Never Publish," : string.Empty)
                                         + (includeworkflowName ? "Workflow," : string.Empty)
                                         + (includeWorkflowState ? "Workflow State," : string.Empty)
-                                        + (includeReferrers ? "Referrers," : string.Empty);
+                                        + (includeReferrers ? "Referrers," : string.Empty)
+                                        + (includeRelated ? "Related Items," : string.Empty);
 
                     var dataLines = new List<string>();
 
@@ -576,7 +587,7 @@ namespace ContentExportTool
 
                             if (includeReferrers)
                             {
-                                var referrers = Globals.LinkDatabase.GetReferrers(item).ToList().Select(x => x.GetSourceItem());
+                                var referrers = Globals.LinkDatabase.GetReferrers(item).Select(x => x.GetSourceItem()).Where(x => x != null);
 
                                 var first = true;
                                 var data = "";
@@ -586,7 +597,7 @@ namespace ContentExportTool
                                     {
                                         if (!first)
                                         {
-                                            data += ";";
+                                            data += "; \n";
                                         }
                                         data += referrer.Paths.ContentPath;
                                         first = false;
@@ -594,6 +605,27 @@ namespace ContentExportTool
                                 }
                                 itemLine += "\"" + data + "\",";
 
+                            }
+
+                            if (includeRelated)
+                            {
+                                var relatedItems = Globals.LinkDatabase.GetReferences(item).Select(x => x.GetTargetItem()).Where(x => x != null);
+
+                                var first = true;
+                                var data = "";
+                                foreach (var relatedItem in relatedItems)
+                                {
+                                    if (relatedItem != null)
+                                    {
+                                        if (!first)
+                                        {
+                                            data += "; \n";
+                                        }
+                                        data += relatedItem.Paths.FullPath;
+                                        first = false;
+                                    }
+                                }
+                                itemLine += "\"" + data + "\",";
                             }
 
                             foreach (var field in fields)
@@ -966,7 +998,7 @@ namespace ContentExportTool
                 {
                     if (!first)
                     {
-                        data += "; ";
+                        data += "; \n";
                     }
                     var url = (chkDroplistName.Checked ? i.Name : i.Paths.ContentPath) ;
                     data += url;
@@ -982,9 +1014,9 @@ namespace ContentExportTool
                     {
                         if (!first)
                         {
-                            idData += ";";
+                            idData += "; \n";
                         }
-                        idData += i.ID + ";";
+                        idData += i.ID;
                         first = false;
                     }
                     itemLine += "\"" + idData + "\"" + ",";
@@ -1549,6 +1581,7 @@ namespace ContentExportTool
                 NeverPublish = chkNeverPublish.Checked,
                 RequireLayout = chkItemsWithLayout.Checked,
                 Referrers = chkReferrers.Checked,
+                Related = chkRelateItems.Checked,
                 FileName = txtFileName.Value,
                 AllFields = chkAllFields.Checked,
                 AdvancedSearch = txtAdvancedSearch.Value,
@@ -1675,6 +1708,7 @@ namespace ContentExportTool
             chkNeverPublish.Checked = settings.NeverPublish;
             chkItemsWithLayout.Checked = settings.RequireLayout;
             chkReferrers.Checked = settings.Referrers;
+            chkRelateItems.Checked = settings.Related;
             txtFileName.Value = settings.FileName;
             chkAllFields.Checked = settings.AllFields;
             txtAdvancedSearch.Value = settings.AdvancedSearch;
@@ -1760,6 +1794,7 @@ namespace ContentExportTool
             chkModifiedBy.Checked = false;
             chkIncludeName.Checked = false;
             chkReferrers.Checked = false;
+            chkRelateItems.Checked = false;
             txtFileName.Value = string.Empty;
             chkAllFields.Checked = false;
             txtAdvancedSearch.Value = string.Empty;
@@ -1809,6 +1844,7 @@ namespace ContentExportTool
                 NeverPublish = chkNeverPublish.Checked,
                 RequireLayout = chkItemsWithLayout.Checked,
                 Referrers = chkReferrers.Checked,
+                Related = chkRelateItems.Checked,
                 FileName = txtFileName.Value,
                 NoChildren = chkNoChildren.Checked,
                 RefNameOnly = chkDroplistName.Checked
@@ -2064,7 +2100,7 @@ namespace ContentExportTool
             _db = Sitecore.Configuration.Factory.GetDatabase(databaseName);
         }
 
-        public List<Item> GetItems(bool children = true)
+        public List<Item> GetItems(bool children = true, bool addRelatedItems = false, bool addChildrenNoFiltering = false)
         {            
             var templateString = inputTemplates.Value;
             var templates = templateString.ToLower().Split(',').Select(x => x.Trim()).ToList();
@@ -2094,7 +2130,7 @@ namespace ContentExportTool
                         continue;
                                        
                     exportItems.Add(item);
-                    if (children)
+                    if (children && !addChildrenNoFiltering)
                     {
                         var descendants = item.Axes.GetDescendants();
                         exportItems.AddRange(descendants);
@@ -2141,6 +2177,32 @@ namespace ContentExportTool
                 (!String.IsNullOrWhiteSpace(txtAdvFields.Value) || chkAdvAllLinkedItems.Checked))
             {
                 items = GetLinkedItems(items);              
+            }
+
+            if (addChildrenNoFiltering)
+            {
+                var childItems = new List<Item>();
+                foreach (var item in items)
+                {
+                    // add all children that aren't already included
+                    var descendants = item.Axes.GetDescendants().Where(x => items.All(y => y.ID != x.ID));
+
+                    childItems.AddRange(descendants);
+                }
+                items.AddRange(childItems);
+            }
+
+            // related items
+            if (addRelatedItems)
+            {
+                var relatedItems = new List<Item>();
+                foreach (var item in items)
+                {
+                    var refItems = Globals.LinkDatabase.GetReferences(item).Select(x => x.GetTargetItem()).Where(x => x != null && items.All(y => y.ID != x.ID && relatedItems.All(z => z.ID != x.ID)));
+                    relatedItems.AddRange(refItems);
+                }
+
+                items.AddRange(relatedItems);
             }
 
             return items;
@@ -2478,9 +2540,122 @@ namespace ContentExportTool
                 litFeedback.Text = "<span style='color:red'>" + ex + "</span>";
             }
         }
-    }
 
-    
+        protected void btnPackageExport_OnClick(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!SetDatabase())
+                {
+                    litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
+                    return;
+                }
+
+
+                if (_db == null)
+                {
+                    litFeedback.Text = "Invalid database. Selected database does not exist.";
+                    return;
+                }
+
+                List<Item> items = GetItems(!chkNoChildren.Checked, chkIncludeRelatedItems.Checked, chkIncludeSubitems.Checked);
+
+                var packageProject = new PackageProject()
+                {
+                    Metadata =
+                    {
+                        PackageName = String.IsNullOrEmpty(txtFileName.Value) ? "ContentExportPackage" : txtFileName.Value,
+                        Author = GetUserId()
+                    }
+                };
+
+                packageProject.Sources.Clear();
+                var source = new ExplicitItemSource();
+                source.Name = "Items";
+
+                foreach (var item in items)
+                {
+                    source.Entries.Add(new ItemReference(item.Uri, false).ToString());
+                }
+
+                packageProject.Sources.Add(source);
+                packageProject.SaveProject = true;
+
+                var fileName = packageProject.Metadata.PackageName + ".zip";
+                var filePath = FullPackageProjectPath(fileName);
+
+                using (var writer = new PackageWriter(filePath))
+                {
+                    Sitecore.Context.SetActiveSite("shell");
+                    writer.Initialize(Installer.CreateInstallationContext());
+                    PackageGenerator.GeneratePackage(packageProject, writer);
+                    Sitecore.Context.SetActiveSite("website");
+
+                    Response.Clear();
+                    Response.Buffer = true;
+                    Response.AddHeader("content-disposition", string.Format("attachment;filename={0}", fileName));
+                    Response.ContentType = "application/zip";
+
+                    var downloadToken = txtDownloadToken.Value;
+                    var responseCookie = new HttpCookie("DownloadToken");
+                    responseCookie.Value = downloadToken;
+                    responseCookie.HttpOnly = false;
+                    responseCookie.Expires = DateTime.Now.AddDays(1);
+                    Response.Cookies.Add(responseCookie);
+
+                    byte[] data = new WebClient().DownloadData(filePath);
+                    Response.BinaryWrite(data);
+                    Response.Flush();
+                    Response.End();
+                }
+            }
+            catch (Exception ex)
+            {
+                litFeedback.Text = ex.ToString();
+                return;
+            }
+        }
+
+        protected string PackageProjectPath = ApplicationContext.PackageProjectPath;
+
+        protected string FullPackageProjectPath(string packageFileName)
+        {
+            return Path.GetFullPath(Path.Combine(PackageProjectPath, packageFileName));
+        }
+
+        protected void btnPackageSummary_OnClick(object sender, EventArgs e)
+        {
+            if (!SetDatabase())
+            {
+                litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
+                return;
+            }
+
+
+            if (_db == null)
+            {
+                litFeedback.Text = "Invalid database. Selected database does not exist.";
+                return;
+            }
+
+            List<Item> items = GetItems(!chkNoChildren.Checked, chkIncludeRelatedItems.Checked, chkIncludeSubitems.Checked);
+
+            StartResponse(!string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value + " - Package Summary" : "ContentExportPackage - Package Summary");
+
+            using (StringWriter sw = new StringWriter())
+            {
+                var headingString = "Item Path";
+
+                sw.WriteLine(headingString);
+                foreach (var item in items)
+                {
+                    sw.WriteLine(item.Paths.FullPath);
+                }
+
+                SetCookieAndResponse(sw.ToString());
+            }
+        }
+        }
 
     #region Classes
 
@@ -2542,6 +2717,7 @@ namespace ContentExportTool
         public bool ModifiedBy;
         public bool RequireLayout;
         public bool Referrers;
+        public bool Related;
         public string FileName;
         public bool AllFields;
         public string AdvancedSearch;
