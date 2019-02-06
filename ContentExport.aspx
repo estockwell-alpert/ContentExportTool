@@ -824,6 +824,15 @@
                                 <br />
                                 <asp:Button class="spinner-btn" runat="server" ID="btnComponentAudit" OnClick="btnComponentAudit_OnClick" Text="Run Audit" />
                             </div>
+                             <div class="row advanced-search">
+                                <span class="header"><b>Template Audit</b></span>
+                                <span class="notes">Run this export to audit the templates. This will generate a report of each Sitecore template and every instance where it is used.
+                                </span>
+                                <br /><br />
+                                 <asp:CheckBox runat="server" ID="chkObsoleteTemplates"/><span class="notes"><b style="color:black">Obsolete templates</b> - Generate a report of all templates that are not in use</span><br/>
+                                <br />
+                                <asp:Button class="spinner-btn" runat="server" ID="btnTemplateAudit" OnClick="btnTemplateAudit_OnClick" Text="Run Audit" />
+                            </div>
                             <div class="row advanced-search">
                                 <span class="header"><b>Advanced Search:</b></span>
                                 <input runat="server" id="txtAdvancedSearch" /><asp:Button class="spinner-btn" runat="server" ID="btnAdvancedSearch" OnClick="btnAdvancedSearch_OnClick" Text="Go" />
@@ -891,7 +900,7 @@
                             <div class="row">
                                 <span class="header">Related Items</span>
                                 <asp:CheckBox runat="server" ID="chkRelateItems" />
-                                <span class="notes">Include the paths of all items the each item refers to</span>
+                                <span class="notes">Include the paths of all items each item refers to</span>
                             </div>
                             <div class="row">
                                 <span class="header">Date Created</span>
