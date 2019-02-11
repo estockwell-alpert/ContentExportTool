@@ -2457,7 +2457,7 @@ namespace ContentExportTool
             return settingsList;
         }
 
-        protected string GetUserId()
+        public string GetUserId()
         {
             var user = Sitecore.Security.Accounts.User.Current;
             if (user != null && user.Profile != null)
@@ -2669,7 +2669,7 @@ namespace ContentExportTool
 
         protected string PackageProjectPath = ApplicationContext.PackageProjectPath;
 
-        protected string FullPackageProjectPath(string packageFileName)
+        public string FullPackageProjectPath(string packageFileName)
         {
             return Path.GetFullPath(Path.Combine(PackageProjectPath, packageFileName));
         }
@@ -2750,6 +2750,7 @@ namespace ContentExportTool
 
                 foreach (var template in templates)
                 {
+
                     var templateItem = new TemplateItem(template);
 
                     var path = template.Paths.FullPath;
@@ -2758,18 +2759,17 @@ namespace ContentExportTool
                     var baseTemplateString = String.Join(";\n", baseTemplates.Select(x => x.Name));
                     var fields = templateItem.Fields.Where(x => !x.Name.StartsWith("__"));
                     var fieldString = String.Join(";\n", fields.Select(x => x.Name));
-                    var referrers = Sitecore.Globals.LinkDatabase.GetItemReferrers(template, false).Select(x => x.GetTargetItem());
-                    var referrersNoDuplicates = referrers.Where(x => x.ID != template.ID).Distinct().GroupBy(x => x.ID).Select(x => x.FirstOrDefault()).ToList();
+                    var referrers = Sitecore.Globals.LinkDatabase.GetItemReferrers(template, false).Select(x => x.GetSourceItem()).Where(x => x != null).ToList();
 
                     var inheritors = GetInheritors(template, templateItems);
 
                     var referrerString = "";
                     var inheritorString = "";
-                    if (referrersNoDuplicates.Count > 100)
+                    if (referrers.Count > 100)
                     {
-                        referrerString += "Too many referrers to display (" + referrersNoDuplicates.Count + "). First 100 referrers:\n";
+                        referrerString += "Too many referrers to display (" + referrers.Count + "). First 100 referrers:\n";
 
-                        referrersNoDuplicates = referrersNoDuplicates.Take(100).ToList();
+                        referrers = referrers.Take(100).ToList();
                     }
 
                     if (inheritors.Count > 100)
@@ -2780,19 +2780,19 @@ namespace ContentExportTool
                     }
 
 
-                    var obsolete = referrersNoDuplicates.Any()
+                    var obsolete = referrers.Any()
                         ? false
                         : (!inheritors.Any()
                             ? true
-                            : (CheckIfObsolete(template, inheritors, referrersNoDuplicates, templateItems)));
+                            : (CheckIfObsolete(template, inheritors, referrers, templateItems)));
 
                     if (!obsolete && chkObsoleteTemplates.Checked) continue;
 
                     inheritorString += String.Join(";\n", inheritors.Select(x => x.Paths.FullPath));
-                    referrerString += String.Join(";\n", referrersNoDuplicates.Select(x => x.Paths.FullPath));
+                    referrerString += String.Join(";\n", referrers.Select(x => x.Paths.FullPath));
 
                     // write line
-                    sw.WriteLine("{0},{1},\"{2}\",\"{3}\",\"{4}\",{5}{6}", name, path, fieldString, baseTemplateString, inheritorString, chkObsoleteTemplates.Checked ? "" : ",\"" + referrerString + "\"", obsolete.ToString());
+                    sw.WriteLine("{0},{1},\"{2}\",\"{3}\",\"{4}\",{5}{6}", name, path, fieldString, baseTemplateString, inheritorString, chkObsoleteTemplates.Checked ? "" : "\"" + referrerString + "\",", obsolete.ToString());
                 }
 
                 SetCookieAndResponse(sw.ToString());
@@ -2878,7 +2878,7 @@ namespace ContentExportTool
             foreach (var inheritor in inheritors)
             {
                 // recursively check all inheritors; if any inheritors are NOT obsolete, then base template is not obsolete
-                var inheritorsReferrers = Sitecore.Globals.LinkDatabase.GetItemReferrers(inheritor, false).Select(x => x.GetTargetItem());
+                var inheritorsReferrers = Sitecore.Globals.LinkDatabase.GetItemReferrers(inheritor, false).Select(x => x.GetSourceItem());
                 var inheritorsInheritors = GetInheritors(inheritor, allTemplates);
                 if (!CheckIfObsolete(inheritor, inheritorsInheritors, inheritorsReferrers, allTemplates))
                 {
