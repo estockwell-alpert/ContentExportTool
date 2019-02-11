@@ -31,6 +31,15 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.PlaceHolder phDeleteScript;
         
         /// <summary>
+        /// phScrollToImport control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder phScrollToImport;
+        
+        /// <summary>
         /// form1 control.
         /// </summary>
         /// <remarks>
@@ -128,6 +137,15 @@ namespace ContentExportTool {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.CheckBox chkAllUserSettings;
+        
+        /// <summary>
+        /// btnRunExportDupe control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnRunExportDupe;
         
         /// <summary>
         /// PhBrowseModal control.
@@ -373,51 +391,6 @@ namespace ContentExportTool {
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl divAdvOptions;
         
         /// <summary>
-        /// btnComponentAudit control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnComponentAudit;
-        
-        /// <summary>
-        /// chkObsoleteTemplates control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox chkObsoleteTemplates;
-        
-        /// <summary>
-        /// btnTemplateAudit control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnTemplateAudit;
-        
-        /// <summary>
-        /// txtAdvancedSearch control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputText txtAdvancedSearch;
-        
-        /// <summary>
-        /// btnAdvancedSearch control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnAdvancedSearch;
-        
-        /// <summary>
         /// chkAdvancedSelectionOff control.
         /// </summary>
         /// <remarks>
@@ -634,13 +607,49 @@ namespace ContentExportTool {
         protected global::System.Web.UI.HtmlControls.HtmlInputText txtFileName;
         
         /// <summary>
-        /// btnRunExportDupe control.
+        /// btnComponentAudit control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnRunExportDupe;
+        protected global::System.Web.UI.WebControls.Button btnComponentAudit;
+        
+        /// <summary>
+        /// chkObsoleteTemplates control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkObsoleteTemplates;
+        
+        /// <summary>
+        /// btnTemplateAudit control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnTemplateAudit;
+        
+        /// <summary>
+        /// txtAdvancedSearch control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputText txtAdvancedSearch;
+        
+        /// <summary>
+        /// btnAdvancedSearch control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnAdvancedSearch;
         
         /// <summary>
         /// chkIncludeRelatedItems control.

@@ -47,6 +47,7 @@ namespace ContentExportTool
             litSavedMessage.Text = String.Empty;
             phOverwriteScript.Visible = false;
             phDeleteScript.Visible = false;
+            phScrollToImport.Visible = false;
             litFastQueryTest.Text = String.Empty;
             if (!IsPostBack)
             {
@@ -590,43 +591,45 @@ namespace ContentExportTool
                             {
                                 var referrers = Globals.LinkDatabase.GetReferrers(item).Select(x => x.GetSourceItem()).Where(x => x != null);
 
-                                var first = true;
+                                var referrerPaths = referrers.Select(x => x.Paths.FullPath).GroupBy(x => x).Select(y => y.FirstOrDefault()).ToList();
+
                                 var data = "";
-                                foreach (var referrer in referrers)
+
+                                if (referrerPaths.Count > 100)
                                 {
-                                    if (referrer != null)
-                                    {
-                                        if (!first)
-                                        {
-                                            data += "; \n";
-                                        }
-                                        data += referrer.Paths.ContentPath;
-                                        first = false;
-                                    }
+                                    data += "Too many referrers to display (" + referrerPaths.Count + "). First 100 referrers:\n";
+
+                                    referrerPaths = referrerPaths.Take(100).ToList();
                                 }
+
+                                
+                                data += String.Join("; \n", referrerPaths);
+
                                 itemLine += "\"" + data + "\",";
 
                             }
 
                             if (includeRelated)
                             {
-                                var relatedItems = Globals.LinkDatabase.GetReferences(item).Select(x => x.GetTargetItem()).Where(x => x != null);
+                                var relatedItems = GetRelatedItems(item, false).Select(x => x.Item);
 
-                                var first = true;
+                                var relatedPaths = relatedItems.Select(x => x.Paths.FullPath).GroupBy(x => x).Select(y => y.FirstOrDefault()).ToList();
+
                                 var data = "";
-                                foreach (var relatedItem in relatedItems)
+
+                                if (relatedPaths.Count > 100)
                                 {
-                                    if (relatedItem != null)
-                                    {
-                                        if (!first)
-                                        {
-                                            data += "; \n";
-                                        }
-                                        data += relatedItem.Paths.FullPath;
-                                        first = false;
-                                    }
+                                    data += "Too many related items to display (" + relatedPaths.Count + "). First 100 related items:\n";
+
+                                    relatedPaths = relatedPaths.Take(100).ToList();
                                 }
+
+
+                                data += String.Join("; \n", relatedPaths);
+
                                 itemLine += "\"" + data + "\",";
+
+
                             }
 
                             foreach (var field in fields)
@@ -1171,12 +1174,16 @@ namespace ContentExportTool
 
         protected void ProcessImport(bool createItems)
         {
+            PhBrowseModal.Visible = false;
+            PhBrowseFields.Visible = false;
+            phScrollToImport.Visible = true;
+
             try
             {
                 var output = "";
                 _db = Sitecore.Configuration.Factory.GetDatabase("master");
                 var file = btnFileUpload.PostedFile;
-                if (file == null)
+                if (file == null || String.IsNullOrEmpty(file.FileName))
                 {
                     litUploadResponse.Text = "You must select a file first<br/>";
                 }
@@ -1734,6 +1741,7 @@ namespace ContentExportTool
             chkItemsWithLayout.Checked = settings.RequireLayout;
             chkReferrers.Checked = settings.Referrers;
             chkRelateItems.Checked = settings.Related;
+            chkIncludeRelatedItems.Checked = settings.Related;
             txtFileName.Value = settings.FileName;
             chkAllFields.Checked = settings.AllFields;
             txtAdvancedSearch.Value = settings.AdvancedSearch;
@@ -1820,6 +1828,8 @@ namespace ContentExportTool
             chkIncludeName.Checked = false;
             chkReferrers.Checked = false;
             chkRelateItems.Checked = false;
+            chkIncludeRelatedItems.Checked = false;
+            chkIncludeSubitems.Checked = false;
             txtFileName.Value = string.Empty;
             chkAllFields.Checked = false;
             txtAdvancedSearch.Value = string.Empty;
@@ -2126,7 +2136,14 @@ namespace ContentExportTool
             _db = Sitecore.Configuration.Factory.GetDatabase(databaseName);
         }
 
-        public List<Item> GetItems(bool children = true, bool addRelatedItems = false, bool addChildrenNoFiltering = false)
+        public List<Item> GetItems(bool children = true, bool addRelatedItems = false,
+            bool addChildrenNoFiltering = false)
+        {
+            var items = GetItemsAsRelatedItems(children, addRelatedItems, addChildrenNoFiltering);
+            return items.Select(x => x.Item).ToList();
+        }
+
+        public List<RelatedItem> GetItemsAsRelatedItems(bool children = true, bool addRelatedItems = false, bool addChildrenNoFiltering = false)
         {
             var templateString = inputTemplates.Value;
             var templates = templateString.ToLower().Split(',').Select(x => x.Trim()).ToList();
@@ -2219,20 +2236,25 @@ namespace ContentExportTool
                 items.AddRange(childItems);
             }
 
+            var itemsAsRelatedItems = items.Select(x => new RelatedItem() {Item = x, RelatedTo = ""}).ToList();
+
             // related items
             if (addRelatedItems)
             {
-                var relatedItems = new List<Item>();
+                var relatedItems = new List<RelatedItem>();
                 foreach (var item in items)
                 {
-                    var refItems = Globals.LinkDatabase.GetReferences(item).Select(x => x.GetTargetItem()).Where(x => x != null && items.All(y => y.ID != x.ID && relatedItems.All(z => z.ID != x.ID)));
-                    relatedItems.AddRange(refItems);
+                    var relItems = GetRelatedItems(item,true);
+
+                    relatedItems.AddRange(relItems);
                 }
 
-                items.AddRange(relatedItems);
+                var distinctRelatedItems = relatedItems.Where(x => !(itemsAsRelatedItems.Any(item => item.Item.ID == x.Item.ID)));
+
+                itemsAsRelatedItems.AddRange(distinctRelatedItems);
             }
 
-            return items;
+            return itemsAsRelatedItems;
         }
 
         protected List<Item> GetLinkedItems(List<Item> items)
@@ -2500,7 +2522,7 @@ namespace ContentExportTool
                     litFeedback.Text = "Invalid database. Selected database does not exist.";
                     return;
                 }
-                var items = GetItems(!chkNoChildren.Checked);
+                var items = GetItems(!chkNoChildren.Checked).Select(x => x);
 
                 StartResponse(!string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "ComponentAudit");
 
@@ -2667,18 +2689,28 @@ namespace ContentExportTool
                 return;
             }
 
-            List<Item> items = GetItems(!chkNoChildren.Checked, chkIncludeRelatedItems.Checked, chkIncludeSubitems.Checked);
+            List<RelatedItem> items = GetItemsAsRelatedItems(!chkNoChildren.Checked, chkIncludeRelatedItems.Checked, chkIncludeSubitems.Checked);
 
             StartResponse(!string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value + " - Package Summary" : "ContentExportPackage - Package Summary");
 
             using (StringWriter sw = new StringWriter())
             {
-                var headingString = "Item Path";
+                var headingString = "Item Path,Related To,Children Not Included in Package";
 
                 sw.WriteLine(headingString);
                 foreach (var item in items)
                 {
-                    sw.WriteLine(item.Paths.FullPath);
+                    var children = item.Item.Children;
+                    var missingChildren = children.Where(x => items.All(y => y.Item.ID != x.ID)).Select(x => x.Paths.FullPath);
+
+                    if (missingChildren.ToList().Count > 100)
+                    {
+                        missingChildren = missingChildren.Take(100);
+                    }
+
+                    var childrenString = "\"" + String.Join(";\n", missingChildren) + "\"";
+
+                    sw.WriteLine(String.Format("{0},{1},{2}", item.Item.Paths.FullPath, item.RelatedTo, childrenString));
                 }
 
                 SetCookieAndResponse(sw.ToString());
@@ -2727,9 +2759,25 @@ namespace ContentExportTool
                     var fields = templateItem.Fields.Where(x => !x.Name.StartsWith("__"));
                     var fieldString = String.Join(";\n", fields.Select(x => x.Name));
                     var referrers = Sitecore.Globals.LinkDatabase.GetItemReferrers(template, false).Select(x => x.GetTargetItem());
-                    var referrersNoDuplicates = referrers.Where(x => x.ID != template.ID).Distinct().GroupBy(x => x.ID).Select(x => x.FirstOrDefault());
+                    var referrersNoDuplicates = referrers.Where(x => x.ID != template.ID).Distinct().GroupBy(x => x.ID).Select(x => x.FirstOrDefault()).ToList();
 
                     var inheritors = GetInheritors(template, templateItems);
+
+                    var referrerString = "";
+                    var inheritorString = "";
+                    if (referrersNoDuplicates.Count > 100)
+                    {
+                        referrerString += "Too many referrers to display (" + referrersNoDuplicates.Count + "). First 100 referrers:\n";
+
+                        referrersNoDuplicates = referrersNoDuplicates.Take(100).ToList();
+                    }
+
+                    if (inheritors.Count > 100)
+                    {
+                        referrerString += "Too many referrers to display (" + inheritors.Count + "). First 100 referrers:\n";
+
+                        inheritors = inheritors.Take(100).ToList();
+                    }
 
 
                     var obsolete = referrersNoDuplicates.Any()
@@ -2740,8 +2788,8 @@ namespace ContentExportTool
 
                     if (!obsolete && chkObsoleteTemplates.Checked) continue;
 
-                    var inheritorString = String.Join(";\n", inheritors.Select(x => x.Paths.FullPath));
-                    var referrerString = String.Join(";\n", referrersNoDuplicates.Select(x => x.Paths.FullPath));
+                    inheritorString += String.Join(";\n", inheritors.Select(x => x.Paths.FullPath));
+                    referrerString += String.Join(";\n", referrersNoDuplicates.Select(x => x.Paths.FullPath));
 
                     // write line
                     sw.WriteLine("{0},{1},\"{2}\",\"{3}\",\"{4}\",{5}{6}", name, path, fieldString, baseTemplateString, inheritorString, chkObsoleteTemplates.Checked ? "" : ",\"" + referrerString + "\"", obsolete.ToString());
@@ -2750,6 +2798,76 @@ namespace ContentExportTool
                 SetCookieAndResponse(sw.ToString());
             }
         }
+
+        public List<Item> AggregateRelatedItemsList = new List<Item>();
+
+        protected IEnumerable<RelatedItem> GetRelatedItems(Item item, bool deep = false, int iteration = 0)
+        {
+            if (iteration == 0)
+            {
+                AggregateRelatedItemsList = new List<Item>();
+            }
+
+            AggregateRelatedItemsList.Add(item);
+
+            var relItems = new List<RelatedItem>();
+            try
+            {
+                // if the RELATED ITEM has MORE THAN 10 REFERRERS, then we will include it but NOT its related items (stop recursion)
+                if (iteration > 0)
+                {
+                    var referrers = Globals.LinkDatabase.GetReferrers(item).Select(x => x.GetSourceItem()).Where(x => x != null).ToList();
+
+                    if (referrers.Count > 20)
+                    {
+                        return relItems;
+                    }
+                }
+
+                // get all relateditems that are NOT already in our list of items 
+                var relatedItems =
+                    Globals.LinkDatabase.GetReferences(item).Select(x => x.GetTargetItem()).Where(x => x != null).ToList();
+
+                // remove all related items that are already in our master list
+                relatedItems = relatedItems.Where(x => AggregateRelatedItemsList.All(y => y.ID != x.ID)).ToList();
+
+                relatedItems =
+                    relatedItems.Where(
+                        x =>
+                            !(x.Paths.FullPath.ToLower().StartsWith("/sitecore/templates")) &&
+                            !(x.Paths.FullPath.ToLower().StartsWith("/sitecore/layout")) &&
+                            !(x.Paths.FullPath.ToLower().StartsWith("/sitecore/system/workflows"))).ToList();
+
+                AggregateRelatedItemsList.AddRange(relatedItems);
+
+                var relatedContentItems = relatedItems.Where(
+                    x =>
+                        (x.Paths.FullPath.ToLower().StartsWith("/sitecore/content")));
+                
+                if (deep && relatedContentItems.Any() && iteration < 5)
+                {                    
+                    foreach (var relItem in relatedContentItems)
+                    {
+                        var relatedItemsDeep = GetRelatedItems(relItem, true, iteration + 1);
+                        if (relatedItemsDeep.Any()) relItems.AddRange(relatedItemsDeep);
+                    }                   
+                }
+
+                var relatedItemsList =
+                    relatedItems.Select(x => new RelatedItem() {Item = x, RelatedTo = item.Paths.FullPath});
+
+                relItems.AddRange(relatedItemsList);
+
+                // remove any duplicates
+                relItems = relItems.GroupBy(x => x.Item.ID).Select(x => x.FirstOrDefault()).ToList();
+
+                return relItems;
+            }
+            catch (Exception ex)
+            {
+                return relItems;
+            }
+        } 
 
         protected bool CheckIfObsolete(Item template, IEnumerable<Item> inheritors, IEnumerable<Item> referrers, IEnumerable<TemplateItem> allTemplates)
         {
@@ -2773,6 +2891,12 @@ namespace ContentExportTool
     }
 
     #region Classes
+
+    public class RelatedItem
+    {
+        public Item Item;
+        public String RelatedTo;
+    }
 
     public class MultipleBrowseItems
     {

@@ -225,6 +225,15 @@
             position: fixed;
         }
 
+        .fixed-export-btn {
+            position: fixed;
+            width: 302px;
+            right: 20px;
+            top: 245px;
+            padding: 10px;
+            border: 1px solid #aaa;
+        }
+
             .save-settings-box input[type="text"] {
                 width: 200px;
             }
@@ -315,7 +324,7 @@
 
         .select-box {
             width: 48%;
-            height: 100%;
+            height: 95%;
             float: left;
             overflow: auto;
             font-size: 14px;
@@ -327,9 +336,11 @@
             font-size: 14px;
         }
 
-            .selector-box.left, .select-box.left {
-                padding-top: 10px;
-            }
+        .selector-box.left, .select-box.left {
+            padding-top: 10px;
+            white-space: nowrap;
+            overflow-x: auto;
+        }
 
         .selected-box {
             width: 48%;
@@ -627,6 +638,15 @@
         select#ddSavedSettings {
             min-width: 60%;
         }
+
+        a.navButton {
+            display: block;
+            padding-top: 8px;
+            font-size: 14px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
     </style>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
@@ -651,6 +671,13 @@
             });
         </script>
     </asp:PlaceHolder>
+    <asp:Placeholder runat="server" ID="phScrollToImport" Visible="False">
+        <script>
+            $(document).ready(function () {
+                location.href = "#contentImport";
+            });
+        </script>      
+    </asp:Placeholder>
     <form id="form1" runat="server">
         <div class="loading-modal">
             <div class="loading-box">
@@ -682,6 +709,18 @@
                         <a runat="server" visible="False" id="btnDeletePrompt" class="btn" onclick="confirmDelete()">Delete</a>
                         <asp:Button class="spinner-btn" runat="server" ID="btnDeleteSavedSetting" OnClick="btnDeleteSavedSetting_OnClick" CssClass="hidden btn-delete" /><br />
                         <asp:CheckBox runat="server" AutoPostBack="True" OnCheckedChanged="chkAllUserSettings_OnCheckedChanged" ID="chkAllUserSettings" /><span class="notes">Show settings for all users</span>
+                    </div>
+                </div>
+                
+                <div class="fixed-export-btn">
+                    <span class="header"><b>Quick Links</b></span>
+                    <div class="row">
+                        <asp:Button class="spinner-btn" runat="server" ID="btnRunExportDupe" OnClick="btnRunExport_OnClick" Text="Run Content Export" />
+                        <a class="navButton" href="#divAdvOptions" onclick="openAdvancedOptions()">Advanced Options</a>
+                        <a class="navButton" href="#divAudits">Special Audits & Search</a>
+                        <a class="navButton" href="#packageExport">Package Export</a>
+                        <a class="navButton" href="#contentImport">Content Import</a>
+                        <a class="navButton" href="javascript:void(0)" onclick="window.scrollTo(0,0);">Back to Top</a>
                     </div>
                 </div>
                 <div class="container">
@@ -733,7 +772,7 @@
                     </asp:PlaceHolder>
 
                     <div class="row">
-                        <asp:Button class="spinner-btn" runat="server" ID="btnRunExport" OnClick="btnRunExport_OnClick" Text="Run Export" /><br />
+                        <asp:Button class="spinner-btn" runat="server" ID="btnRunExport" OnClick="btnRunExport_OnClick" Text="Run Content Export" /><br />
                         <asp:Button runat="server" ID="btnClearAll" Text="Clear All" OnClick="btnClearAll_OnClick" CssClass="btn-clear-all" />
                     </div>
                     <div class="row">
@@ -816,33 +855,6 @@
                     <div runat="server" id="divAdvOptions">
                         <a class="advanced-btn">Advanced Options</a>
                         <div class="advanced-inner">
-                            <div class="row advanced-search">
-                                <span class="header"><b>Component Audit</b></span>
-                                <span class="notes">Run this export to audit the components on each Sitecore item. You can use the Start Item, Template and Created/Published Date filters and Language options to select items. The exported data will include the name of the component, the page it is on, and any associated datasource item
-                                </span>
-                                <br />
-                                <br />
-                                <asp:Button class="spinner-btn" runat="server" ID="btnComponentAudit" OnClick="btnComponentAudit_OnClick" Text="Run Audit" />
-                            </div>
-                             <div class="row advanced-search">
-                                <span class="header"><b>Template Audit</b></span>
-                                <span class="notes">Run this export to audit the templates. This will generate a report of each Sitecore template and every instance where it is used.
-                                </span>
-                                <br /><br />
-                                 <asp:CheckBox runat="server" ID="chkObsoleteTemplates"/><span class="notes"><b style="color:black">Obsolete templates</b> - Generate a report of all templates that are not in use</span><br/>
-                                <br />
-                                <asp:Button class="spinner-btn" runat="server" ID="btnTemplateAudit" OnClick="btnTemplateAudit_OnClick" Text="Run Audit" />
-                            </div>
-                            <div class="row advanced-search">
-                                <span class="header"><b>Advanced Search:</b></span>
-                                <input runat="server" id="txtAdvancedSearch" /><asp:Button class="spinner-btn" runat="server" ID="btnAdvancedSearch" OnClick="btnAdvancedSearch_OnClick" Text="Go" />
-                                <span class="border-notes">Export all items that contain the search text in a field. 
-                                    <br />
-                                    By default, this will check ALL fields on each item; if fields are specified in the Fields box, only those fields will be searched
-                                    <br />
-                                    Advanced search works with the Start Item, Templates, and Fields boxes
-                                </span>
-                            </div>
                             <div class="row advanced-search" style="display: none;">
                                 <span class="header" style="display: inline-block"><b>Advanced Item Selection</b></span>
                                 <asp:CheckBox runat="server" ID="chkAdvancedSelectionOff" /><span>Off</span>
@@ -899,7 +911,7 @@
                             </div>
                             <div class="row">
                                 <span class="header">Related Items</span>
-                                <asp:CheckBox runat="server" ID="chkRelateItems" />
+                                <asp:CheckBox runat="server" ID="chkRelateItems" class="chkRelatedItems"/>
                                 <span class="notes">Include the paths of all items each item refers to</span>
                             </div>
                             <div class="row">
@@ -946,42 +958,80 @@
                                 <span class="header">Download File Name</span><br />
                                 <input runat="server" id="txtFileName" />
                             </div>
-                            <div class="row">
-                                <asp:Button class="spinner-btn" runat="server" ID="btnRunExportDupe" OnClick="btnRunExport_OnClick" Text="Run Export" />
-                            </div>
+                            
                         </div>
                     </div>
                     <br />
                     <br />
-                    <div class="advanced open open-default">
+                    
+                    <div class="advanced open open-default" id="divAudits">
+                        <a class="advanced-btn">Special Audits & Search</a>
+                        <div class="advanced-inner">
+                            <div class="row advanced-search">
+                                <span class="header"><b>Component Audit</b></span>
+                                <span class="notes">Run this export to audit the components on each Sitecore item. You can use the Start Item, Template and Created/Published Date filters and Language options to select items. The exported data will include the name of the component, the page it is on, and any associated datasource item
+                                </span>
+                                <br />
+                                <br />
+                                <asp:Button class="spinner-btn" runat="server" ID="btnComponentAudit" OnClick="btnComponentAudit_OnClick" Text="Run Audit" />
+                            </div>
+                             <div class="row advanced-search">
+                                <span class="header"><b>Template Audit</b></span>
+                                <span class="notes">Run this export to audit the templates. This will generate a report of each Sitecore template and every instance where it is used.
+                                </span>
+                                <br /><br />
+                                 <asp:CheckBox runat="server" ID="chkObsoleteTemplates"/><span class="notes"><b style="color:black">Obsolete templates</b> - Generate a report of all templates that are not in use</span><br/>
+                                <br />
+                                <asp:Button class="spinner-btn" runat="server" ID="btnTemplateAudit" OnClick="btnTemplateAudit_OnClick" Text="Run Audit" />
+                            </div>
+                            <div class="row advanced-search">
+                                <span class="header"><b>Advanced Search:</b></span>
+                                <input runat="server" id="txtAdvancedSearch" /><asp:Button class="spinner-btn" runat="server" ID="btnAdvancedSearch" OnClick="btnAdvancedSearch_OnClick" Text="Go" />
+                                <span class="border-notes">Export all items that contain the search text in a field. 
+                                    <br />
+                                    By default, this will check ALL fields on each item; if fields are specified in the Fields box, only those fields will be searched
+                                    <br />
+                                    Advanced search works with the Start Item, Templates, and Fields boxes
+                                </span>
+                            </div>
+                        </div><br/><br/>
+                    </div>
+
+                    <div class="advanced open open-default" id="packageExport">
                         <a class="advanced-btn">Package Export</a>
                         <div class="advanced-inner">
                             <div class="row advanced-search">
                                 <h3>Package Export</h3>
                                 <p>Export a <b>Sitecore Package</b> instead of a CSV file</p>
-                                <p>This will generate a Sitecore Package of all of the items that would be included in the Export. Run the standard CSV export first to see what will be included.</p>
+                                <p>This will generate a Sitecore Package of all of the items that would be included in the Export.<br/><br/>
+                                    The Package Export uses the same selection and filtering logic as the Content export. Click Get Package Preview to get a CSV report of all the items that will be included in the package.<br/><br/>
+                                    (NOTE: in the Content export, related items will be included in a column for each item; in the Package Preview, all items and subitems will be on their own line)</p>
                                 
                                 <div class="row">
-                                    <asp:CheckBox runat="server" ID="chkIncludeRelatedItems" /><span class="notes"><b style="color: black">Include Related Items</b></span><br />
-                                    <span class="notes">Include all related items of each exported item in the package</span>
+                                    <asp:CheckBox runat="server" ID="chkIncludeRelatedItems" class="chkRelatedItems"/><span class="notes"><b style="color: black">Include Related Items</b></span><br />
+                                    <span style="color:black" class="notes">Include all related items of each exported item in the package. <br />This will include all related items <b>and all related items of related items</b>.<br />
+                                        The Content Export will only show the directly related items, but the preview will show all related items that will be included in the package.
+                                    </span>
                                 </div>
                                 
                                 <div class="row">
                                     <asp:CheckBox runat="server" ID="chkIncludeSubitems" /><span class="notes"><b style="color: black">Include Subitems</b></span><br />
                                     <span style="color:black" class="notes">Include all subitems of each exported item in the package. <br />This will include <b>all subitems of every exported item</b>, ignoring filters such as Template type
                                         <br/>This will negate the <b>No children</b> checkbox
+                                        
+                                        <br/><br/><span class="notes">Example: Used the template and date range filters to select specific items, then check off Include Subitems to include the subitems of all the items in the filtered selection</span>
                                     </span>
                                 </div>
 
                                 <asp:Button runat="server" class="spinner-btn" ID="btnPackageExport" Text="Begin Package Export" OnClick="btnPackageExport_OnClick" />
                                 <br/><br/>
-                                <asp:Button runat="server" class="spinner-btn" ID="btnPackageSummary" Text="Get Package Summary" OnClick="btnPackageSummary_OnClick" /><br/>
+                                <asp:Button runat="server" class="spinner-btn" ID="btnPackageSummary" Text="Get Package Preview" OnClick="btnPackageSummary_OnClick" /><br/>
                                 <span class="notes">Download a CSV file that shows all of the items included in the package</span>
                             </div>
                         </div>
                     </div>
                     <br/><br />
-                    <div class="advanced open open-default">
+                    <div class="advanced open open-default" id="contentImport">
                         <a class="advanced-btn">Content Import</a>
                         <div class="advanced-inner">
                             <div class="row advanced-search">
