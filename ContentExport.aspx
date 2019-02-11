@@ -1007,6 +1007,8 @@
                                     The Package Export uses the same selection and filtering logic as the Content export. Click Get Package Preview to get a CSV report of all the items that will be included in the package.<br/><br/>
                                     (NOTE: in the Content export, related items will be included in a column for each item; in the Package Preview, all items and subitems will be on their own line)</p>
                                 
+                                <p><b>WARNING: </b>Installing the package with the "overwrite" option will delete any subitems that are not included in the package. Review the Summary carefully especially when using the Related Items option</p>
+                                
                                 <div class="row">
                                     <asp:CheckBox runat="server" ID="chkIncludeRelatedItems" class="chkRelatedItems"/><span class="notes"><b style="color: black">Include Related Items</b></span><br />
                                     <span style="color:black" class="notes">Include all related items of each exported item in the package. <br />This will include all related items <b>and all related items of related items</b>.<br />

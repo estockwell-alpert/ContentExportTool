@@ -6,6 +6,10 @@
         $("#singleTemplateModal").show();
     });
 
+    $(".chkRelatedItems input[type='checkbox']").on("click", function() {
+        $(".chkRelatedItems input[type='checkbox']").prop("checked", $(this).prop("checked"));
+    });
+
     var loadingModalHtml = "<div class='loading-modal'><div class='loading-box'><div class='loader'></div></div></div>";
 
     $(".browse-btn", ".save-btn-decoy").on("click", function () {
@@ -106,6 +110,13 @@
         }
     });
 });
+
+function openAdvancedOptions() {
+    if (!$("#divAdvOptions").hasClass("open")) {
+        var btn = $("#divAdvOptions .advanced-btn");
+        $(btn).click();
+    }
+}
 
 function getFields(node) {
     if (!($(node).parent().hasClass("loaded"))) {
