@@ -17,7 +17,7 @@
         showModal();
     })
 
-    $("#btnRunExport, #btnRunExportDupe, #btnAdvancedSearch", ".start-import", "#btnComponentAudit").on("click", function () {
+    $(".spinner-btn").on("click", function () {
         showModal();
     });
 

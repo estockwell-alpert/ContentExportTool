@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -15,8 +16,15 @@ using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
 using Sitecore.Data.Managers;
 using Sitecore.Globalization;
+using Sitecore.Install;
+using Sitecore.Install.Framework;
+using Sitecore.Install.Items;
+using Sitecore.Install.Zip;
 using Sitecore.Layouts;
+using Sitecore.Links;
 using Sitecore.Sites;
+using System.Runtime.InteropServices;
+using Sitecore.Shell.Applications.Install;
 using ImageField = Sitecore.Data.Fields.ImageField;
 
 namespace ContentExportTool
@@ -30,7 +38,7 @@ namespace ContentExportTool
         private List<FieldData> _fieldsList;
 
         protected void Page_Load(object sender, EventArgs e)
-        {           
+        {
             divAdvOptions.Attributes["class"] = "advanced";
             litUploadResponse.Text = String.Empty;
             litFeedback.Text = String.Empty;
@@ -46,8 +54,9 @@ namespace ContentExportTool
                     !String.IsNullOrEmpty(Request.QueryString["startitem"]))
                 {
                     GetItemsAsync(Request.QueryString["startitem"]);
-                }else if (!String.IsNullOrEmpty(Request.QueryString["getfields"]) &&
-                          !String.IsNullOrEmpty(Request.QueryString["startitem"]))
+                }
+                else if (!String.IsNullOrEmpty(Request.QueryString["getfields"]) &&
+                         !String.IsNullOrEmpty(Request.QueryString["startitem"]))
                 {
                     GetFieldsAsync(Request.QueryString["startitem"]);
                 }
@@ -103,6 +112,7 @@ namespace ContentExportTool
                     chkIncludeIds.Checked ||
                     chkIncludeRawHtml.Checked ||
                     chkReferrers.Checked ||
+                    chkRelateItems.Checked ||
                     chkDateCreated.Checked ||
                     chkDateModified.Checked ||
                     chkCreatedBy.Checked ||
@@ -134,7 +144,7 @@ namespace ContentExportTool
         protected void SetSavedSettingsDropdown(bool allUsers = false)
         {
             var settings = new List<ExportSettings>();
-            
+
             var savedSettings = ReadSettingsFromFile(allUsers);
 
             if (savedSettings != null && savedSettings.Settings != null)
@@ -157,7 +167,7 @@ namespace ContentExportTool
                 Name = "",
                 UserId = ""
             });
-                     
+
             ddSavedSettings.DataSource = settings;
             ddSavedSettings.DataValueField = "ID";
             ddSavedSettings.DataTextField = "Name";
@@ -451,7 +461,7 @@ namespace ContentExportTool
                 {
                     litFeedback.Text = "Invalid database. Selected database does not exist.";
                     return;
-                }                
+                }
 
                 var includeIds = chkIncludeIds.Checked;
                 var includeLinkedIds = chkIncludeLinkedIds.Checked;
@@ -466,10 +476,11 @@ namespace ContentExportTool
                 var includeModifiedBy = chkModifiedBy.Checked;
                 var neverPublish = chkNeverPublish.Checked;
                 var includeReferrers = chkReferrers.Checked;
+                var includeRelated = chkRelateItems.Checked;
 
                 var allLanguages = chkAllLanguages.Checked;
                 var selectedLanguage = ddLanguages.SelectedValue;
-                                  
+
                 List<Item> items = GetItems(!chkNoChildren.Checked);
 
                 _fieldsList = new List<FieldData>();
@@ -499,7 +510,8 @@ namespace ContentExportTool
                                         + (neverPublish ? "Never Publish," : string.Empty)
                                         + (includeworkflowName ? "Workflow," : string.Empty)
                                         + (includeWorkflowState ? "Workflow State," : string.Empty)
-                                        + (includeReferrers ? "Referrers," : string.Empty);
+                                        + (includeReferrers ? "Referrers," : string.Empty)
+                                        + (includeRelated ? "Related Items," : string.Empty);
 
                     var dataLines = new List<string>();
 
@@ -516,7 +528,7 @@ namespace ContentExportTool
                             if (includeName)
                             {
                                 itemLine += item.Name + ",";
-                            }                     
+                            }
 
                             if (includeIds)
                             {
@@ -576,7 +588,7 @@ namespace ContentExportTool
 
                             if (includeReferrers)
                             {
-                                var referrers = Globals.LinkDatabase.GetReferrers(item).ToList().Select(x => x.GetSourceItem());
+                                var referrers = Globals.LinkDatabase.GetReferrers(item).Select(x => x.GetSourceItem()).Where(x => x != null);
 
                                 var first = true;
                                 var data = "";
@@ -586,7 +598,7 @@ namespace ContentExportTool
                                     {
                                         if (!first)
                                         {
-                                            data += ";";
+                                            data += "; \n";
                                         }
                                         data += referrer.Paths.ContentPath;
                                         first = false;
@@ -596,13 +608,34 @@ namespace ContentExportTool
 
                             }
 
+                            if (includeRelated)
+                            {
+                                var relatedItems = Globals.LinkDatabase.GetReferences(item).Select(x => x.GetTargetItem()).Where(x => x != null);
+
+                                var first = true;
+                                var data = "";
+                                foreach (var relatedItem in relatedItems)
+                                {
+                                    if (relatedItem != null)
+                                    {
+                                        if (!first)
+                                        {
+                                            data += "; \n";
+                                        }
+                                        data += relatedItem.Paths.FullPath;
+                                        first = false;
+                                    }
+                                }
+                                itemLine += "\"" + data + "\",";
+                            }
+
                             foreach (var field in fields)
                             {
                                 var itemLineAndHeading = AddFieldsToItemLineAndHeading(item, field, itemLine,
                                     headingString, includeLinkedIds, includeRawHtml);
                                 itemLine = itemLineAndHeading.Item1;
                                 headingString = itemLineAndHeading.Item2;
-                            }                            
+                            }
 
                             dataLines.Add(itemLine);
                         }
@@ -632,7 +665,7 @@ namespace ContentExportTool
                         sw.WriteLine(newLine);
                     }
 
-                    SetCookieAndResponse(sw.ToString());               
+                    SetCookieAndResponse(sw.ToString());
                 }
             }
             catch (Exception ex)
@@ -966,9 +999,9 @@ namespace ContentExportTool
                 {
                     if (!first)
                     {
-                        data += "; ";
+                        data += "; \n";
                     }
-                    var url = (chkDroplistName.Checked ? i.Name : i.Paths.ContentPath) ;
+                    var url = (chkDroplistName.Checked ? i.Name : i.Paths.ContentPath);
                     data += url;
                     first = false;
                 }
@@ -982,9 +1015,9 @@ namespace ContentExportTool
                     {
                         if (!first)
                         {
-                            idData += ";";
+                            idData += "; \n";
                         }
-                        idData += i.ID + ";";
+                        idData += i.ID;
                         first = false;
                     }
                     itemLine += "\"" + idData + "\"" + ",";
@@ -1066,7 +1099,31 @@ namespace ContentExportTool
                             }
                         }
                     }
+                }
+            }
+            return inheritors;
+        }
 
+        private
+            List<Item> GetInheritors(Item template, IEnumerable<TemplateItem> templateItems = null)
+        {
+            var inheritors = new List<Item>();
+
+            if (templateItems == null)
+            {
+                var templateRoot = _db.GetItem("/sitecore/templates");
+                var templates = templateRoot.Axes.GetDescendants().Where(x => x.TemplateName == "Template");
+                templateItems = templates.Select(x => new TemplateItem(x));
+            }
+
+            foreach (var item in templateItems)
+            {
+                var baseTemplates = item.BaseTemplates;
+
+                // if templateitem includes selected template as a base template, add to list of inheritors
+                if (baseTemplates.Any(x => x.ID == template.ID))
+                {
+                    inheritors.Add(item);
                 }
             }
             return inheritors;
@@ -1157,7 +1214,7 @@ namespace ContentExportTool
                             {
                                 path = "/sitecore/content" + (path.StartsWith("/") ? "" : "/") + path;
                             }
-                           
+
                             if (languageIndex > -1 && !String.IsNullOrEmpty(cells[languageIndex]))
                             {
                                 var selectedLanguage = LanguageManager.GetLanguage(cells[languageIndex]);
@@ -1302,7 +1359,7 @@ namespace ContentExportTool
                 if (i == itemPathIndex || i == itemNameIndex || i == itemTemplateIndex || i == langIndex) continue;
                 if (i > fieldsMap.Count - 1)
                 {
-                    output += "Line " + (line + 1) + ": Column " + i + " ('" + cells[i] +  "') not used, no corresponding Field in Header<br/>";
+                    output += "Line " + (line + 1) + ": Column " + i + " ('" + cells[i] + "') not used, no corresponding Field in Header<br/>";
                 }
                 var fieldName = fieldsMap[i];
                 var value = cells[i];
@@ -1354,7 +1411,7 @@ namespace ContentExportTool
                     }
                     else if (itemOfType is MultilistField)
                     {
-                        MultilistField multiField = (MultilistField) item.Fields[fieldName];
+                        MultilistField multiField = (MultilistField)item.Fields[fieldName];
                         var values = value.Split(';').Where(x => !String.IsNullOrEmpty(x));
                         List<Item> refItems = new ItemList();
 
@@ -1450,7 +1507,7 @@ namespace ContentExportTool
         }
 
         protected void btnDownloadCSVTemplate_OnClick(object sender, EventArgs e)
-        {            
+        {
             var db = Sitecore.Configuration.Factory.GetDatabase("master");
 
             var template = txtSampleTemplate.Text;
@@ -1477,7 +1534,7 @@ namespace ContentExportTool
                     sw.WriteLine(headingString);
                     sw.WriteLine("," + template + "," + fields.Aggregate("", (current, field) => current + ","));
                 }
-                
+
                 SetCookieAndResponse(sw.ToString());
             }
         }
@@ -1549,6 +1606,7 @@ namespace ContentExportTool
                 NeverPublish = chkNeverPublish.Checked,
                 RequireLayout = chkItemsWithLayout.Checked,
                 Referrers = chkReferrers.Checked,
+                Related = chkRelateItems.Checked,
                 FileName = txtFileName.Value,
                 AllFields = chkAllFields.Checked,
                 AdvancedSearch = txtAdvancedSearch.Value,
@@ -1675,6 +1733,7 @@ namespace ContentExportTool
             chkNeverPublish.Checked = settings.NeverPublish;
             chkItemsWithLayout.Checked = settings.RequireLayout;
             chkReferrers.Checked = settings.Referrers;
+            chkRelateItems.Checked = settings.Related;
             txtFileName.Value = settings.FileName;
             chkAllFields.Checked = settings.AllFields;
             txtAdvancedSearch.Value = settings.AdvancedSearch;
@@ -1760,6 +1819,7 @@ namespace ContentExportTool
             chkModifiedBy.Checked = false;
             chkIncludeName.Checked = false;
             chkReferrers.Checked = false;
+            chkRelateItems.Checked = false;
             txtFileName.Value = string.Empty;
             chkAllFields.Checked = false;
             txtAdvancedSearch.Value = string.Empty;
@@ -1800,7 +1860,7 @@ namespace ContentExportTool
                 WorkflowState = chkWorkflowState.Checked,
                 SelectedLanguage = ddLanguages.SelectedValue,
                 GetAllLanguages = chkAllLanguages.Checked,
-                IncludeName  = chkIncludeName.Checked,
+                IncludeName = chkIncludeName.Checked,
                 IncludeInheritance = chkIncludeInheritance.Checked,
                 DateCreated = chkDateCreated.Checked,
                 DateModified = chkDateModified.Checked,
@@ -1809,6 +1869,7 @@ namespace ContentExportTool
                 NeverPublish = chkNeverPublish.Checked,
                 RequireLayout = chkItemsWithLayout.Checked,
                 Referrers = chkReferrers.Checked,
+                Related = chkRelateItems.Checked,
                 FileName = txtFileName.Value,
                 NoChildren = chkNoChildren.Checked,
                 RefNameOnly = chkDroplistName.Checked
@@ -1851,7 +1912,8 @@ namespace ContentExportTool
                 var settingsListJson = serializer.Serialize(savedSettings);
                 EditSavedSettingsItem(settingsListJson);
                 SetSavedSettingsDropdown();
-            }else if (setting != null && setting.UserId != GetUserId())
+            }
+            else if (setting != null && setting.UserId != GetUserId())
             {
                 phDeleteScript.Visible = true;
             }
@@ -1878,7 +1940,7 @@ namespace ContentExportTool
             {
                 var headingString = "Item Path,Field";
                 var addedLangToHeading = false;
-                                    
+
 
                 var dataLines = new List<string>();
 
@@ -1943,7 +2005,7 @@ namespace ContentExportTool
                 //field which we do not want to index.
                 if (fieldsSelected && fields.All(x => x != field.Name))
                 {
-                    continue; 
+                    continue;
                 }
 
                 if (field == null || field.Name.StartsWith("__"))
@@ -2064,8 +2126,8 @@ namespace ContentExportTool
             _db = Sitecore.Configuration.Factory.GetDatabase(databaseName);
         }
 
-        public List<Item> GetItems(bool children = true)
-        {            
+        public List<Item> GetItems(bool children = true, bool addRelatedItems = false, bool addChildrenNoFiltering = false)
+        {
             var templateString = inputTemplates.Value;
             var templates = templateString.ToLower().Split(',').Select(x => x.Trim()).ToList();
 
@@ -2081,7 +2143,8 @@ namespace ContentExportTool
             {
                 var queryItems = _db.SelectItems(fastQuery);
                 exportItems = queryItems.ToList();
-            }else
+            }
+            else
             {
                 var startNode = inputStartitem.Value;
                 List<String> startItems;
@@ -2092,9 +2155,9 @@ namespace ContentExportTool
                     Item item = _db.GetItem(startItem.Trim());
                     if (item == null)
                         continue;
-                                       
+
                     exportItems.Add(item);
-                    if (children)
+                    if (children && !addChildrenNoFiltering)
                     {
                         var descendants = item.Axes.GetDescendants();
                         exportItems.AddRange(descendants);
@@ -2102,7 +2165,7 @@ namespace ContentExportTool
 
                 }
             }
-       
+
             // created AND published filters
             exportItems = FilterByDateRanges(exportItems);
 
@@ -2140,7 +2203,33 @@ namespace ContentExportTool
             if (!chkAdvancedSelectionOff.Checked &&
                 (!String.IsNullOrWhiteSpace(txtAdvFields.Value) || chkAdvAllLinkedItems.Checked))
             {
-                items = GetLinkedItems(items);              
+                items = GetLinkedItems(items);
+            }
+
+            if (addChildrenNoFiltering)
+            {
+                var childItems = new List<Item>();
+                foreach (var item in items)
+                {
+                    // add all children that aren't already included
+                    var descendants = item.Axes.GetDescendants().Where(x => items.All(y => y.ID != x.ID));
+
+                    childItems.AddRange(descendants);
+                }
+                items.AddRange(childItems);
+            }
+
+            // related items
+            if (addRelatedItems)
+            {
+                var relatedItems = new List<Item>();
+                foreach (var item in items)
+                {
+                    var refItems = Globals.LinkDatabase.GetReferences(item).Select(x => x.GetTargetItem()).Where(x => x != null && items.All(y => y.ID != x.ID && relatedItems.All(z => z.ID != x.ID)));
+                    relatedItems.AddRange(refItems);
+                }
+
+                items.AddRange(relatedItems);
             }
 
             return items;
@@ -2183,12 +2272,14 @@ namespace ContentExportTool
                                 LinkField linkField = itemField;
                                 var linkedItem = linkField.TargetItem;
                                 if (linkedItem != null) linkedItems.Add(linkedItem);
-                            }else if (itemOfType is ReferenceField)
+                            }
+                            else if (itemOfType is ReferenceField)
                             {
                                 ReferenceField refField = itemField;
                                 var linkedItem = refField.TargetItem;
                                 if (linkedItem != null) linkedItems.Add(linkedItem);
-                            }else if (itemOfType is MultilistField)
+                            }
+                            else if (itemOfType is MultilistField)
                             {
                                 MultilistField listField = itemField;
                                 var listItems = listField.GetItems();
@@ -2204,7 +2295,7 @@ namespace ContentExportTool
         protected List<Item> FilterByDateRanges(List<Item> exportItems)
         {
             var startDateCr = new DateTime();
-            var startDatePb  = new DateTime();
+            var startDatePb = new DateTime();
             var endDateCr = new DateTime();
             var endDatePb = new DateTime();
 
@@ -2370,7 +2461,7 @@ namespace ContentExportTool
             var downloadToken = txtDownloadToken.Value;
             var responseCookie = new HttpCookie("DownloadToken");
             responseCookie.Value = downloadToken;
-			responseCookie.HttpOnly = false;
+            responseCookie.HttpOnly = false;
             responseCookie.Expires = DateTime.Now.AddDays(1);
             Response.Cookies.Add(responseCookie);
             Response.Output.Write(responseValue);
@@ -2458,14 +2549,14 @@ namespace ContentExportTool
                                     }
                                     catch (Exception ex)
                                     {
-                                        
+
                                     }
                                 }
                             }
                         }
                         catch (Exception ex)
                         {
-                            
+
                         }
                     }
 
@@ -2478,9 +2569,208 @@ namespace ContentExportTool
                 litFeedback.Text = "<span style='color:red'>" + ex + "</span>";
             }
         }
-    }
 
-    
+        protected void btnPackageExport_OnClick(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!SetDatabase())
+                {
+                    litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
+                    return;
+                }
+
+
+                if (_db == null)
+                {
+                    litFeedback.Text = "Invalid database. Selected database does not exist.";
+                    return;
+                }
+
+                List<Item> items = GetItems(!chkNoChildren.Checked, chkIncludeRelatedItems.Checked, chkIncludeSubitems.Checked);
+
+                var packageProject = new PackageProject()
+                {
+                    Metadata =
+                    {
+                        PackageName = String.IsNullOrEmpty(txtFileName.Value) ? "ContentExportPackage" : txtFileName.Value,
+                        Author = GetUserId()
+                    }
+                };
+
+                packageProject.Sources.Clear();
+                var source = new ExplicitItemSource();
+                source.Name = "Items";
+
+                foreach (var item in items)
+                {
+                    source.Entries.Add(new ItemReference(item.Uri, false).ToString());
+                }
+
+                packageProject.Sources.Add(source);
+                packageProject.SaveProject = true;
+
+                var fileName = packageProject.Metadata.PackageName + ".zip";
+                var filePath = FullPackageProjectPath(fileName);
+
+                using (var writer = new PackageWriter(filePath))
+                {
+                    Sitecore.Context.SetActiveSite("shell");
+                    writer.Initialize(Installer.CreateInstallationContext());
+                    PackageGenerator.GeneratePackage(packageProject, writer);
+                    Sitecore.Context.SetActiveSite("website");
+
+                    Response.Clear();
+                    Response.Buffer = true;
+                    Response.AddHeader("content-disposition", string.Format("attachment;filename={0}", fileName));
+                    Response.ContentType = "application/zip";
+
+                    var downloadToken = txtDownloadToken.Value;
+                    var responseCookie = new HttpCookie("DownloadToken");
+                    responseCookie.Value = downloadToken;
+                    responseCookie.HttpOnly = false;
+                    responseCookie.Expires = DateTime.Now.AddDays(1);
+                    Response.Cookies.Add(responseCookie);
+
+                    byte[] data = new WebClient().DownloadData(filePath);
+                    Response.BinaryWrite(data);
+                    Response.Flush();
+                    Response.End();
+                }
+            }
+            catch (Exception ex)
+            {
+                litFeedback.Text = ex.ToString();
+                return;
+            }
+        }
+
+        protected string PackageProjectPath = ApplicationContext.PackageProjectPath;
+
+        protected string FullPackageProjectPath(string packageFileName)
+        {
+            return Path.GetFullPath(Path.Combine(PackageProjectPath, packageFileName));
+        }
+
+        protected void btnPackageSummary_OnClick(object sender, EventArgs e)
+        {
+            if (!SetDatabase())
+            {
+                litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
+                return;
+            }
+
+
+            if (_db == null)
+            {
+                litFeedback.Text = "Invalid database. Selected database does not exist.";
+                return;
+            }
+
+            List<Item> items = GetItems(!chkNoChildren.Checked, chkIncludeRelatedItems.Checked, chkIncludeSubitems.Checked);
+
+            StartResponse(!string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value + " - Package Summary" : "ContentExportPackage - Package Summary");
+
+            using (StringWriter sw = new StringWriter())
+            {
+                var headingString = "Item Path";
+
+                sw.WriteLine(headingString);
+                foreach (var item in items)
+                {
+                    sw.WriteLine(item.Paths.FullPath);
+                }
+
+                SetCookieAndResponse(sw.ToString());
+            }
+        }
+
+        protected void btnTemplateAudit_OnClick(object sender, EventArgs e)
+        {
+            if (!SetDatabase())
+            {
+                litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
+                return;
+            }
+
+
+            if (_db == null)
+            {
+                litFeedback.Text = "Invalid database. Selected database does not exist.";
+                return;
+            }
+
+            Item item = _db.GetItem("/sitecore/templates");
+            if (item == null)
+                return;
+
+            var templates = item.Axes.GetDescendants().Where(x => x.TemplateName.ToLower() == "template");
+
+            var templateItems = templates.Select(x => new TemplateItem(x));
+
+            StartResponse(!string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "TemplateAudit");
+
+            using (StringWriter sw = new StringWriter())
+            {
+                var headingString = "Name,Item Path,Fields,Base Templates,Inheritor Templates," + (chkObsoleteTemplates.Checked ? "" : "Referrers,") + "Obsolete";
+
+                sw.WriteLine(headingString);
+
+                foreach (var template in templates)
+                {
+                    var templateItem = new TemplateItem(template);
+
+                    var path = template.Paths.FullPath;
+                    var name = template.Name;
+                    var baseTemplates = templateItem.BaseTemplates;
+                    var baseTemplateString = String.Join(";\n", baseTemplates.Select(x => x.Name));
+                    var fields = templateItem.Fields.Where(x => !x.Name.StartsWith("__"));
+                    var fieldString = String.Join(";\n", fields.Select(x => x.Name));
+                    var referrers = Sitecore.Globals.LinkDatabase.GetItemReferrers(template, false).Select(x => x.GetTargetItem());
+                    var referrersNoDuplicates = referrers.Where(x => x.ID != template.ID).Distinct().GroupBy(x => x.ID).Select(x => x.FirstOrDefault());
+
+                    var inheritors = GetInheritors(template, templateItems);
+
+
+                    var obsolete = referrersNoDuplicates.Any()
+                        ? false
+                        : (!inheritors.Any()
+                            ? true
+                            : (CheckIfObsolete(template, inheritors, referrersNoDuplicates, templateItems)));
+
+                    if (!obsolete && chkObsoleteTemplates.Checked) continue;
+
+                    var inheritorString = String.Join(";\n", inheritors.Select(x => x.Paths.FullPath));
+                    var referrerString = String.Join(";\n", referrersNoDuplicates.Select(x => x.Paths.FullPath));
+
+                    // write line
+                    sw.WriteLine("{0},{1},\"{2}\",\"{3}\",\"{4}\",{5}{6}", name, path, fieldString, baseTemplateString, inheritorString, chkObsoleteTemplates.Checked ? "" : ",\"" + referrerString + "\"", obsolete.ToString());
+                }
+
+                SetCookieAndResponse(sw.ToString());
+            }
+        }
+
+        protected bool CheckIfObsolete(Item template, IEnumerable<Item> inheritors, IEnumerable<Item> referrers, IEnumerable<TemplateItem> allTemplates)
+        {
+            if (!referrers.Any() && !inheritors.Any()) return true;
+
+            if (referrers.Any()) return false;
+
+            foreach (var inheritor in inheritors)
+            {
+                // recursively check all inheritors; if any inheritors are NOT obsolete, then base template is not obsolete
+                var inheritorsReferrers = Sitecore.Globals.LinkDatabase.GetItemReferrers(inheritor, false).Select(x => x.GetTargetItem());
+                var inheritorsInheritors = GetInheritors(inheritor, allTemplates);
+                if (!CheckIfObsolete(inheritor, inheritorsInheritors, inheritorsReferrers, allTemplates))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
 
     #region Classes
 
@@ -2542,6 +2832,7 @@ namespace ContentExportTool
         public bool ModifiedBy;
         public bool RequireLayout;
         public bool Referrers;
+        public bool Related;
         public string FileName;
         public bool AllFields;
         public string AdvancedSearch;
@@ -2592,7 +2883,7 @@ namespace ContentExportTool
 
         public char[] InjectionCharacters
         {
-            get { return new[] {'=', '@', '+', '-'}; } 
+            get { return new[] { '=', '@', '+', '-' }; }
         }
 
         public char InjectionEscapeCharacter
@@ -2603,11 +2894,13 @@ namespace ContentExportTool
         /// <summary>
         /// Gets the <see cref="FieldReader"/>.
         /// </summary>
-        public IFieldReader FieldReader {
-			get{
-				return fieldReader;
-			}
-		}
+        public IFieldReader FieldReader
+        {
+            get
+            {
+                return fieldReader;
+            }
+        }
 
         /// <summary>
         /// Creates a new parser using the given <see cref="TextReader" />.
@@ -3108,11 +3401,13 @@ namespace ContentExportTool
         /// <summary>
         /// Gets the reading context.
         /// </summary>
-        public ReadingContext Context {
-			get{
-				return context;
-			}
-		}
+        public ReadingContext Context
+        {
+            get
+            {
+                return context;
+            }
+        }
 
         /// <summary>
         /// Gets a value indicating if the buffer is empty.
@@ -3141,7 +3436,7 @@ namespace ContentExportTool
                 {
                     context.Buffer = new char[context.ParserConfiguration.BufferSize];
                 }
-                
+
                 if (context.CharsRead > 0)
                 {
                     // Create a new buffer with extra room for what is left from
@@ -3429,20 +3724,24 @@ namespace ContentExportTool
         /// <summary>
         /// Gets or sets the characters that are used for injection attacks.
         /// </summary>
-        public char[] InjectionCharacters { 
-			get{
-				return new[] { '=', '@', '+', '-' };
-			}
-		}
+        public char[] InjectionCharacters
+        {
+            get
+            {
+                return new[] { '=', '@', '+', '-' };
+            }
+        }
 
         /// <summary>
         /// Gets or sets the character used to escape a detected injection.
         /// </summary>
-        public char InjectionEscapeCharacter { 
-			get{
-				return '\t';
-			}
-		}
+        public char InjectionEscapeCharacter
+        {
+            get
+            {
+                return '\t';
+            }
+        }
 
         public Func<Type, string, string> ReferenceHeaderPrefix { get; set; }
 
@@ -3584,11 +3883,13 @@ namespace ContentExportTool
         /// <value>
         /// The new quote string.
         /// </value>
-        public string QuoteString {
-			get {
-				return quoteString;
-			}
-		}
+        public string QuoteString
+        {
+            get
+            {
+                return quoteString;
+            }
+        }
 
         /// <summary>
         /// Gets a string representation of two of the currently configured Quote characters.
@@ -3596,21 +3897,25 @@ namespace ContentExportTool
         /// <value>
         /// The new double quote string.
         /// </value>
-        public string DoubleQuoteString {
-			get {
-				return doubleQuoteString;
-			}
-		} 
+        public string DoubleQuoteString
+        {
+            get
+            {
+                return doubleQuoteString;
+            }
+        }
 
         /// <summary>
         /// Gets an array characters that require
         /// the field to be quoted.
         /// </summary>
-        public char[] QuoteRequiredChars {
-			get {
-				return quoteRequiredChars;
-			}
-		}
+        public char[] QuoteRequiredChars
+        {
+            get
+            {
+                return quoteRequiredChars;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the character used to denote
@@ -3700,7 +4005,8 @@ namespace ContentExportTool
         /// </summary>
         public Encoding Encoding
         {
-            get { return encoding; }set { encoding = value; }
+            get { return encoding; }
+            set { encoding = value; }
         }
 
         private Encoding encoding = Encoding.UTF8;
@@ -3831,20 +4137,24 @@ namespace ContentExportTool
         /// <summary>
         /// The number of records.
         /// </summary>
-        public int Length{
-			get{
-				return position;
-			}
-		}
+        public int Length
+        {
+            get
+            {
+                return position;
+            }
+        }
 
         /// <summary>
         /// The total record capacity.
         /// </summary>
-        public int Capacity{
-			get{
-				return capacity;
-			}
-		}
+        public int Capacity
+        {
+            get
+            {
+                return capacity;
+            }
+        }
 
         /// <summary>
         /// Creates a new <see cref="RecordBuilder"/> using defaults.
@@ -3920,11 +4230,13 @@ namespace ContentExportTool
         /// </summary>
         public StringBuilder FieldBuilder = new StringBuilder();
 
-        public IParserConfiguration ParserConfiguration{
-			get{
-				return configuration;
-			}
-		}
+        public IParserConfiguration ParserConfiguration
+        {
+            get
+            {
+                return configuration;
+            }
+        }
 
 
         /// <summary>
@@ -4048,20 +4360,24 @@ namespace ContentExportTool
         /// Gets all the characters of the record including
         /// quotes, delimeters, and line endings.
         /// </summary>
-        public string RawRecord {
-			get{
-				return RawRecordBuilder.ToString();
-			}
-		}
+        public string RawRecord
+        {
+            get
+            {
+                return RawRecordBuilder.ToString();
+            }
+        }
 
         /// <summary>
         /// Gets the field.
         /// </summary>
-        public string Field{
-			get{
-				return FieldBuilder.ToString();
-			}
-		}
+        public string Field
+        {
+            get
+            {
+                return FieldBuilder.ToString();
+            }
+        }
 
         public RecordBuilder RecordBuilder = new RecordBuilder();
 
