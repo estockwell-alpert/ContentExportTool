@@ -43,9 +43,10 @@
         .container {
             margin-bottom: 10px;
             font-family: Arial;
-            width: 600px;
+            width: 700px;
             padding: 10px;
             font-size: 12px;
+            max-width: 80%;
         }
 
         .controls {
@@ -223,20 +224,24 @@
             right: 20px;
             top: 75px;
             position: fixed;
+            width: 312px;
+            max-width: 25%;
         }
 
         .fixed-export-btn {
             position: fixed;
             width: 302px;
+            max-width: 25%;
             right: 20px;
             top: 245px;
             padding: 10px;
             border: 1px solid #aaa;
+            background: #eee;
         }
 
-            .save-settings-box input[type="text"] {
-                width: 200px;
-            }
+        .save-settings-box input[type="text"] {
+            width: 200px;
+        }
 
         .save-settings-close {
             position: absolute;
@@ -336,11 +341,11 @@
             font-size: 14px;
         }
 
-        .selector-box.left, .select-box.left {
-            padding-top: 10px;
-            white-space: nowrap;
-            overflow-x: auto;
-        }
+            .selector-box.left, .select-box.left {
+                padding-top: 10px;
+                white-space: nowrap;
+                overflow-x: auto;
+            }
 
         .selected-box {
             width: 48%;
@@ -556,7 +561,7 @@
             }
         }
 
-        .advanced-search {
+        .advanced-search, .inner-section {
             background: #eee;
             padding: 20px;
             border: 1px solid #ccc;
@@ -637,6 +642,7 @@
 
         select#ddSavedSettings {
             min-width: 60%;
+            max-width: 75%;
         }
 
         a.navButton {
@@ -646,7 +652,6 @@
             text-decoration: none;
             cursor: pointer;
         }
-
     </style>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
@@ -671,13 +676,13 @@
             });
         </script>
     </asp:PlaceHolder>
-    <asp:Placeholder runat="server" ID="phScrollToImport" Visible="False">
+    <asp:PlaceHolder runat="server" ID="phScrollToImport" Visible="False">
         <script>
             $(document).ready(function () {
                 location.href = "#contentImport";
             });
-        </script>      
-    </asp:Placeholder>
+        </script>
+    </asp:PlaceHolder>
     <form id="form1" runat="server">
         <div class="loading-modal">
             <div class="loading-box">
@@ -711,12 +716,13 @@
                         <asp:CheckBox runat="server" AutoPostBack="True" OnCheckedChanged="chkAllUserSettings_OnCheckedChanged" ID="chkAllUserSettings" /><span class="notes">Show settings for all users</span>
                     </div>
                 </div>
-                
+
                 <div class="fixed-export-btn">
                     <span class="header"><b>Quick Links</b></span>
                     <div class="row">
                         <asp:Button class="spinner-btn" runat="server" ID="btnRunExportDupe" OnClick="btnRunExport_OnClick" Text="Run Content Export" />
-                        <a class="navButton" href="#divAdvOptions" onclick="openAdvancedOptions()">Advanced Options</a>
+                        <a class="navButton" href="#divExportData">Fields and Data</a>
+                        <a class="navButton" href="#divFilters">Filters</a>                       
                         <a class="navButton" href="#divAudits">Special Audits & Search</a>
                         <a class="navButton" href="#packageExport">Package Export</a>
                         <a class="navButton" href="#contentImport">Content Import</a>
@@ -775,22 +781,14 @@
                         <asp:Button class="spinner-btn" runat="server" ID="btnRunExport" OnClick="btnRunExport_OnClick" Text="Run Content Export" /><br />
                         <asp:Button runat="server" ID="btnClearAll" Text="Clear All" OnClick="btnClearAll_OnClick" CssClass="btn-clear-all" />
                     </div>
+                    
                     <div class="row">
-                        <span class="header">Database</span>
-                        <asp:DropDownList runat="server" ID="ddDatabase" CssClass="ddDatabase" />
-                        <input runat="server" class="txtCustomDatabase" id="txtCustomDatabase" style="display: none" />
-                        <span class="notes">Select database</span>
-                    </div>
-                    <div class="row">
-                        <span class="header">Include ID</span>
-                        <asp:CheckBox runat="server" ID="chkIncludeIds" />
-                        <span class="notes">Check this box to include item IDs (guid) in the exported file.</span>
-                    </div>
-                    <div class="row">
-                        <span class="header">Include Name</span>
-                        <asp:CheckBox runat="server" ID="chkIncludeName" />
-                        <span class="notes">Check this box to include the item name</span>
-                    </div>
+                                    <span class="header">Database</span>
+                                    <asp:DropDownList runat="server" ID="ddDatabase" CssClass="ddDatabase" />
+                                    <input runat="server" class="txtCustomDatabase" id="txtCustomDatabase" style="display: none" />
+                                    <span class="notes">Select database</span>
+                                </div>
+
                     <div class="row">
                         <span class="header">Start Item(s)</span>
                         <a class="clear-btn" data-id="inputStartitem">clear</a>
@@ -800,72 +798,158 @@
 
                         <asp:CheckBox runat="server" ID="chkNoChildren" /><span class="notes"><b style="color: black">No children</b> (only include the items selected above)</span><br />
                         <br />
-
-                    </div>
-                    <div class="row">
-                        <span>OR</span>
-                    </div>
-                    <div class="row">
-                        <span class="header">Fast Query</span>
-                        <a class="clear-btn" id="clear-fast-query" data-id="txtFastQuery">clear</a>
-                        <input runat="server" id="txtFastQuery" />
-                        <asp:Button runat="server" ID="btnTestFastQuery" OnClick="btnTestFastQuery_OnClick" Text="Test" />
-                        <span class="border-notes">Enter a fast query to run a filtered export. You can use the Templates box as well.<br />
-                            Example: fast:/sitecore/content/Home//*[@__Updated >= '20180101' and @__Updated <= '20181231']</span><br />
-                        <span class="lit-fast-query">
-                            <asp:Literal runat="server" ID="litFastQueryTest"></asp:Literal>
-                        </span>
-                    </div>
-                    <div class="row">
-                        <span class="header">Templates</span>
-                        <a class="clear-btn" data-id="inputTemplates">clear</a>
-                        <textarea runat="server" id="inputTemplates" cols="60" row="5"></textarea><asp:Button runat="server" ID="btnBrowseTemplates" OnClick="btnBrowseTemplates_OnClick" CssClass="browse-btn" Text="Browse" />
-                        <span class="border-notes">Enter template names and/or IDs separated by commas, or use Browse to select.
-                            <br />
-                            Items will only be exported if their template is in this list. If this field is left blank, all templates will be included.</span>
-                        <div class="hints">
-                            <a class="show-hints">Hints</a>
-                            <span class="notes">Example: Standard Page, {12345678-901-2345-6789-012345678901}
-                            </span>
-                        </div>
-                        <asp:CheckBox runat="server" ID="chkIncludeTemplate" />
-                        <span class="notes"><b style="color: black">Include Template Name</b> - Check this box to include the template name with each item</span><br />
-                        <asp:CheckBox runat="server" ID="chkIncludeInheritance" />
-                        <span class="notes"><b style="color: black">Include Inheritors</b> - Check this box toinclude any templates that inherit selected templates</span>
-                    </div>
-                    <div class="row">
-                        <span class="header">Fields</span>
-                        <a class="clear-btn" data-id="inputFields">clear</a>
-                        <textarea runat="server" id="inputFields" cols="60" row="5"></textarea><asp:Button runat="server" ID="btnBrowseFields" OnClick="btnBrowseFields_OnClick" CssClass="browse-btn" Text="Browse" />
-                        <span class="border-notes">Enter field names or IDs separated by commas, or use Browse to select fields.</span>
-                        <div class="">
-                            <asp:CheckBox runat="server" ID="chkAllFields" />
-                            <span class="notes"><b style="color: black">All Fields</b> - This will export the values of <b>all fields</b> of every included item. <b>This may take a while.</b></span>
-                        </div>
-                        <div class="">
-                            <asp:CheckBox runat="server" ID="chkComponentFields" />
-                            <span class="notes"><b style="color: black">Include Component Fields</b> - This will export the values of fields that are on a page's component items as well as on the page item itself</span>
-                        </div>
-                        <div class="">
-                            <asp:CheckBox runat="server" ID="chkDroplistName" />
-                            <span class="notes"><b style="color: black">Droplist/Multilist/Treelist:</b><span style="color: black"> Export item names only (not full path)</span><br/>By default reference fields (droplist, multilist, etc) will export the full path of each selected item. Check this box to export name only</b></span><br />
-                        </div>
-                    </div>
-
-                    <div runat="server" id="divAdvOptions">
-                        <a class="advanced-btn">Advanced Options</a>
+                                   
+                        
+                                        <div class="advanced open open-default" runat="server" id="divExportData">
+                        <a class="advanced-btn">Fields and Data</a>
                         <div class="advanced-inner">
-                            <div class="row advanced-search" style="display: none;">
-                                <span class="header" style="display: inline-block"><b>Advanced Item Selection</b></span>
-                                <asp:CheckBox runat="server" ID="chkAdvancedSelectionOff" /><span>Off</span>
-                                <span class="header">Get items that are linked in the following fields: </span>
-                                <a class="clear-section-btn clear-btn">clear</a>
-                                <textarea runat="server" id="txtAdvFields" cols="60" row="5"></textarea><br />
-                                <span class="border-notes">Use this field with the Start Item/Fast Query/Multiple Start Items fields, the Templates field, and/or any other filters. Rather than exporting the items selected by those filters, this will export the items <i>linked</i> in those items in the fields specified (or in all fields, if the checkbox below is checked)</span>
-                                <span class="header">Get all linked items</span>
-                                <asp:CheckBox runat="server" ID="chkAdvAllLinkedItems" />
-                            </div>
-                            <div class="row advanced-search">
+                            <div class="inner-section">
+                                <h3>Fields and Data</h3>
+                                <div class="row">
+                                    <div class="inner-section">
+                                    <span class="header">Fields</span><span class="notes">Note: Select <a href="#divFilters">Template filters</a> first if you want to browse only the fields of the selected templates</span>
+                                    <a class="clear-btn" data-id="inputFields">clear</a>
+                                    <textarea runat="server" id="inputFields" cols="60" row="5"></textarea><asp:Button runat="server" ID="btnBrowseFields" OnClick="btnBrowseFields_OnClick" CssClass="browse-btn" Text="Browse" />
+                                    <span class="border-notes">Enter field names or IDs separated by commas, or use Browse to select fields.
+                                        
+                                    </span>
+                                    <div class="">
+                                        <asp:CheckBox runat="server" ID="chkAllFields" />
+                                        <span class="notes"><b style="color: black">All Fields</b> - This will export the values of <b>all fields</b> of every included item. <b>This may take a while.</b></span>
+                                    </div>
+                                    <div class="">
+                                        <asp:CheckBox runat="server" ID="chkComponentFields" />
+                                        <span class="notes"><b style="color: black">Include Component Fields</b> - This will export the values of fields that are on a page's component items as well as on the page item itself</span>
+                                    </div>
+                                </div></div>
+
+                                                                                               
+                                <div class="row">
+                                    <span class="header">Template Name</span>
+                                     <asp:CheckBox runat="server" ID="chkIncludeTemplate" />
+                                    <span class="notes">Export the template name of each item</span>
+                                </div>
+                                
+                                <div class="row">
+                                    <span class="header">Item Name</span>
+                                    <asp:CheckBox runat="server" ID="chkIncludeName" />
+                                    <span class="notes">Export the name of each item</span>
+                                </div>
+
+                                <div class="row">
+                                    <span class="header">Item ID</span>
+                                    <asp:CheckBox runat="server" ID="chkIncludeIds" />
+                                    <span class="notes">Export the ID of each item</span>
+                                </div>
+
+                                <div class="row">
+                                    <span class="header">Linked Item IDs </span>
+                                    <asp:CheckBox runat="server" ID="chkIncludeLinkedIds" />
+                                    <span class="notes">Export the IDs of linked items (paths exported by default) (images, links, droplists, multilists)</span>
+                                </div>
+                                <div class="row">
+                                    <span class="header">Raw HTML </span>
+                                    <asp:CheckBox runat="server" ID="chkIncludeRawHtml" /><span class="notes">Export the raw HTML of applicable fields (images and links)</span>
+                                </div>                                                                                                                       
+
+                                <div class="row">
+                                    <span class="header">Referrers</span>
+                                    <asp:CheckBox runat="server" ID="chkReferrers" />
+                                    <span class="notes">Export the paths of all items that refer to each item</span>
+                                </div>
+                                <div class="row">
+                                    <span class="header">Related Items</span>
+                                    <asp:CheckBox runat="server" ID="chkRelateItems" class="chkRelatedItems" />
+                                    <span class="notes">Export the paths of all items each item refers to</span>
+                                </div>
+                                <div class="row">
+                                    <span class="header">Date Created</span>
+                                    <asp:CheckBox runat="server" ID="chkDateCreated" />
+                                    <span class="notes">Date item was created</span>
+                                </div>
+                                <div class="row">
+                                    <span class="header">Created By</span>
+                                    <asp:CheckBox runat="server" ID="chkCreatedBy" />
+                                    <span class="notes">Sitecore user who created the item</span>
+                                </div>
+                                <div class="row">
+                                    <span class="header">Date Modified</span>
+                                    <asp:CheckBox runat="server" ID="chkDateModified" />
+                                    <span class="notes">Date item was last published</span>
+                                </div>
+                                <div class="row">
+                                    <span class="header">Modified By</span>
+                                    <asp:CheckBox runat="server" ID="chkModifiedBy" />
+                                    <span class="notes">Sitecore user who last published the item</span>
+                                </div>
+                                <div class="row">
+                                    <span class="header">Never Publish?</span>
+                                    <asp:CheckBox runat="server" ID="chkNeverPublish" />
+                                    <span class="notes">True/False</span>
+                                </div>
+                                <div class="row">
+                                    <span class="header">Workflow</span>
+                                    <asp:CheckBox runat="server" CssClass="workflowBox" ID="chkWorkflowName" />
+                                    <span class="notes">Export the name of the workflow applied to this item</span>
+                                </div>
+                                <div class="row">
+                                    <span class="header">Workflow State</span>
+                                    <asp:CheckBox runat="server" CssClass="workflowBox" ID="chkWorkflowState" />
+                                    <span class="notes">Export the current workflow state (Workflow options require the database to be set to master)</span>
+                                </div>
+                                
+                                
+                                </div>
+                        </div>
+
+                    </div><br/>
+
+                    <div class="advanced open open-default" runat="server" id="divFilters">
+                        <a class="advanced-btn">Filters</a>
+                        <div class="advanced-inner">
+                            <div class="inner-section">
+                                <h3>Filters</h3>
+                                
+                                <div class="inner-section">
+                                <div class="row">
+                                    <span class="header"><b>Fast Query</b></span>
+                                    <a class="clear-btn" id="clear-fast-query" data-id="txtFastQuery">clear</a>
+                                    <input runat="server" id="txtFastQuery" />
+                                    <asp:Button runat="server" ID="btnTestFastQuery" OnClick="btnTestFastQuery_OnClick" Text="Test" />
+                                    <span class="border-notes"><b>Fast Query will override the Start Item selection</b><br>Enter a fast query to run a filtered export. You can use the Templates filter in tandem with Fast Query. <br />
+                                        Example: fast:/sitecore/content/Home//*[@__Updated >= '20180101' and @__Updated <= '20181231']</span><br />
+                                    <span class="lit-fast-query">
+                                        <asp:Literal runat="server" ID="litFastQueryTest"></asp:Literal>
+                                    </span>
+                                    </div>
+                                </div><br/>
+
+                                <div class="inner-section">
+                                <div class="row">
+                                    <span class="header"><b>Templates</b></span>
+                                    <a class="clear-btn" data-id="inputTemplates">clear</a>
+                                    <textarea runat="server" id="inputTemplates" cols="60" row="5"></textarea><asp:Button runat="server" ID="btnBrowseTemplates" OnClick="btnBrowseTemplates_OnClick" CssClass="browse-btn" Text="Browse" />
+                                    <span class="border-notes">Enter template names and/or IDs separated by commas, or use Browse to select.
+                                        <br />
+                                        Items will only be exported if their template is in this list. If this field is left blank, all templates will be included.</span>
+                                    <div class="hints">
+                                        <a class="show-hints">Hints</a>
+                                        <span class="notes">Example: Standard Page, {12345678-901-2345-6789-012345678901}
+                                        </span>
+                                    </div>                                   
+                                    <asp:CheckBox runat="server" ID="chkIncludeInheritance" />
+                                    <span class="notes"><b style="color: black">Include Inheritors</b> - Include any templates that inherit selected templates</span>
+                                </div>
+                                    <div class="row">
+                                    <span class="header"><b>Only include items with layout</b></span>
+                                    <asp:CheckBox runat="server" ID="chkItemsWithLayout" />
+                                    <span class="notes">Only export items that have a layout, i.e. template pages and not components</span>
+                                </div>
+                                </div><br/>
+                                
+                                
+                                
+                                <div class="inner-section">
                                 <div class="row">
                                     <span class="header"><b>Created Date Range</b></span>
                                     <a class="clear-section-btn clear-btn">Clear</a>
@@ -873,7 +957,7 @@
                                     <input type="text" runat="server" id="txtStartDateCr" autocomplete="off" />
                                     and
                                     <input type="text" runat="server" id="txtEndDateCr" autocomplete="off" />
-                                    <span class="border-notes">Only return items created between the selected time span</span>
+                                    <span class="border-notes">Only export items created between the selected time span</span>
                                 </div>
                                 <div class="row">
                                     <input name="radDateRange" type="radio" runat="server" id="radDateRangeOr" /><span><b>OR</b></span>
@@ -886,84 +970,64 @@
                                     <input type="text" runat="server" id="txtStartDatePb" autocomplete="off" />
                                     and
                                     <input type="text" runat="server" id="txtEndDatePu" autocomplete="off" />
-                                    <span class="border-notes">Only return items last published between the selected time span</span>
+                                    <span class="border-notes">Only export items last published between the selected time span</span>
+                                </div></div><br/>
+                                
+                                <div class="inner-section">
+                                    <div class="header"><b>Sitecore User</b></div>
+                                    <a class="clear-section-btn clear-btn">Clear</a>
+                                <div class="row">
+                                    <span class="header">Created By</span>
+                                    <input runat="server" id="txtCreatedByFilter" /><br/>
+                                    <span class="notes">Only export items created by the given username (not case sensitive, but exact match required; enter as "Sitecore/username" or "username")
+                                        <br />Separate multiple usernames by comma ("username1, username2")
+                                    </span>
+                                </div>
+                                
+                                 <div class="row">
+                                    <span class="header">Modified By</span>
+                                     <input runat="server" id="txtModifiedByFilter"/><br/>
+                                     <span class="notes">Only export items last published by the given username (not case sensitive, but exact match required; enter as "Sitecore/username" or "username")
+                                         <br />Separate multiple usernames by comma ("username1, username2")
+                                     </span>
+                                </div>
+                                </div><br/>
+                                
+                                <div class="inner-section">
+                                    <h3>Additional Options</h3>
+                                <div class="row" style="width: 25%;display:inline-block">
+                                    <span class="header">Language</span>
+                                    <%--<asp:ListBox runat="server" ID="lstLanguages" SelectionMode="multiple" Width="200">
+                                </asp:ListBox>--%>
+                                    <asp:DropDownList runat="server" ID="ddLanguages" />
+                                </div>
+                                    <span style="padding: 0 20px;">OR</span>
+
+                                <div class="row" style="width: 60%;display:inline-block">
+                                    <asp:CheckBox runat="server" ID="chkAllLanguages" />
+                                    <span class="notes" ><span style="color:black">Get All Language Versions</span> (overrides Language dropdown)</span>
+                                </div>
+                                    
+                                    <div class="row">
+                                    <span class="header">Export Reference Field Values as Name Instead of Path</span>
+                                    <asp:CheckBox runat="server" ID="chkDroplistName" />
+                                    <span class="notes">By default, reference fields (droplist, multilist, etc) will export the full path of each selected item. Check this box to export name only</span>
+                                </div>
+                                    
+                                    <div class="row">
+                                    <span class="header">Download File Name</span>
+                                    <input runat="server" id="txtFileName" />
+                                </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <span class="header"><b>Only include items with layout</b></span>
-                                <asp:CheckBox runat="server" ID="chkItemsWithLayout" />
-                                <span class="notes">Check this box to only include items that have a layout, i.e. template pages and not components</span>
-                            </div>
 
-                            <div class="row">
-                                <span class="header">Include linked item IDs </span>
-                                <asp:CheckBox runat="server" ID="chkIncludeLinkedIds" />
-                                <span class="notes">(images, links, droplists, multilists)</span>
-                            </div>
-                            <div class="row">
-                                <span class="header">Include raw HTML </span>
-                                <asp:CheckBox runat="server" ID="chkIncludeRawHtml" /><span class="notes">(images and links)</span>
-                            </div>
-                            <div class="row">
-                                <span class="header">Referrers</span>
-                                <asp:CheckBox runat="server" ID="chkReferrers" />
-                                <span class="notes">Include the paths of all items that refer to each item</span>
-                            </div>
-                            <div class="row">
-                                <span class="header">Related Items</span>
-                                <asp:CheckBox runat="server" ID="chkRelateItems" class="chkRelatedItems"/>
-                                <span class="notes">Include the paths of all items each item refers to</span>
-                            </div>
-                            <div class="row">
-                                <span class="header">Date Created</span>
-                                <asp:CheckBox runat="server" ID="chkDateCreated" />
-                            </div>
-                            <div class="row">
-                                <span class="header">Created By</span>
-                                <asp:CheckBox runat="server" ID="chkCreatedBy" />
-                            </div>
-                            <div class="row">
-                                <span class="header">Date Modified</span>
-                                <asp:CheckBox runat="server" ID="chkDateModified" />
-                            </div>
-                            <div class="row">
-                                <span class="header">Modified By</span>
-                                <asp:CheckBox runat="server" ID="chkModifiedBy" />
-                            </div>
-                            <div class="row">
-                                <span class="header">Never Publish?</span>
-                                <asp:CheckBox runat="server" ID="chkNeverPublish" />
-                            </div>
-                            <div class="row">
-                                <span class="header">Workflow</span>
-                                <asp:CheckBox runat="server" CssClass="workflowBox" ID="chkWorkflowName" />
-                            </div>
-                            <div class="row">
-                                <span class="header">Workflow State</span>
-                                <asp:CheckBox runat="server" CssClass="workflowBox" ID="chkWorkflowState" />
-                                <span class="notes">Workflow options require the database to be set to master</span>
-                            </div>
-                            <div class="row">
-                                <span class="header">Language</span>
-                                <%--<asp:ListBox runat="server" ID="lstLanguages" SelectionMode="multiple" Width="200">
-                                </asp:ListBox>--%>
-                                <asp:DropDownList runat="server" ID="ddLanguages" />
-                            </div>
-                            <div class="row">
-                                <span class="header">Get All Language Versions</span>
-                                <asp:CheckBox runat="server" ID="chkAllLanguages" />
-                                <span class="notes">This will get the selected field values for all languages that each item has an existing version for</span>
-                            </div>
-                            <div class="row">
-                                <span class="header">Download File Name</span><br />
-                                <input runat="server" id="txtFileName" />
-                            </div>
                             
+
                         </div>
-                    </div>
-                    <br />
-                    <br />
-                    
+                </div><br/><br/>                                              
+
+                    <asp:Button class="spinner-btn" runat="server" ID="btnExport2" OnClick="btnRunExport_OnClick" Text="Run Content Export"/><br/><br/><br/><br/>
+
                     <div class="advanced open open-default" id="divAudits">
                         <a class="advanced-btn">Special Audits & Search</a>
                         <div class="advanced-inner">
@@ -975,12 +1039,13 @@
                                 <br />
                                 <asp:Button class="spinner-btn" runat="server" ID="btnComponentAudit" OnClick="btnComponentAudit_OnClick" Text="Run Audit" />
                             </div>
-                             <div class="row advanced-search">
+                            <div class="row advanced-search">
                                 <span class="header"><b>Template Audit</b></span>
                                 <span class="notes">Run this export to audit the templates. This will generate a report of each Sitecore template and every instance where it is used.
                                 </span>
-                                <br /><br />
-                                 <asp:CheckBox runat="server" ID="chkObsoleteTemplates"/><span class="notes"><b style="color:black">Obsolete templates</b> - Generate a report of all templates that are not in use</span><br/>
+                                <br />
+                                <br />
+                                <asp:CheckBox runat="server" ID="chkObsoleteTemplates" /><span class="notes"><b style="color: black">Obsolete templates</b> - Generate a report of all templates that are not in use</span><br />
                                 <br />
                                 <asp:Button class="spinner-btn" runat="server" ID="btnTemplateAudit" OnClick="btnTemplateAudit_OnClick" Text="Run Audit" />
                             </div>
@@ -994,7 +1059,9 @@
                                     Advanced search works with the Start Item, Templates, and Fields boxes
                                 </span>
                             </div>
-                        </div><br/><br/>
+                        </div>
+                        <br />
+                        <br />
                     </div>
 
                     <div class="advanced open open-default" id="packageExport">
@@ -1003,36 +1070,49 @@
                             <div class="row advanced-search">
                                 <h3>Package Export</h3>
                                 <p>Export a <b>Sitecore Package</b> instead of a CSV file</p>
-                                <p>This will generate a Sitecore Package of all of the items that would be included in the Export.<br/><br/>
-                                    The Package Export uses the same selection and filtering logic as the Content export. Click Get Package Preview to get a CSV report of all the items that will be included in the package.<br/><br/>
-                                    (NOTE: in the Content export, related items will be included in a column for each item; in the Package Preview, all items and subitems will be on their own line)</p>
-                                
+                                <p>
+                                    This will generate a Sitecore Package of all of the items that would be included in the Export.<br />
+                                    <br />
+                                    The Package Export uses the same selection and filtering logic as the Content export. Click Get Package Preview to get a CSV report of all the items that will be included in the package.<br />
+                                    <br />
+                                    (NOTE: in the Content export, related items will be included in a column for each item; in the Package Preview, all items and subitems will be on their own line)
+                                </p>
+
                                 <p><b>WARNING: </b>Installing the package with the "overwrite" option will delete any subitems that are not included in the package. Review the Summary carefully especially when using the Related Items option</p>
-                                
+
                                 <div class="row">
-                                    <asp:CheckBox runat="server" ID="chkIncludeRelatedItems" class="chkRelatedItems"/><span class="notes"><b style="color: black">Include Related Items</b></span><br />
-                                    <span style="color:black" class="notes">Include all related items of each exported item in the package. <br />This will include all related items <b>and all related items of related items</b>.<br />
+                                    <asp:CheckBox runat="server" ID="chkIncludeRelatedItems" class="chkRelatedItems" /><span class="notes"><b style="color: black">Include Related Items</b></span><br />
+                                    <span style="color: black" class="notes">Include all related items of each exported item in the package.
+                                        <br />
+                                        This will include all related items <b>and all related items of related items</b>.<br />
                                         The Content Export will only show the directly related items, but the preview will show all related items that will be included in the package.
                                     </span>
                                 </div>
-                                
+
                                 <div class="row">
                                     <asp:CheckBox runat="server" ID="chkIncludeSubitems" /><span class="notes"><b style="color: black">Include Subitems</b></span><br />
-                                    <span style="color:black" class="notes">Include all subitems of each exported item in the package. <br />This will include <b>all subitems of every exported item</b>, ignoring filters such as Template type
-                                        <br/>This will negate the <b>No children</b> checkbox
+                                    <span style="color: black" class="notes">Include all subitems of each exported item in the package.
+                                        <br />
+                                        This will include <b>all subitems of every exported item</b>, ignoring filters such as Template type
+                                        <br />
+                                        This will negate the <b>No children</b> checkbox
                                         
-                                        <br/><br/><span class="notes">Example: Used the template and date range filters to select specific items, then check off Include Subitems to include the subitems of all the items in the filtered selection</span>
+                                        <br />
+                                        <br />
+                                        <span class="notes">Example: Used the template and date range filters to select specific items, then check off Include Subitems to include the subitems of all the items in the filtered selection</span>
                                     </span>
                                 </div>
 
                                 <asp:Button runat="server" class="spinner-btn" ID="btnPackageExport" Text="Begin Package Export" OnClick="btnPackageExport_OnClick" />
-                                <br/><br/>
-                                <asp:Button runat="server" class="spinner-btn" ID="btnPackageSummary" Text="Get Package Preview" OnClick="btnPackageSummary_OnClick" /><br/>
+                                <br />
+                                <br />
+                                <asp:Button runat="server" class="spinner-btn" ID="btnPackageSummary" Text="Get Package Preview" OnClick="btnPackageSummary_OnClick" /><br />
                                 <span class="notes">Download a CSV file that shows all of the items included in the package</span>
                             </div>
                         </div>
                     </div>
-                    <br/><br />
+                    <br />
+                    <br />
                     <div class="advanced open open-default" id="contentImport">
                         <a class="advanced-btn">Content Import</a>
                         <div class="advanced-inner">

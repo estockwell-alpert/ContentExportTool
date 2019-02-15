@@ -229,24 +229,6 @@ namespace ContentExportTool {
         protected global::System.Web.UI.HtmlControls.HtmlInputText txtCustomDatabase;
         
         /// <summary>
-        /// chkIncludeIds control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox chkIncludeIds;
-        
-        /// <summary>
-        /// chkIncludeName control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox chkIncludeName;
-        
-        /// <summary>
         /// inputStartitem control.
         /// </summary>
         /// <remarks>
@@ -272,6 +254,24 @@ namespace ContentExportTool {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.CheckBox chkNoChildren;
+        
+        /// <summary>
+        /// txtFileName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputText txtFileName;
+        
+        /// <summary>
+        /// divFilters control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl divFilters;
         
         /// <summary>
         /// txtFastQuery control.
@@ -319,15 +319,6 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.Button btnBrowseTemplates;
         
         /// <summary>
-        /// chkIncludeTemplate control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox chkIncludeTemplate;
-        
-        /// <summary>
         /// chkIncludeInheritance control.
         /// </summary>
         /// <remarks>
@@ -337,85 +328,13 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.CheckBox chkIncludeInheritance;
         
         /// <summary>
-        /// inputFields control.
+        /// chkItemsWithLayout control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlTextArea inputFields;
-        
-        /// <summary>
-        /// btnBrowseFields control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnBrowseFields;
-        
-        /// <summary>
-        /// chkAllFields control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox chkAllFields;
-        
-        /// <summary>
-        /// chkComponentFields control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox chkComponentFields;
-        
-        /// <summary>
-        /// chkDroplistName control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox chkDroplistName;
-        
-        /// <summary>
-        /// divAdvOptions control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlGenericControl divAdvOptions;
-        
-        /// <summary>
-        /// chkAdvancedSelectionOff control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox chkAdvancedSelectionOff;
-        
-        /// <summary>
-        /// txtAdvFields control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlTextArea txtAdvFields;
-        
-        /// <summary>
-        /// chkAdvAllLinkedItems control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox chkAdvAllLinkedItems;
+        protected global::System.Web.UI.WebControls.CheckBox chkItemsWithLayout;
         
         /// <summary>
         /// txtStartDateCr control.
@@ -472,13 +391,112 @@ namespace ContentExportTool {
         protected global::System.Web.UI.HtmlControls.HtmlInputText txtEndDatePu;
         
         /// <summary>
-        /// chkItemsWithLayout control.
+        /// txtCreatedByFilter control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox chkItemsWithLayout;
+        protected global::System.Web.UI.HtmlControls.HtmlInputText txtCreatedByFilter;
+        
+        /// <summary>
+        /// txtModifiedByFilter control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputText txtModifiedByFilter;
+        
+        /// <summary>
+        /// ddLanguages control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddLanguages;
+        
+        /// <summary>
+        /// divExportData control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl divExportData;
+        
+        /// <summary>
+        /// inputFields control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlTextArea inputFields;
+        
+        /// <summary>
+        /// btnBrowseFields control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnBrowseFields;
+        
+        /// <summary>
+        /// chkAllFields control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkAllFields;
+        
+        /// <summary>
+        /// chkComponentFields control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkComponentFields;
+        
+        /// <summary>
+        /// chkDroplistName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkDroplistName;
+        
+        /// <summary>
+        /// chkIncludeTemplate control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkIncludeTemplate;
+        
+        /// <summary>
+        /// chkIncludeName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkIncludeName;
+        
+        /// <summary>
+        /// chkIncludeIds control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkIncludeIds;
         
         /// <summary>
         /// chkIncludeLinkedIds control.
@@ -580,15 +598,6 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.CheckBox chkWorkflowState;
         
         /// <summary>
-        /// ddLanguages control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddLanguages;
-        
-        /// <summary>
         /// chkAllLanguages control.
         /// </summary>
         /// <remarks>
@@ -596,15 +605,6 @@ namespace ContentExportTool {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.CheckBox chkAllLanguages;
-        
-        /// <summary>
-        /// txtFileName control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputText txtFileName;
         
         /// <summary>
         /// btnComponentAudit control.

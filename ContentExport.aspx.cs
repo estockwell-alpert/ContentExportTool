@@ -39,7 +39,6 @@ namespace ContentExportTool
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            divAdvOptions.Attributes["class"] = "advanced";
             litUploadResponse.Text = String.Empty;
             litFeedback.Text = String.Empty;
             var dbName = (!String.IsNullOrEmpty(ddDatabase.SelectedValue) ? ddDatabase.SelectedValue : "master");
@@ -62,12 +61,6 @@ namespace ContentExportTool
                     GetFieldsAsync(Request.QueryString["startitem"]);
                 }
                 SetupForm();
-            }
-
-            // check if advanced options should be open
-            if (OpenAdvancedOptions())
-            {
-                divAdvOptions.Attributes["class"] = "advanced open open-default";
             }
         }
 
@@ -516,12 +509,37 @@ namespace ContentExportTool
 
                     var dataLines = new List<string>();
 
+                    var createdByAuthors = txtCreatedByFilter.Value.Split(',');
+                    var modifiedByAuthors = txtModifiedByFilter.Value.Split(',');
+
                     foreach (var baseItem in items)
                     {
                         var itemVersions = GetItemVersions(baseItem, allLanguages, selectedLanguage);
 
                         foreach (var item in itemVersions)
                         {
+                            // check author filters
+                            if (!String.IsNullOrEmpty(txtCreatedByFilter.Value))
+                            {
+                                var author = item.Statistics.CreatedBy.Replace("sitecore\\", "").ToLower();
+
+                                if (
+                                    !createdByAuthors.Any(
+                                        x => x.Trim().Replace("sitecore\\", "").ToLower().Equals(author)))
+                                    continue;
+                            }
+
+                            if (!String.IsNullOrEmpty(txtModifiedByFilter.Value))
+                            {
+                                var author = item.Statistics.UpdatedBy.Replace("sitecore\\", "").ToLower();
+
+                                if (
+                                    !modifiedByAuthors.Any(
+                                        x => x.Trim().Replace("sitecore\\", "").ToLower().Equals(author)))
+                                    continue;
+                            }
+
+
                             var itemPath = item.Paths.ContentPath;
                             if (String.IsNullOrEmpty(itemPath)) continue;
                             var itemLine = itemPath + ",";
@@ -1623,7 +1641,9 @@ namespace ContentExportTool
                 EndDatePb = txtEndDatePu.Value,
                 DateRangeAnd = radDateRangeAnd.Checked,
                 NoChildren = chkNoChildren.Checked,
-                RefNameOnly = chkDroplistName.Checked
+                RefNameOnly = chkDroplistName.Checked,
+                CreatedByFilter = txtCreatedByFilter.Value,
+                ModifiedByFilter = txtModifiedByFilter.Value
             };
 
             var settingsObject = new ExportSettings()
@@ -1752,6 +1772,9 @@ namespace ContentExportTool
             txtEndDatePu.Value = settings.EndDatePb;
             chkNoChildren.Checked = settings.NoChildren;
 
+            txtCreatedByFilter.Value = settings.CreatedByFilter;
+            txtModifiedByFilter.Value = settings.ModifiedByFilter;
+
             if (settings.DateRangeAnd)
             {
                 radDateRangeOr.Checked = false;
@@ -1761,11 +1784,6 @@ namespace ContentExportTool
             {
                 radDateRangeOr.Checked = true;
                 radDateRangeAnd.Checked = false;
-            }
-
-            if (SavedSettingsOpenAdvanced(settings))
-            {
-                divAdvOptions.Attributes["class"] = "advanced open open-default";
             }
         }
 
@@ -1842,6 +1860,8 @@ namespace ContentExportTool
             radDateRangeAnd.Checked = false;
             chkNoChildren.Checked = false;
             chkComponentFields.Checked = false;
+            txtCreatedByFilter.Value = string.Empty;
+            txtModifiedByFilter.Value = string.Empty;
 
             PhBrowseModal.Visible = false;
             PhBrowseFields.Visible = false;
@@ -1882,7 +1902,9 @@ namespace ContentExportTool
                 Related = chkRelateItems.Checked,
                 FileName = txtFileName.Value,
                 NoChildren = chkNoChildren.Checked,
-                RefNameOnly = chkDroplistName.Checked
+                RefNameOnly = chkDroplistName.Checked,
+                CreatedByFilter = txtCreatedByFilter.Value,
+                ModifiedByFilter = txtModifiedByFilter.Value
             };
 
             var serializer = new JavaScriptSerializer();
@@ -2217,11 +2239,6 @@ namespace ContentExportTool
                 items = items.Where(DoesItemHasPresentationDetails).ToList();
             }
 
-            if (!chkAdvancedSelectionOff.Checked &&
-                (!String.IsNullOrWhiteSpace(txtAdvFields.Value) || chkAdvAllLinkedItems.Checked))
-            {
-                items = GetLinkedItems(items);
-            }
 
             if (addChildrenNoFiltering)
             {
@@ -2255,63 +2272,6 @@ namespace ContentExportTool
             }
 
             return itemsAsRelatedItems;
-        }
-
-        protected List<Item> GetLinkedItems(List<Item> items)
-        {
-            List<Item> linkedItems = new ItemList();
-            foreach (var item in items)
-            {
-                var fields = new List<string>();
-                if (chkAdvAllLinkedItems.Checked)
-                {
-                    // get linked items from all fields
-                    item.Fields.ReadAll();
-                    foreach (Field field in item.Fields)
-                    {
-                        if (field.Name.StartsWith("__")) continue;
-                        if (fields.All(x => x != field.Name))
-                        {
-                            fields.Add(field.Name);
-                        }
-                    }
-                }
-                else
-                {
-                    fields = txtAdvFields.Value.ToLower().Split(',').Select(x => x.Trim()).ToList();
-                }
-
-                foreach (var field in fields)
-                {
-                    if (!string.IsNullOrWhiteSpace(field))
-                    {
-                        var itemField = item.Fields[field];
-                        if (itemField != null)
-                        {
-                            var itemOfType = FieldTypeManager.GetField(itemField);
-                            if (itemOfType is LinkField)
-                            {
-                                LinkField linkField = itemField;
-                                var linkedItem = linkField.TargetItem;
-                                if (linkedItem != null) linkedItems.Add(linkedItem);
-                            }
-                            else if (itemOfType is ReferenceField)
-                            {
-                                ReferenceField refField = itemField;
-                                var linkedItem = refField.TargetItem;
-                                if (linkedItem != null) linkedItems.Add(linkedItem);
-                            }
-                            else if (itemOfType is MultilistField)
-                            {
-                                MultilistField listField = itemField;
-                                var listItems = listField.GetItems();
-                                linkedItems.AddRange(listItems);
-                            }
-                        }
-                    }
-                }
-            }
-            return linkedItems;
         }
 
         protected List<Item> FilterByDateRanges(List<Item> exportItems)
@@ -2967,6 +2927,8 @@ namespace ContentExportTool
         public bool DateRangeAnd;
         public bool NoChildren;
         public bool RefNameOnly;
+        public string CreatedByFilter;
+        public string ModifiedByFilter;
     }
 
     public class FieldData
