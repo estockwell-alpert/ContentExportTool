@@ -88,6 +88,10 @@
         .txtCustomDatabase {
             margin-left: 5px;
         }
+		
+		#ddLanguages{
+			width:100%;
+		}
 
         .include-ids {
             color: rgb(38, 148, 192);
