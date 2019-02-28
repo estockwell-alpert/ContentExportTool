@@ -694,6 +694,11 @@
             </div>
         </div>
         <input runat="server" id="txtDownloadToken" style="display: none;" />
+        
+        
+      <%--  <input runat="server" id="txtStoreContentTree"/>
+        <input runat="server" id="txtStoreTemplatesTree"/>
+        <input runat="server" id="txtStoreFieldsTree"/>--%>
 
         <div>
             <div class="container feedback">
@@ -744,10 +749,11 @@
                                 <a class="btn" onclick="addTemplate()">&raquo;</a>
                                 <a class="btn" onclick="removeTemplate()">&laquo;</a>
                             </div>
-                            <div class="selected-box">
+                            <div class="selected-box templates-and-content">
                                 <span class="temp-selected"></span>
                                 <span class="temp-selected-remove"></span>
                                 <ul class="selected-box-list">
+                                    <asp:Literal runat="server" ID="litSelectedBrowseItems"></asp:Literal>
                                 </ul>
                                 <div class="browse-btns">
                                     <a href="javascript:void" class="btn clear-selections" onclick="clearModalSelections();">Clear</a>
@@ -767,10 +773,11 @@
                                 <a class="btn" onclick="addTemplate()">&raquo;</a>
                                 <a class="btn" onclick="removeTemplate()">&laquo;</a>
                             </div>
-                            <div class="selected-box">
+                            <div class="selected-box fields">
                                 <span class="temp-selected"></span>
                                 <span class="temp-selected-remove"></span>
                                 <ul class="selected-box-list">
+                                    <asp:Literal runat="server" ID="litSelectedBrowseFields"></asp:Literal>
                                 </ul>
                                 <div class="browse-btns">
                                     <a href="javascript:void" class="btn clear-selections" onclick="clearModalSelections();">Clear</a>

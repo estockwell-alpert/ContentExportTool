@@ -1,12 +1,12 @@
-﻿$(document).ready(function() {
+﻿$(document).ready(function () {
 
     $("#txtStartDateCr, #txtStartDatePb, #txtEndDateCr, #txtEndDatePu").datepicker();
 
-    $(".btnSampleLink").on("click", function() {
+    $(".btnSampleLink").on("click", function () {
         $("#singleTemplateModal").show();
     });
 
-    $(".chkRelatedItems input[type='checkbox']").on("click", function() {
+    $(".chkRelatedItems input[type='checkbox']").on("click", function () {
         $(".chkRelatedItems input[type='checkbox']").prop("checked", $(this).prop("checked"));
     });
 
@@ -17,7 +17,7 @@
         $(".loading-modal").show();
     });
 
-    $("#btnComponentAudit").on("click", function() {
+    $("#btnComponentAudit").on("click", function () {
         showModal();
     })
 
@@ -25,7 +25,7 @@
         showModal();
     });
 
-    var showModal = function() {
+    var showModal = function () {
         $(".feedback").empty();
         $(".loading-modal").show();
         //$("#loading-text").html(loadingModalHtml);
@@ -277,7 +277,7 @@ function getClickableBrowseItem(path, name) {
 }
 
 function isTemplate() {
-    if($("#divBrowseContainer").hasClass("templates")) {
+    if ($("#divBrowseContainer").hasClass("templates")) {
         return true;
     }
     return false;
@@ -289,10 +289,6 @@ function selectNode(node) {
     selectBrowseNode(node);
 }
 
-function closeTreeBox() {
-    $(".browse-modal").hide();
-}
-
 function removeSavedMessage() {
     $(".save-message").html("");
 }
@@ -300,15 +296,14 @@ function removeSavedMessage() {
 function selectBrowseNode(node) {
     $(".browse-modal a").removeClass("selected");
     $(node).addClass("selected");
-    $(".temp-selected").html($(node).html());
+    $(".temp-selected").html($(node).attr("data-path"));
 }
 
 function addTemplate() {
-    var name = $(".temp-selected").html();
-    var node = $(".select-box a[data-name='" + name + "']");
-    var path = $(node).attr("data-path");
+    var path = $(".temp-selected").html();
+    var node = $(".select-box a[data-path='" + path + "']");
     $(node).addClass("disabled").removeClass("selected");
-    $(".selected-box-list").append("<li><a class='addedTemplate' href='javascript:void(0);' onclick='selectAddedTemplate($(this))' ondblclick='selectAddedTemplate($(this));removeTemplate()' data-name='" + name + "' data-path='" + path + "'>" + name + "</a></li>");
+    $(".selected-box-list").append("<li><a class='addedTemplate' href='javascript:void(0);' onclick='selectAddedTemplate($(this))' ondblclick='selectAddedTemplate($(this));removeTemplate()' data-name='" + name + "' data-path='" + path + "'>" + path + "</a></li>");
     $(".temp-selected").html("");
 
     $(".selected-box .select-node-btn").removeClass("disabled");
@@ -324,7 +319,7 @@ function downloadSample() {
     var templateNode = $("#singleTemplate").find(".selected");
     $("#txtSampleTemplate").val(templateNode.attr("data-path"));
     $("#singleTemplate .close-modal").click();
-    
+
     var downloadToken = new Date().getTime();
     $("#txtDownloadToken").val(downloadToken);
 
@@ -335,10 +330,10 @@ function downloadSample() {
 }
 
 function removeTemplate() {
-    var name = $(".temp-selected-remove").html();
-    var node = $(".selected-box a.addedTemplate[data-name='" + name + "']");
+    var path = $(".temp-selected-remove").html();
+    var node = $(".selected-box a.addedTemplate[data-path='" + path + "']");
     $(node).parent().remove();
-    var origNode = $(".select-box a[data-name='" + name + "']");
+    var origNode = $(".select-box a[data-path='" + path + "']");
     origNode.removeClass("disabled");
 
     enableDisableSelect();
@@ -358,15 +353,27 @@ function confirmBrowseSelection() {
     } else {
         $("#inputStartitem").html(str);
     }
-    
+
     closeTemplatesModal();
 }
 
 function closeTemplatesModal() {
+    //var tree;
+    //if (isTemplate()) {
+    //    tree = $(".browse-modal.templates .select-box.left").html().trim();
+    //    $("#txtStoreTemplatesTree").val(tree);
+    //} else {
+    //    tree = $(".browse-modal.content .select-box.left").html().trim();
+    //    $("#txtStoreContentTree").val(tree);
+    //}   
+
     $(".browse-modal").hide();
 }
 
 function closeFieldModal() {
+    //var tree = $(".browse-modal.fields .select-box.left").html().trim();
+    //$("#txtStoreFieldsTree").val(tree);
+
     $(".browse-modal.fields").hide();
 }
 

@@ -24,6 +24,7 @@ using Sitecore.Layouts;
 using Sitecore.Links;
 using Sitecore.Sites;
 using System.Runtime.InteropServices;
+using System.Web.UI.HtmlControls;
 using Sitecore.Shell.Applications.Install;
 using ImageField = Sitecore.Data.Fields.ImageField;
 
@@ -233,10 +234,34 @@ namespace ContentExportTool
 
         protected void btnBrowse_OnClick(object sender, EventArgs e)
         {
+            //if (!String.IsNullOrEmpty(txtStoreContentTree.Value))
+            //{
+            //    litBrowseTree.Text = txtStoreContentTree.Value;
+            //    litBrowseTree.Text = GetSitecoreTreeHtml();
+            //}
+            //else
+            //{
+            //    litBrowseTree.Text = GetSitecoreTreeHtml();
+            //}
             litBrowseTree.Text = GetSitecoreTreeHtml();
+
+            litSelectedBrowseItems.Text = GetSelectedItemHtml(inputStartitem.Value);
             divBrowseContainer.Attributes["class"] = "modal browse-modal content";
             PhBrowseModal.Visible = true;
             PhBrowseFields.Visible = false;
+        }
+
+        protected string GetSelectedItemHtml(string selectedItemsString)
+        {
+            if (String.IsNullOrEmpty(selectedItemsString)) return "";
+
+            var html = "";
+            var items = inputStartitem.Value.Split(',').ToList();
+            foreach (var startItem in items)
+            {
+                html += "<li><a class=\"addedTemplate\" href=\"javascript: void(0);\" onclick=\"selectAddedTemplate($(this))\" ondblclick=\"selectAddedTemplate($(this)); removeTemplate()\" data-name=\"" + startItem.Trim() + "\" data-path=\"" + startItem.Trim() + "\">" + startItem.Trim() + "</a></li>";
+            }
+            return html;
         }
 
         protected string GetSitecoreTreeHtml()
@@ -292,6 +317,14 @@ namespace ContentExportTool
 
         protected void btnBrowseTemplates_OnClick(object sender, EventArgs e)
         {
+            //if (!String.IsNullOrEmpty(txtStoreTemplatesTree.Value))
+            //{
+            //    litBrowseTree.Text = txtStoreTemplatesTree.Value;
+            //}
+            //else
+            //{
+            //    litBrowseTree.Text = GetAvailableTemplates();
+            //}
             litBrowseTree.Text = GetAvailableTemplates();
             divBrowseContainer.Attributes["class"] = "modal browse-modal templates";
             PhBrowseModal.Visible = true;
@@ -337,7 +370,7 @@ namespace ContentExportTool
 
         protected string GetChildTemplateList(ChildList children)
         {
-            // turn on notification message
+            // turn on nobttification message
             if (!children.Any())
                 return string.Empty;
 
@@ -358,7 +391,17 @@ namespace ContentExportTool
 
         protected void btnBrowseFields_OnClick(object sender, EventArgs e)
         {
+            //if (!String.IsNullOrEmpty(txtStoreFieldsTree.Value))
+            //{
+            //    litBrowseFields.Text = txtStoreFieldsTree.Value;
+            //}
+            //else
+            //{
+            //    litBrowseFields.Text = GetAvailableFields();
+            //}
             litBrowseFields.Text = GetAvailableFields();
+
+            litSelectedBrowseFields.Text = GetSelectedItemHtml(inputFields.Value);
             PhBrowseFields.Visible = true;
             PhBrowseModal.Visible = false;
         }
