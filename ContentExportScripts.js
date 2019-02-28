@@ -190,7 +190,13 @@ function loadFields(id, parentNode) {
                 var name = child.Name;
                 var path = child.Path;
 
-                var fieldNode = "<li data-name='" + name + "'><a class='field-node' href='javascript:void(0)' onclick='selectBrowseNode($(this));' ondblclick='selectBrowseNode($(this));addTemplate();' data-id='" + id + "' data-name='" + name + "'>" + name + "</a></li>";
+                var selected = false;
+                var selectedMatch = $(".selected-box a.addedTemplate[data-path='" + name + "']");
+                if (selectedMatch.length > 0) {
+                    selected = true;
+                }
+
+                var fieldNode = "<li data-name='" + name + "'><a class='field-node " + (selected ? "disabled" : "") + "' href='javascript:void(0)' onclick='selectBrowseNode($(this));' ondblclick='selectBrowseNode($(this));addTemplate();' data-id='" + id + "' data-path='" + name + "'>" + name + "</a></li>";
 
                 innerHtml += fieldNode;
             }
@@ -273,7 +279,12 @@ function expireCookie(cName) {
 }
 
 function getClickableBrowseItem(path, name) {
-    return "<a class='sitecore-node' href='javascript:void(0)' ondblclick='selectNode($(this));addTemplate();' onclick='selectNode($(this));' data-path='" + path + "' data-name='" + name + "'>" + name + "</a>";
+    var selected = false;
+    var selectedMatch = $(".selected-box a.addedTemplate[data-path='" + path + "']");
+    if (selectedMatch.length > 0) {
+        selected = true;
+    }
+    return "<a class='sitecore-node " + (selected ? "disabled" : "") + "' href='javascript:void(0)' ondblclick='selectNode($(this));addTemplate();' onclick='selectNode($(this));' data-path='" + path + "' data-name='" + name + "'>" + name + "</a>";
 }
 
 function isTemplate() {
@@ -281,6 +292,10 @@ function isTemplate() {
         return true;
     }
     return false;
+}
+
+function isField() {
+    return ($(".browse-modal").hasClass("fields"));
 }
 
 function selectNode(node) {
@@ -305,8 +320,6 @@ function addTemplate() {
     $(node).addClass("disabled").removeClass("selected");
     $(".selected-box-list").append("<li><a class='addedTemplate' href='javascript:void(0);' onclick='selectAddedTemplate($(this))' ondblclick='selectAddedTemplate($(this));removeTemplate()' data-name='" + name + "' data-path='" + path + "'>" + path + "</a></li>");
     $(".temp-selected").html("");
-
-    $(".selected-box .select-node-btn").removeClass("disabled");
 }
 
 function selectAddedTemplate(node) {
@@ -335,15 +348,6 @@ function removeTemplate() {
     $(node).parent().remove();
     var origNode = $(".select-box a[data-path='" + path + "']");
     origNode.removeClass("disabled");
-
-    enableDisableSelect();
-}
-
-function enableDisableSelect() {
-    var selectedTemplates = $(".selected-box ul li");
-    if (selectedTemplates.length < 1) {
-        $(".selected-box .select-node-btn").addClass("disabled");
-    }
 }
 
 function confirmBrowseSelection() {

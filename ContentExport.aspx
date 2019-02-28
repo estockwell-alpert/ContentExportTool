@@ -757,7 +757,7 @@
                                 </ul>
                                 <div class="browse-btns">
                                     <a href="javascript:void" class="btn clear-selections" onclick="clearModalSelections();">Clear</a>
-                                    <a href="javascript:void(0)" class="btn disabled select-node-btn" onclick="confirmBrowseSelection();">Select</a>
+                                    <a href="javascript:void(0)" class="btn select-node-btn" onclick="confirmBrowseSelection();">Select</a>
                                     <a class="btn close-modal" onclick="closeTemplatesModal()">Cancel</a>
                                 </div>
                             </div>
@@ -781,7 +781,7 @@
                                 </ul>
                                 <div class="browse-btns">
                                     <a href="javascript:void" class="btn clear-selections" onclick="clearModalSelections();">Clear</a>
-                                    <a href="javascript:void(0)" class="btn disabled select-node-btn" onclick="confirmFieldSelection();">Select</a>
+                                    <a href="javascript:void(0)" class="btn select-node-btn" onclick="confirmFieldSelection();">Select</a>
                                     <a class="btn close-modal" onclick="closeFieldModal()">Cancel</a>
                                 </div>
                             </div>

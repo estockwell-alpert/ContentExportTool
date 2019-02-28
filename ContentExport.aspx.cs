@@ -244,7 +244,6 @@ namespace ContentExportTool
             //    litBrowseTree.Text = GetSitecoreTreeHtml();
             //}
             litBrowseTree.Text = GetSitecoreTreeHtml();
-
             litSelectedBrowseItems.Text = GetSelectedItemHtml(inputStartitem.Value);
             divBrowseContainer.Attributes["class"] = "modal browse-modal content";
             PhBrowseModal.Visible = true;
@@ -256,7 +255,7 @@ namespace ContentExportTool
             if (String.IsNullOrEmpty(selectedItemsString)) return "";
 
             var html = "";
-            var items = inputStartitem.Value.Split(',').ToList();
+            var items = selectedItemsString.Split(',').ToList();
             foreach (var startItem in items)
             {
                 html += "<li><a class=\"addedTemplate\" href=\"javascript: void(0);\" onclick=\"selectAddedTemplate($(this))\" ondblclick=\"selectAddedTemplate($(this)); removeTemplate()\" data-name=\"" + startItem.Trim() + "\" data-path=\"" + startItem.Trim() + "\">" + startItem.Trim() + "</a></li>";
@@ -326,6 +325,7 @@ namespace ContentExportTool
             //    litBrowseTree.Text = GetAvailableTemplates();
             //}
             litBrowseTree.Text = GetAvailableTemplates();
+            litSelectedBrowseItems.Text = GetSelectedItemHtml(inputTemplates.Value);
             divBrowseContainer.Attributes["class"] = "modal browse-modal templates";
             PhBrowseModal.Visible = true;
             PhBrowseFields.Visible = false;
