@@ -909,6 +909,11 @@
                                     <span class="notes">Export the current workflow state (Workflow options require the database to be set to master)</span>
                                 </div>
                                 
+                                <div class="row">
+                                    <span class="header">Referenced Item Fields</span>
+                                    <textarea type="text" runat="server" id="txtRefFields"></textarea>
+                                </div>
+                                
                                 
                                 </div>
                         </div>

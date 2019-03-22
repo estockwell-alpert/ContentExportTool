@@ -714,6 +714,7 @@ namespace ContentExportTool
                         var fieldName = GetFieldNameIfGuid(field);
                         headingString = headingString.Replace(String.Format("{0}-ID", fieldName), String.Empty);
                         headingString = headingString.Replace(String.Format("{0}-HTML", fieldName), String.Empty);
+                        headingString = headingString.Replace(String.Format("{0}-REF", fieldName), String.Empty);
                     }
 
                     sw.WriteLine(headingString);
@@ -832,7 +833,7 @@ namespace ContentExportTool
                             linkedId = false
                         });
                     }
-                    itemLine += String.Format("n/a,{0}-ID{0}-HTML", fieldName);
+                    itemLine += String.Format("n/a,{0}-ID{0}-HTML{0}-REF", fieldName);
                 }
                 else
                 {
@@ -997,9 +998,12 @@ namespace ContentExportTool
             return new Tuple<string, string>(itemLine, headingString);
         }
 
+
         private Tuple<string, string> ParseReferenceField(Field itemField, string itemLine, string headingString, string fieldName, bool includeLinkedIds, bool includeRawHtml)
         {
             ReferenceField refField = itemField;
+            var includeRefFieldVals = !String.IsNullOrEmpty(txtRefFields.Value);
+            var refFields = txtRefFields.Value.Split(',').Select(x => x.Trim());
             if (includeLinkedIds)
             {
                 headingString = headingString.Replace(String.Format("{0}-ID", fieldName), String.Format("{0} ID,", fieldName));
@@ -1008,12 +1012,29 @@ namespace ContentExportTool
             {
                 headingString = headingString.Replace(String.Format("{0}-HTML", fieldName), String.Empty);
             }
+            if (includeRefFieldVals)
+            {
+                var refHeading = "";
+                foreach (var r in refFields)
+                {
+                    refHeading += fieldName + " " + r + ",";
+                }
+                headingString = headingString.Replace(String.Format("{0}-REF", fieldName), refHeading);
+            }
+
             if (refField == null)
             {
                 itemLine += "n/a,";
                 if (includeLinkedIds)
                 {
                     itemLine += "n/a,";
+                }
+                if (includeRefFieldVals)
+                {
+                    foreach (var field in refFields)
+                    {
+                        itemLine += "n/a,";
+                    }
                 }
             }
             else if (refField.TargetItem == null)
@@ -1023,6 +1044,13 @@ namespace ContentExportTool
                 {
                     itemLine += ",";
                 }
+                if (includeRefFieldVals)
+                {
+                    foreach (var field in refFields)
+                    {
+                        itemLine += ",";
+                    }
+                }
             }
             else
             {
@@ -1031,6 +1059,23 @@ namespace ContentExportTool
                 {
                     itemLine += refField.TargetID + ",";
                 }
+
+                if (!String.IsNullOrEmpty(txtRefFields.Value))
+                {
+                    foreach (var field in refFields)
+                    {
+                        var value = GetReferenceFieldValue(field, refField.TargetItem);
+
+                        if (value != "null")
+                        {
+                            itemLine += "n/a,";
+                        }
+                        else
+                        {
+                            itemLine += value + ",";
+                        }
+                    }
+                }
             }
             return new Tuple<string, string>(itemLine, headingString);
         }
@@ -1038,6 +1083,17 @@ namespace ContentExportTool
         private Tuple<string, string> ParseMultilistField(Field itemField, string itemLine, string headingString, string fieldName, bool includeLinkedIds, bool includeRawHtml)
         {
             MultilistField multiField = itemField;
+            var includeRefFieldVals = !String.IsNullOrEmpty(txtRefFields.Value);
+            var refFields = txtRefFields.Value.Split(',').Select(x => x.Trim());
+            if (includeRefFieldVals)
+            {
+                var refHeading = "";
+                foreach (var r in refFields)
+                {
+                    refHeading += fieldName + " " + r + ",";
+                }
+                headingString = headingString.Replace(String.Format("{0}-REF", fieldName), refHeading);
+            }
             if (includeLinkedIds)
             {
                 headingString = headingString.Replace(String.Format("{0}-ID", fieldName), String.Format("{0} ID,", fieldName));
@@ -1052,6 +1108,13 @@ namespace ContentExportTool
                 if (includeLinkedIds)
                 {
                     itemLine += "n/a,";
+                }
+                if (includeRefFieldVals)
+                {
+                    foreach (var field in refFields)
+                    {
+                        itemLine += ",";
+                    }
                 }
             }
             else
@@ -1085,6 +1148,23 @@ namespace ContentExportTool
                         first = false;
                     }
                     itemLine += "\"" + idData + "\"" + ",";
+                }
+
+                if (!String.IsNullOrEmpty(txtRefFields.Value))
+                {
+                    foreach (var field in refFields)
+                    {
+                        var dataLine = "";
+                        foreach (var i in multiItems)
+                        {
+                            var value = GetReferenceFieldValue(field, i);
+                            if (!String.IsNullOrEmpty(value))
+                            {
+                                dataLine += (value == "null" ? "n/a" : value) + "; \n";
+                            }
+                        }
+                        itemLine += "\"" + dataLine + "\"" + ",";
+                    }
                 }
             }
             return new Tuple<string, string>(itemLine, headingString);
@@ -1168,6 +1248,72 @@ namespace ContentExportTool
             return inheritors;
         }
 
+        private string GetReferenceFieldValue(string field, Item item)
+        {
+            var itemField = item.Fields[field];
+
+            if (itemField == null) return "null";
+
+            var itemOfType = FieldTypeManager.GetField(itemField);
+            if (itemOfType is ImageField) // if image field
+            {
+                ImageField imageField = itemField;
+                if (imageField == null || imageField.MediaItem == null || imageField.MediaItem.Paths == null) return "";
+                return imageField.MediaItem.Paths.MediaPath;
+            }
+            else if (itemOfType is LinkField)
+            {
+                LinkField linkField = itemField;
+                if (linkField == null) return "";
+                return linkField.Url;
+            }
+            else if (itemOfType is ReferenceField || itemOfType is GroupedDroplistField || itemOfType is LookupField)
+            {
+                ReferenceField refField = itemField;
+                if (refField == null || refField.TargetItem == null) return "";
+                return (chkDroplistName.Checked ? refField.TargetItem.Name : refField.TargetItem.Paths.ContentPath);
+            }
+            else if (itemOfType is MultilistField)
+            {
+                MultilistField multiField = itemField;
+                if (multiField == null)
+                {
+                    return "";
+                }
+                else
+                {
+                    var multiItems = multiField.GetItems().Where(x => x != null);
+                    var data = "";
+                    var first = true;
+                    foreach (var i in multiItems)
+                    {
+                        if (!first)
+                        {
+                            data += "; \n";
+                        }
+                        var url = (chkDroplistName.Checked ? i.Name : i.Paths.ContentPath);
+                        data += url;
+                        first = false;
+                    }
+                    return data;
+                }
+            }
+            else if (itemOfType is CheckboxField)
+            {
+                CheckboxField chkboxField = itemField;
+                return chkboxField.Checked.ToString();
+            }
+            else if (itemOfType is DateField)
+            {
+                DateField dateField = itemField;
+                return dateField.DateTime.ToString();
+            }
+            else // default text field
+            {
+                return itemField.Value;
+            }
+        }
+
         private
             List<Item> GetInheritors(Item template, IEnumerable<TemplateItem> templateItems = null)
         {
@@ -1210,6 +1356,17 @@ namespace ContentExportTool
                 if (includeRaw && field.rawHtml)
                 {
                     header += String.Format("{0} Raw HTML", fieldName) + ",";
+                }
+
+                
+                if (!String.IsNullOrEmpty(txtRefFields.Value))
+                {
+                    var refFields = txtRefFields.Value.Split(',').Select(x => x.Trim());
+                    foreach (var r in refFields)
+                    {
+                        header += String.Format("{0} {1},", fieldName, r);
+                    }
+                    
                 }
             }
             return header;
@@ -1817,6 +1974,7 @@ namespace ContentExportTool
 
             txtCreatedByFilter.Value = settings.CreatedByFilter;
             txtModifiedByFilter.Value = settings.ModifiedByFilter;
+            txtRefFields.Value = settings.RefFields;
 
             if (settings.DateRangeAnd)
             {
@@ -1905,6 +2063,7 @@ namespace ContentExportTool
             chkComponentFields.Checked = false;
             txtCreatedByFilter.Value = string.Empty;
             txtModifiedByFilter.Value = string.Empty;
+            txtRefFields.Value = string.Empty;
 
             PhBrowseModal.Visible = false;
             PhBrowseFields.Visible = false;
@@ -1947,7 +2106,8 @@ namespace ContentExportTool
                 NoChildren = chkNoChildren.Checked,
                 RefNameOnly = chkDroplistName.Checked,
                 CreatedByFilter = txtCreatedByFilter.Value,
-                ModifiedByFilter = txtModifiedByFilter.Value
+                ModifiedByFilter = txtModifiedByFilter.Value,
+                RefFields = txtRefFields.Value
             };
 
             var serializer = new JavaScriptSerializer();
@@ -2972,6 +3132,7 @@ namespace ContentExportTool
         public bool RefNameOnly;
         public string CreatedByFilter;
         public string ModifiedByFilter;
+        public string RefFields;
     }
 
     public class FieldData
