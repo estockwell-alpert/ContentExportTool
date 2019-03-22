@@ -820,6 +820,7 @@ namespace ContentExportTool
                 var itemField = item.Fields[field];
                 bool rawField = false;
                 bool idField = false;
+                bool refField = false;
                 if (itemField == null)
                 {
                     if (_fieldsList.All(x => x.fieldName != field))
@@ -857,12 +858,15 @@ namespace ContentExportTool
                         lineAndHeading = ParseReferenceField(itemField, itemLine, headingString, fieldName,
                             includeLinkedIds, includeRawHtml);
                         idField = true;
+                        refField = true;
+
                     }
                     else if (itemOfType is MultilistField)
                     {
                         lineAndHeading = ParseMultilistField(itemField, itemLine, headingString, fieldName,
                             includeLinkedIds, includeRawHtml);
                         idField = true;
+                        refField = true;
                     }
                     else if (itemOfType is CheckboxField)
                     {
@@ -885,7 +889,8 @@ namespace ContentExportTool
                             fieldName = fieldName,
                             fieldType = itemField.Type,
                             rawHtml = rawField,
-                            linkedId = idField
+                            linkedId = idField,
+                            refField = refField
                         });
                     }
                     else
@@ -898,6 +903,7 @@ namespace ContentExportTool
                             fieldItem.fieldType = itemField.Type;
                             fieldItem.rawHtml = rawField;
                             fieldItem.linkedId = idField;
+                            fieldItem.refField = refField;
                         }
                     }
 
@@ -1359,7 +1365,7 @@ namespace ContentExportTool
                 }
 
                 
-                if (!String.IsNullOrEmpty(txtRefFields.Value))
+                if (field.refField && !String.IsNullOrEmpty(txtRefFields.Value))
                 {
                     var refFields = txtRefFields.Value.Split(',').Select(x => x.Trim());
                     foreach (var r in refFields)
@@ -3142,6 +3148,7 @@ namespace ContentExportTool
         public string fieldType;
         public bool rawHtml;
         public bool linkedId;
+        public bool refField;
     }
 
     public class ItemLineData
