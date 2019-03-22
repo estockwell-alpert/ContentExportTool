@@ -840,49 +840,47 @@ namespace ContentExportTool
                 {
                     Tuple<string, string> lineAndHeading = null;
                     var itemOfType = FieldTypeManager.GetField(itemField);
-                    //if (itemOfType is ImageField) // if image field
-                    //{
-                    //    lineAndHeading = ParseImageField(itemField, itemLine, headingString, fieldName,
-                    //        includeLinkedIds, includeRawHtml);
-                    //    rawField = true;
-                    //    idField = true;
-                    //}
-                    //else if (itemOfType is LinkField)
-                    //{
-                    //    lineAndHeading = ParseLinkField(itemField, itemLine, headingString, fieldName,
-                    //        includeLinkedIds, includeRawHtml);
-                    //    rawField = true;
-                    //}
-                    //else if (itemOfType is ReferenceField || itemOfType is GroupedDroplistField || itemOfType is LookupField)
-                    //{
-                    //    lineAndHeading = ParseReferenceField(itemField, itemLine, headingString, fieldName,
-                    //        includeLinkedIds, includeRawHtml);
-                    //    idField = true;
-                    //    refField = true;
+                    if (itemOfType is ImageField) // if image field
+                    {
+                        lineAndHeading = ParseImageField(itemField, itemLine, headingString, fieldName,
+                            includeLinkedIds, includeRawHtml);
+                        rawField = true;
+                        idField = true;
+                    }
+                    else if (itemOfType is LinkField)
+                    {
+                        lineAndHeading = ParseLinkField(itemField, itemLine, headingString, fieldName,
+                            includeLinkedIds, includeRawHtml);
+                        rawField = true;
+                    }
+                    else if (itemOfType is ReferenceField || itemOfType is GroupedDroplistField || itemOfType is LookupField)
+                    {
+                        lineAndHeading = ParseReferenceField(itemField, itemLine, headingString, fieldName,
+                            includeLinkedIds, includeRawHtml);
+                        idField = true;
+                        refField = true;
 
-                    //}
-                    //else if (itemOfType is MultilistField)
-                    //{
-                    //    lineAndHeading = ParseMultilistField(itemField, itemLine, headingString, fieldName,
-                    //        includeLinkedIds, includeRawHtml);
-                    //    idField = true;
-                    //    refField = true;
-                    //}
-                    //else if (itemOfType is CheckboxField)
-                    //{
-                    //    lineAndHeading = ParseCheckboxField(itemField, itemLine, headingString, fieldName);
-                    //}
-                    //else if (itemOfType is DateField)
-                    //{
-                    //    lineAndHeading = ParseDateField(itemField, itemLine, headingString);
-                    //}
-                    //else // default text field
-                    //{
-                    //    lineAndHeading = ParseDefaultField(itemField, itemLine, headingString, fieldName);
-                    //    refField = DefaultFieldIsRefField;
-                    //}
-                    lineAndHeading = ParseDefaultField(itemField, itemLine, headingString, fieldName);
-                    refField = DefaultFieldIsRefField;
+                    }
+                    else if (itemOfType is MultilistField)
+                    {
+                        lineAndHeading = ParseMultilistField(itemField, itemLine, headingString, fieldName,
+                            includeLinkedIds, includeRawHtml);
+                        idField = true;
+                        refField = true;
+                    }
+                    else if (itemOfType is CheckboxField)
+                    {
+                        lineAndHeading = ParseCheckboxField(itemField, itemLine, headingString, fieldName);
+                    }
+                    else if (itemOfType is DateField)
+                    {
+                        lineAndHeading = ParseDateField(itemField, itemLine, headingString);
+                    }
+                    else // default text field
+                    {
+                        lineAndHeading = ParseDefaultField(itemField, itemLine, headingString, fieldName);
+                        refField = DefaultFieldIsRefField;
+                    }
 
                     if (_fieldsList.All(x => x.fieldName != fieldName))
                     {
@@ -1238,7 +1236,10 @@ namespace ContentExportTool
                             }
                         }
                     }
-                    itemLine += "\"" + dataLine + "\"" + ",";
+                    if (DefaultFieldIsRefField)
+                    {
+                        itemLine += "\"" + dataLine + "\"" + ",";
+                    }
                 }
             }
 
