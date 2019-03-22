@@ -840,46 +840,49 @@ namespace ContentExportTool
                 {
                     Tuple<string, string> lineAndHeading = null;
                     var itemOfType = FieldTypeManager.GetField(itemField);
-                    if (itemOfType is ImageField) // if image field
-                    {
-                        lineAndHeading = ParseImageField(itemField, itemLine, headingString, fieldName,
-                            includeLinkedIds, includeRawHtml);
-                        rawField = true;
-                        idField = true;
-                    }
-                    else if (itemOfType is LinkField)
-                    {
-                        lineAndHeading = ParseLinkField(itemField, itemLine, headingString, fieldName,
-                            includeLinkedIds, includeRawHtml);
-                        rawField = true;
-                    }
-                    else if (itemOfType is ReferenceField || itemOfType is GroupedDroplistField || itemOfType is LookupField)
-                    {
-                        lineAndHeading = ParseReferenceField(itemField, itemLine, headingString, fieldName,
-                            includeLinkedIds, includeRawHtml);
-                        idField = true;
-                        refField = true;
+                    //if (itemOfType is ImageField) // if image field
+                    //{
+                    //    lineAndHeading = ParseImageField(itemField, itemLine, headingString, fieldName,
+                    //        includeLinkedIds, includeRawHtml);
+                    //    rawField = true;
+                    //    idField = true;
+                    //}
+                    //else if (itemOfType is LinkField)
+                    //{
+                    //    lineAndHeading = ParseLinkField(itemField, itemLine, headingString, fieldName,
+                    //        includeLinkedIds, includeRawHtml);
+                    //    rawField = true;
+                    //}
+                    //else if (itemOfType is ReferenceField || itemOfType is GroupedDroplistField || itemOfType is LookupField)
+                    //{
+                    //    lineAndHeading = ParseReferenceField(itemField, itemLine, headingString, fieldName,
+                    //        includeLinkedIds, includeRawHtml);
+                    //    idField = true;
+                    //    refField = true;
 
-                    }
-                    else if (itemOfType is MultilistField)
-                    {
-                        lineAndHeading = ParseMultilistField(itemField, itemLine, headingString, fieldName,
-                            includeLinkedIds, includeRawHtml);
-                        idField = true;
-                        refField = true;
-                    }
-                    else if (itemOfType is CheckboxField)
-                    {
-                        lineAndHeading = ParseCheckboxField(itemField, itemLine, headingString, fieldName);
-                    }
-                    else if (itemOfType is DateField)
-                    {
-                        lineAndHeading = ParseDateField(itemField, itemLine, headingString);
-                    }
-                    else // default text field
-                    {
-                        lineAndHeading = ParseDefaultField(itemField, itemLine, headingString, fieldName);
-                    }
+                    //}
+                    //else if (itemOfType is MultilistField)
+                    //{
+                    //    lineAndHeading = ParseMultilistField(itemField, itemLine, headingString, fieldName,
+                    //        includeLinkedIds, includeRawHtml);
+                    //    idField = true;
+                    //    refField = true;
+                    //}
+                    //else if (itemOfType is CheckboxField)
+                    //{
+                    //    lineAndHeading = ParseCheckboxField(itemField, itemLine, headingString, fieldName);
+                    //}
+                    //else if (itemOfType is DateField)
+                    //{
+                    //    lineAndHeading = ParseDateField(itemField, itemLine, headingString);
+                    //}
+                    //else // default text field
+                    //{
+                    //    lineAndHeading = ParseDefaultField(itemField, itemLine, headingString, fieldName);
+                    //    refField = DefaultFieldIsRefField;
+                    //}
+                    lineAndHeading = ParseDefaultField(itemField, itemLine, headingString, fieldName);
+                    refField = DefaultFieldIsRefField;
 
                     if (_fieldsList.All(x => x.fieldName != fieldName))
                     {
@@ -1196,6 +1199,8 @@ namespace ContentExportTool
 
         private Tuple<string, string> ParseDefaultField(Field itemField, string itemLine, string headingString, string fieldName)
         {
+            DefaultFieldIsRefField = false;
+            var refFields = txtRefFields.Value.Split(',').Select(x => x.Trim());
             var fieldValue = RemoveLineEndings(itemField.Value);
             if (fieldValue.Contains("\""))
             {
@@ -1204,11 +1209,45 @@ namespace ContentExportTool
             if (fieldValue.Contains(","))
             {
                 fieldValue = "\"" + fieldValue + "\"";
-            }
+            }                   
+
             itemLine += fieldValue + ",";
+
+            // SPECIAL //
+            if (!String.IsNullOrEmpty(txtRefFields.Value))
+            {
+                foreach (var field in refFields)
+                {
+                    var dataLine = "";
+                    Guid id;
+                    var fieldValues = fieldValue.Split('|');
+                    foreach (var fieldVal in fieldValues)
+                    {
+                        if (Guid.TryParse(fieldVal, out id))
+                        {
+                            var linkedItem = _db.GetItem(id.ToString());
+                            if (linkedItem != null)
+                            {
+                                DefaultFieldIsRefField = true;
+                                var value = GetReferenceFieldValue(field, linkedItem);
+                                if (!String.IsNullOrEmpty(value))
+                                {
+                                    dataLine += (value == "null" ? "n/a" : value) + "; \n";
+                                }
+                                
+                            }
+                        }
+                    }
+                    itemLine += "\"" + dataLine + "\"" + ",";
+                }
+            }
+
+
             headingString = headingString.Replace(String.Format("{0}-ID", fieldName), string.Empty).Replace(String.Format("{0}-HTML", fieldName), string.Empty);
             return new Tuple<string, string>(itemLine, headingString);
         }
+
+        public bool DefaultFieldIsRefField = false;
 
         #endregion
 
@@ -1849,7 +1888,8 @@ namespace ContentExportTool
                 NoChildren = chkNoChildren.Checked,
                 RefNameOnly = chkDroplistName.Checked,
                 CreatedByFilter = txtCreatedByFilter.Value,
-                ModifiedByFilter = txtModifiedByFilter.Value
+                ModifiedByFilter = txtModifiedByFilter.Value,
+                RefFields = txtRefFields.Value
             };
 
             var settingsObject = new ExportSettings()
