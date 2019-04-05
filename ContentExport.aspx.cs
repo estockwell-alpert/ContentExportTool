@@ -717,14 +717,35 @@ namespace ContentExportTool
                     }
 
                     sw.WriteLine(headingString);
+                    // BUG occurs when one field contains another field name. We have to replace the LARGER field name first. e.g. "Name" and "Item Name", all "Name" will be replaced leaving the text "Item "                   
+                    // get all fields whose names contain another field name
+                    var containingFields = new List<MegaField>();
+                    foreach (var field in fields)
+                    {
+                        var fieldName = GetFieldNameIfGuid(field);
+                        var matchingFields = fields.Where(usedField => fieldName.Contains(usedField));
+                        if (matchingFields != null && matchingFields.Any())
+                        {
+                            containingFields.Add(new MegaField()
+                            {
+                                name = fieldName,
+                                matches = matchingFields.Count()
+                            });
+                        }
+                    }
+
+                    containingFields = containingFields.OrderByDescending(x => x.matches).ToList();
+                    var containingFieldNames = containingFields.Select(x => x.name).ToList();
+
+                    fields = containingFieldNames;
+
                     foreach (var line in dataLines)
                     {
                         var newLine = line;
                         foreach (var field in fields)
-                        {
-                            var fieldName = GetFieldNameIfGuid(field);
-                            newLine = newLine.Replace(String.Format("{0}-ID", fieldName), headingString.Contains(String.Format("{0} ID", fieldName)) ? "n/a," : string.Empty);
-                            newLine = newLine.Replace(String.Format("{0}-HTML", fieldName), headingString.Contains(String.Format("{0} Raw HTML", fieldName)) ? "n/a," : string.Empty);
+                        {                          
+                            newLine = newLine.Replace(String.Format("{0}-ID", field), headingString.Contains(String.Format("{0} ID", field)) ? "n/a," : string.Empty);
+                            newLine = newLine.Replace(String.Format("{0}-HTML", field), headingString.Contains(String.Format("{0} Raw HTML", field)) ? "n/a," : string.Empty);
                         }
                         sw.WriteLine(newLine);
                     }
@@ -736,6 +757,12 @@ namespace ContentExportTool
             {
                 litFeedback.Text = "<span style='color:red'>" + ex + "</span>";
             }
+        }
+
+        public class MegaField
+        {
+            public string name;
+            public int matches;
         }
 
         private List<Item> GetItemVersions(Item item, bool allLanguages, string selectedLanguage)

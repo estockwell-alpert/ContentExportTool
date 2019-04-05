@@ -730,8 +730,8 @@
                     <span class="header"><b>Quick Links</b></span>
                     <div class="row">
                         <asp:Button class="spinner-btn" runat="server" ID="btnRunExportDupe" OnClick="btnRunExport_OnClick" Text="Run Content Export" />
-                        <a class="navButton" href="#divExportData">Fields and Data</a>
-                        <a class="navButton" href="#divFilters">Filters</a>                       
+                        <a class="navButton" href="#divFilters">Filters</a>  
+                        <a class="navButton" href="#divExportData">Fields and Data</a>                                            
                         <a class="navButton" href="#divAudits">Special Audits & Search</a>
                         <a class="navButton" href="#packageExport">Package Export</a>
                         <a class="navButton" href="#contentImport">Content Import</a>
@@ -809,113 +809,8 @@
 
                         <asp:CheckBox runat="server" ID="chkNoChildren" /><span class="notes"><b style="color: black">No children</b> (only include the items selected above)</span><br />
                         <br />
-                                   
                         
-                                        <div class="advanced open open-default" runat="server" id="divExportData">
-                        <a class="advanced-btn">Fields and Data</a>
-                        <div class="advanced-inner">
-                            <div class="inner-section">
-                                <h3>Fields and Data</h3>
-                                <div class="row">
-                                    <div class="inner-section">
-                                    <span class="header">Fields</span><span class="notes">Note: Select <a href="#divFilters">Template filters</a> first if you want to browse only the fields of the selected templates</span>
-                                    <a class="clear-btn" data-id="inputFields">clear</a>
-                                    <textarea runat="server" id="inputFields" cols="60" row="5"></textarea><asp:Button runat="server" ID="btnBrowseFields" OnClick="btnBrowseFields_OnClick" CssClass="browse-btn" Text="Browse" />
-                                    <span class="border-notes">Enter field names or IDs separated by commas, or use Browse to select fields.
-                                        
-                                    </span>
-                                    <div class="">
-                                        <asp:CheckBox runat="server" ID="chkAllFields" />
-                                        <span class="notes"><b style="color: black">All Fields</b> - This will export the values of <b>all fields</b> of every included item. <b>This may take a while.</b></span>
-                                    </div>
-                                    <div class="">
-                                        <asp:CheckBox runat="server" ID="chkComponentFields" />
-                                        <span class="notes"><b style="color: black">Include Component Fields</b> - This will export the values of fields that are on a page's component items as well as on the page item itself</span>
-                                    </div>
-                                </div></div>
-
-                                                                                               
-                                <div class="row">
-                                    <span class="header">Template Name</span>
-                                     <asp:CheckBox runat="server" ID="chkIncludeTemplate" />
-                                    <span class="notes">Export the template name of each item</span>
-                                </div>
-                                
-                                <div class="row">
-                                    <span class="header">Item Name</span>
-                                    <asp:CheckBox runat="server" ID="chkIncludeName" />
-                                    <span class="notes">Export the name of each item</span>
-                                </div>
-
-                                <div class="row">
-                                    <span class="header">Item ID</span>
-                                    <asp:CheckBox runat="server" ID="chkIncludeIds" />
-                                    <span class="notes">Export the ID of each item</span>
-                                </div>
-
-                                <div class="row">
-                                    <span class="header">Linked Item IDs </span>
-                                    <asp:CheckBox runat="server" ID="chkIncludeLinkedIds" />
-                                    <span class="notes">Export the IDs of linked items (paths exported by default) (images, links, droplists, multilists)</span>
-                                </div>
-                                <div class="row">
-                                    <span class="header">Raw HTML </span>
-                                    <asp:CheckBox runat="server" ID="chkIncludeRawHtml" /><span class="notes">Export the raw HTML of applicable fields (images and links)</span>
-                                </div>                                                                                                                       
-
-                                <div class="row">
-                                    <span class="header">Referrers</span>
-                                    <asp:CheckBox runat="server" ID="chkReferrers" />
-                                    <span class="notes">Export the paths of all items that refer to each item</span>
-                                </div>
-                                <div class="row">
-                                    <span class="header">Related Items</span>
-                                    <asp:CheckBox runat="server" ID="chkRelateItems" class="chkRelatedItems" />
-                                    <span class="notes">Export the paths of all items each item refers to</span>
-                                </div>
-                                <div class="row">
-                                    <span class="header">Date Created</span>
-                                    <asp:CheckBox runat="server" ID="chkDateCreated" />
-                                    <span class="notes">Date item was created</span>
-                                </div>
-                                <div class="row">
-                                    <span class="header">Created By</span>
-                                    <asp:CheckBox runat="server" ID="chkCreatedBy" />
-                                    <span class="notes">Sitecore user who created the item</span>
-                                </div>
-                                <div class="row">
-                                    <span class="header">Date Modified</span>
-                                    <asp:CheckBox runat="server" ID="chkDateModified" />
-                                    <span class="notes">Date item was last published</span>
-                                </div>
-                                <div class="row">
-                                    <span class="header">Modified By</span>
-                                    <asp:CheckBox runat="server" ID="chkModifiedBy" />
-                                    <span class="notes">Sitecore user who last published the item</span>
-                                </div>
-                                <div class="row">
-                                    <span class="header">Never Publish?</span>
-                                    <asp:CheckBox runat="server" ID="chkNeverPublish" />
-                                    <span class="notes">True/False</span>
-                                </div>
-                                <div class="row">
-                                    <span class="header">Workflow</span>
-                                    <asp:CheckBox runat="server" CssClass="workflowBox" ID="chkWorkflowName" />
-                                    <span class="notes">Export the name of the workflow applied to this item</span>
-                                </div>
-                                <div class="row">
-                                    <span class="header">Workflow State</span>
-                                    <asp:CheckBox runat="server" CssClass="workflowBox" ID="chkWorkflowState" />
-                                    <span class="notes">Export the current workflow state (Workflow options require the database to be set to master)</span>
-                                </div>
-                                
-                                
-                                </div>
-                        </div>
-
-                    </div><br/>
-
-                    <div class="advanced open open-default" runat="server" id="divFilters">
+                        <div class="advanced open open-default" runat="server" id="divFilters">
                         <a class="advanced-btn">Filters</a>
                         <div class="advanced-inner">
                             <div class="inner-section">
@@ -1035,7 +930,114 @@
                             
 
                         </div>
-                </div><br/><br/>                                              
+                </div><br/><br/> 
+                                   
+                        
+                                        <div class="advanced open open-default" runat="server" id="divExportData">
+                        <a class="advanced-btn">Fields and Data</a>
+                        <div class="advanced-inner">
+                            <div class="inner-section">
+                                <h3>Fields and Data</h3>
+                                <div class="row">
+                                    <div class="inner-section">
+                                    <span class="header">Fields</span><span class="notes">Note: Select <a href="#divFilters">Template filters</a> first if you want to browse only the fields of the selected templates</span>
+                                    <a class="clear-btn" data-id="inputFields">clear</a>
+                                    <textarea runat="server" id="inputFields" cols="60" row="5"></textarea><asp:Button runat="server" ID="btnBrowseFields" OnClick="btnBrowseFields_OnClick" CssClass="browse-btn" Text="Browse" />
+                                    <span class="border-notes">Enter field names or IDs separated by commas, or use Browse to select fields.
+                                        
+                                    </span>
+                                    <div class="">
+                                        <asp:CheckBox runat="server" ID="chkAllFields" />
+                                        <span class="notes"><b style="color: black">All Fields</b> - This will export the values of <b>all fields</b> of every included item. <b>This may take a while.</b></span>
+                                    </div>
+                                    <div class="">
+                                        <asp:CheckBox runat="server" ID="chkComponentFields" />
+                                        <span class="notes"><b style="color: black">Include Component Fields</b> - This will export the values of fields that are on a page's component items as well as on the page item itself</span>
+                                    </div>
+                                </div></div>
+
+                                                                                               
+                                <div class="row">
+                                    <span class="header">Template Name</span>
+                                     <asp:CheckBox runat="server" ID="chkIncludeTemplate" />
+                                    <span class="notes">Export the template name of each item</span>
+                                </div>
+                                
+                                <div class="row">
+                                    <span class="header">Item Name</span>
+                                    <asp:CheckBox runat="server" ID="chkIncludeName" />
+                                    <span class="notes">Export the name of each item</span>
+                                </div>
+
+                                <div class="row">
+                                    <span class="header">Item ID</span>
+                                    <asp:CheckBox runat="server" ID="chkIncludeIds" />
+                                    <span class="notes">Export the ID of each item</span>
+                                </div>
+
+                                <div class="row">
+                                    <span class="header">Linked Item IDs </span>
+                                    <asp:CheckBox runat="server" ID="chkIncludeLinkedIds" />
+                                    <span class="notes">Export the IDs of linked items (paths exported by default) (images, links, droplists, multilists)</span>
+                                </div>
+                                <div class="row">
+                                    <span class="header">Raw HTML </span>
+                                    <asp:CheckBox runat="server" ID="chkIncludeRawHtml" /><span class="notes">Export the raw HTML of applicable fields (images and links)</span>
+                                </div>                                                                                                                       
+
+                                <div class="row">
+                                    <span class="header">Referrers</span>
+                                    <asp:CheckBox runat="server" ID="chkReferrers" />
+                                    <span class="notes">Export the paths of all items that refer to each item</span>
+                                </div>
+                                <div class="row">
+                                    <span class="header">Related Items</span>
+                                    <asp:CheckBox runat="server" ID="chkRelateItems" class="chkRelatedItems" />
+                                    <span class="notes">Export the paths of all items each item refers to</span>
+                                </div>
+                                <div class="row">
+                                    <span class="header">Date Created</span>
+                                    <asp:CheckBox runat="server" ID="chkDateCreated" />
+                                    <span class="notes">Date item was created</span>
+                                </div>
+                                <div class="row">
+                                    <span class="header">Created By</span>
+                                    <asp:CheckBox runat="server" ID="chkCreatedBy" />
+                                    <span class="notes">Sitecore user who created the item</span>
+                                </div>
+                                <div class="row">
+                                    <span class="header">Date Modified</span>
+                                    <asp:CheckBox runat="server" ID="chkDateModified" />
+                                    <span class="notes">Date item was last published</span>
+                                </div>
+                                <div class="row">
+                                    <span class="header">Modified By</span>
+                                    <asp:CheckBox runat="server" ID="chkModifiedBy" />
+                                    <span class="notes">Sitecore user who last published the item</span>
+                                </div>
+                                <div class="row">
+                                    <span class="header">Never Publish?</span>
+                                    <asp:CheckBox runat="server" ID="chkNeverPublish" />
+                                    <span class="notes">True/False</span>
+                                </div>
+                                <div class="row">
+                                    <span class="header">Workflow</span>
+                                    <asp:CheckBox runat="server" CssClass="workflowBox" ID="chkWorkflowName" />
+                                    <span class="notes">Export the name of the workflow applied to this item</span>
+                                </div>
+                                <div class="row">
+                                    <span class="header">Workflow State</span>
+                                    <asp:CheckBox runat="server" CssClass="workflowBox" ID="chkWorkflowState" />
+                                    <span class="notes">Export the current workflow state (Workflow options require the database to be set to master)</span>
+                                </div>
+                                
+                                
+                                </div>
+                        </div>
+
+                    </div><br/>
+
+                                                                 
 
                     <asp:Button class="spinner-btn" runat="server" ID="btnExport2" OnClick="btnRunExport_OnClick" Text="Run Content Export"/><br/><br/><br/><br/>
 
