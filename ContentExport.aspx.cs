@@ -1507,11 +1507,13 @@ namespace ContentExportTool
                     else if (itemOfType is MultilistField)
                     {
                         MultilistField multiField = (MultilistField)item.Fields[fieldName];
+
                         var values = value.Split(';').Where(x => !String.IsNullOrEmpty(x));
                         if (value.Contains("|"))
                         {
                             values = value.Split('|').Where(x => !String.IsNullOrEmpty(x));
                         }
+                        
                         List<Item> refItems = new ItemList();
 
                         foreach (var val in values)
@@ -2270,7 +2272,7 @@ namespace ContentExportTool
                         continue;
 
                     exportItems.Add(item);
-                    if (children && !addChildrenNoFiltering)
+                    if (children)
                     {
                         var descendants = item.Axes.GetDescendants();
                         exportItems.AddRange(descendants);
@@ -2324,7 +2326,8 @@ namespace ContentExportTool
 
                     childItems.AddRange(descendants);
                 }
-                items.AddRange(childItems);
+                var newChildItems = childItems.Where(x => items.All(y => y.ID != x.ID));
+                items.AddRange(newChildItems);
             }
 
             var itemsAsRelatedItems = items.Select(x => new RelatedItem() {Item = x, RelatedTo = ""}).ToList();
