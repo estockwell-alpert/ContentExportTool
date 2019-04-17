@@ -1508,6 +1508,10 @@ namespace ContentExportTool
                     {
                         MultilistField multiField = (MultilistField)item.Fields[fieldName];
                         var values = value.Split(';').Where(x => !String.IsNullOrEmpty(x));
+                        if (value.Contains("|"))
+                        {
+                            values = value.Split('|').Where(x => !String.IsNullOrEmpty(x));
+                        }
                         List<Item> refItems = new ItemList();
 
                         foreach (var val in values)
