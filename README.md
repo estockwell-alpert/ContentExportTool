@@ -16,7 +16,7 @@ https://ericastockwellalpert.wordpress.com/2017/08/24/content-export-tool-for-si
 https://ericastockwellalpert.wordpress.com/2018/11/30/sitecore-content-importing-use-a-csv-file-to-create-or-edit-sitecore-content/
 
 # Video Tutorials:
-https://www.youtube.com/watch?v=0BsvOTfuuWs - Basic Content Export tutorial
+https://www.youtube.com/watch?v=0BsvOTfuuWs - Basic Content Export tutorial<br/>
 https://www.youtube.com/watch?v=L5ynC-Ev5zk - Import and Package Export tutorial
 
 # Security:
