@@ -1501,7 +1501,7 @@ namespace ContentExportTool
                         var refItem = GetReferenceFieldItem(value, itemField);
                         if (refItem != null)
                         {
-                            item[fieldName] = refItem.ID.Guid.ToString();
+                            item[fieldName] = refItem.ID.ToString();
                         }
                     }
                     else if (itemOfType is MultilistField)
@@ -1565,6 +1565,7 @@ namespace ContentExportTool
 
         protected Item GetReferenceFieldItem(string value, Field itemField)
         {
+            value = value.Trim();
             Guid id;
             if (Guid.TryParse(value, out id))
             {
@@ -1584,7 +1585,7 @@ namespace ContentExportTool
                 var fieldId = itemField.ID;
                 var fieldItem = _db.GetItem(fieldId.ToString());
                 var sourceField = (TemplateFieldSourceField)fieldItem.Fields["Source"];
-                if (sourceField != null)
+                if (sourceField != null && !String.IsNullOrEmpty(sourceField.Path))
                 {
                     // try get path
                     Item[] items;
@@ -1599,7 +1600,7 @@ namespace ContentExportTool
                     }
                     if (items != null)
                     {
-                        var refItem = items.FirstOrDefault(x => x.DisplayName.ToLower() == value.ToLower());
+                        var refItem = items.FirstOrDefault(x => x.DisplayName.ToLower() == value.ToLower() || x.Name.ToLower() == value.ToLower());
                         return refItem;
                     }
                 }
