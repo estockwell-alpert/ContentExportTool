@@ -831,30 +831,39 @@
                                 </div><br/>
 
                                 <div class="inner-section">
-                                <div class="row">
-                                    <span class="header"><b>Templates</b></span>
-                                    <a class="clear-btn" data-id="inputTemplates">clear</a>
-                                    <textarea runat="server" id="inputTemplates" cols="60" row="5"></textarea><asp:Button runat="server" ID="btnBrowseTemplates" OnClick="btnBrowseTemplates_OnClick" CssClass="browse-btn" Text="Browse" />
-                                    <span class="border-notes">Enter template names and/or IDs separated by commas, or use Browse to select.
-                                        <br />
-                                        Items will only be exported if their template is in this list. If this field is left blank, all templates will be included.</span>
-                                    <div class="hints">
-                                        <a class="show-hints">Hints</a>
-                                        <span class="notes">Example: Standard Page, {12345678-901-2345-6789-012345678901}
-                                        </span>
-                                    </div>                                   
-                                    <asp:CheckBox runat="server" ID="chkIncludeInheritance" />
-                                    <span class="notes"><b style="color: black">Include Inheritors</b> - Include any templates that inherit selected templates</span>
-                                </div>
                                     <div class="row">
-                                    <span class="header"><b>Only include items with layout</b></span>
-                                    <asp:CheckBox runat="server" ID="chkItemsWithLayout" />
-                                    <span class="notes">Only export items that have a layout, i.e. template pages and not components</span>
+                                        <span class="header"><b>Templates</b></span>
+                                        <a class="clear-btn" data-id="inputTemplates">clear</a>
+                                        <textarea runat="server" id="inputTemplates" cols="60" row="5"></textarea><asp:Button runat="server" ID="btnBrowseTemplates" OnClick="btnBrowseTemplates_OnClick" CssClass="browse-btn" Text="Browse" />
+                                        <span class="border-notes">Enter template names and/or IDs separated by commas, or use Browse to select.
+                                        <br />
+                                            Items will only be exported if their template is in this list. If this field is left blank, all templates will be included.</span>
+                                        <div class="hints">
+                                            <a class="show-hints">Hints</a>
+                                            <span class="notes">Example: Standard Page, {12345678-901-2345-6789-012345678901}
+                                            </span>
+                                        </div>
+                                        <asp:CheckBox runat="server" ID="chkIncludeInheritance" />
+                                        <span class="notes"><b style="color: black">Include Inheritors</b> - Include any templates that inherit selected templates</span>
+                                    </div>
+                                    <div class="row">
+                                      <span class="header"><b>Exclude Templates</b></span>
+                                        <a class="clear-btn" data-id="inputExcludeTemplates">clear</a>
+                                        <textarea runat="server" id="inputExcludeTemplates" cols="60" row="5"></textarea><asp:Button runat="server" ID="btnBrowseExcludeTemplates" OnClick="btnBrowseExcludeTemplates_OnClick" CssClass="browse-btn" Text="Browse" />
+                                        <span class="border-notes">Enter template names and/or IDs separated by commas, or use Browse to select.
+                                        <br />
+                                            Items in this list will be <b>excluded</b> from the report (this is only needed if the Templates field is empty)</span>
+                                    </div>
+                                    <div class="row">
+                                        <span class="header"><b>Only include items with layout</b></span>
+                                        <asp:CheckBox runat="server" ID="chkItemsWithLayout" />
+                                        <span class="notes">Only export items that have a layout, i.e. template pages and not components</span>
+                                    </div>
                                 </div>
-                                </div><br/>
-                                
-                                
-                                
+                                <br />
+
+
+
                                 <div class="inner-section">
                                 <div class="row">
                                     <span class="header"><b>Created Date Range</b></span>
@@ -1148,8 +1157,8 @@
                                     <br />
                                     <br />
 
-                                    <input name="radDateRange" type="radio" runat="server" id="radImport" /><span><b>Create</b></span> new items using a specified Template (existing items will be ignored)<br />
-                                    <input name="radDateRange" type="radio" runat="server" id="radUpdate" /><span><b>Update</b></span> existing items based on the item <b>Id</b> or <b>path</b> (new items will not be created)                              
+                                    <input name="radImport" type="radio" runat="server" id="radImport" /><span><b>Create</b></span> new items using a specified Template (existing items will be ignored)<br />
+                                    <input name="radUpdate" type="radio" runat="server" id="radUpdate" /><span><b>Update</b></span> existing items based on the item <b>Id</b> or <b>path</b> (new items will not be created)                              
                                     <br />
                                     <br />
                                 </span>

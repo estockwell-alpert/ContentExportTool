@@ -161,7 +161,7 @@ function getItemChildren(pathOrId) {
     return $.ajax({
         method: "get",
         url: "/sitecore/shell/applications/contentexport/contentexport.aspx",
-        data: { getitems: true, startitem: pathOrId }
+        data: { getitems: true, startitem: pathOrId, database: $("#ddDatabase").val() }
     });
 }
 
@@ -294,6 +294,13 @@ function isTemplate() {
     return false;
 }
 
+function isExcludeTemplates() {
+    if ($("#divBrowseContainer").hasClass("exclude-templates")) {
+        return true;
+    }
+    return false;
+}
+
 function isField() {
     return ($(".browse-modal").hasClass("fields"));
 }
@@ -352,7 +359,10 @@ function removeTemplate() {
 
 function confirmBrowseSelection() {
     var str = getSelectedString();
-    if (isTemplate()) {
+    if (isExcludeTemplates()) {
+        $("#inputExcludeTemplates").html(str);
+    }
+    else if (isTemplate()) {
         $("#inputTemplates").html(str);
     } else {
         $("#inputStartitem").html(str);

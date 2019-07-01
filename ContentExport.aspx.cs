@@ -187,6 +187,12 @@ namespace ContentExportTool
 
         public void GetItemsAsync(string startItem)
         {
+            var database = Request.QueryString["database"];
+            if (!String.IsNullOrEmpty(database))
+            {
+                _db = Sitecore.Configuration.Factory.GetDatabase(database);
+            }
+
             if (_db == null) _db = Sitecore.Configuration.Factory.GetDatabase("master");
             Response.Clear();
             Response.ContentType = "application/json; charset=utf-8";
@@ -327,6 +333,15 @@ namespace ContentExportTool
             litBrowseTree.Text = GetAvailableTemplates();
             litSelectedBrowseItems.Text = GetSelectedItemHtml(inputTemplates.Value);
             divBrowseContainer.Attributes["class"] = "modal browse-modal templates";
+            PhBrowseModal.Visible = true;
+            PhBrowseFields.Visible = false;
+        }
+
+        protected void btnBrowseExcludeTemplates_OnClick(object sender, EventArgs e)
+        {
+            litBrowseTree.Text = GetAvailableTemplates();
+            litSelectedBrowseItems.Text = GetSelectedItemHtml(inputExcludeTemplates.Value);
+            divBrowseContainer.Attributes["class"] = "modal browse-modal templates exclude-templates";
             PhBrowseModal.Visible = true;
             PhBrowseFields.Visible = false;
         }
@@ -1691,6 +1706,7 @@ namespace ContentExportTool
                 StartItem = inputStartitem.Value,
                 FastQuery = txtFastQuery.Value,
                 Templates = inputTemplates.Value,
+                ExcludeTemplates = inputExcludeTemplates.Value,
                 IncludeTemplateName = chkIncludeTemplate.Checked,
                 Fields = inputFields.Value,
                 IncludeLinkedIds = chkIncludeLinkedIds.Checked,
@@ -1814,6 +1830,7 @@ namespace ContentExportTool
             inputStartitem.Value = settings.StartItem;
             txtFastQuery.Value = settings.FastQuery;
             inputTemplates.Value = settings.Templates;
+            inputExcludeTemplates.Value = settings.ExcludeTemplates;
             chkIncludeTemplate.Checked = settings.IncludeTemplateName;
             inputFields.Value = settings.Fields;
             chkIncludeLinkedIds.Checked = settings.IncludeLinkedIds;
@@ -1904,6 +1921,7 @@ namespace ContentExportTool
             inputStartitem.Value = string.Empty;
             txtFastQuery.Value = string.Empty;
             inputTemplates.Value = string.Empty;
+            inputExcludeTemplates.Value = string.Empty;
             chkIncludeTemplate.Checked = false;
             inputFields.Value = string.Empty;
             chkIncludeLinkedIds.Checked = false;
@@ -1959,6 +1977,7 @@ namespace ContentExportTool
                 StartItem = inputStartitem.Value,
                 FastQuery = txtFastQuery.Value,
                 Templates = inputTemplates.Value,
+                ExcludeTemplates = inputExcludeTemplates.Value,
                 IncludeTemplateName = chkIncludeTemplate.Checked,
                 Fields = inputFields.Value,
                 IncludeLinkedIds = chkIncludeLinkedIds.Checked,
@@ -2247,6 +2266,9 @@ namespace ContentExportTool
             var templateString = inputTemplates.Value;
             var templates = templateString.ToLower().Split(',').Select(x => x.Trim()).ToList();
 
+            var exclTemplateString = inputExcludeTemplates.Value;
+            var exclTemplates = exclTemplateString.ToLower().Split(',').Select(x => x.Trim()).ToList();
+
             if (chkIncludeInheritance.Checked && !String.IsNullOrEmpty(templateString))
             {
                 templates.AddRange(GetInheritors(templates));
@@ -2305,10 +2327,32 @@ namespace ContentExportTool
 
                     items.AddRange(templateItems);
                 }
-            }
+            }         
             else
             {
                 items = exportItems.ToList();
+            }
+
+            if (!string.IsNullOrEmpty(exclTemplateString))
+            {
+                List<Item> excludedItems = new ItemList();
+                foreach (var template in exclTemplates)
+                {
+                    IEnumerable<Item> templateItems;
+                    var templateItem = _db.GetItem(template);
+                    if (templateItem != null)
+                    {
+                        templateItems = items.Where(x => x.TemplateID == templateItem.ID);
+                    }
+                    else
+                    {
+                        templateItems = exportItems.Where(x => x.TemplateName.ToLower() == template || x.TemplateID.ToString().ToLower().Replace("{", string.Empty).Replace("}", string.Empty) == template.Replace("{", string.Empty).Replace("}", string.Empty));
+                    }
+
+                    excludedItems.AddRange(templateItems);
+                }
+
+                items = items.Except(excludedItems).ToList();
             }
 
             if (chkItemsWithLayout.Checked)
@@ -2976,6 +3020,7 @@ namespace ContentExportTool
         public string StartItem;
         public string FastQuery;
         public string Templates;
+        public string ExcludeTemplates;
         public bool IncludeTemplateName;
         public string Fields;
         public bool IncludeLinkedIds;
