@@ -1158,7 +1158,7 @@
                                     <br />
 
                                     <input name="radImport" type="radio" runat="server" id="radImport" /><span><b>Create</b></span> new items using a specified Template (existing items will be ignored)<br />
-                                    <input name="radUpdate" type="radio" runat="server" id="radUpdate" /><span><b>Update</b></span> existing items based on the item <b>Id</b> or <b>path</b> (new items will not be created)                              
+                                    <input name="radImport" type="radio" runat="server" id="radUpdate" /><span><b>Update</b></span> existing items based on the item <b>Id</b> or <b>path</b> (new items will not be created)                              
                                     <br />
                                     <br />
                                 </span>
