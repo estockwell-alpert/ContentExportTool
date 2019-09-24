@@ -25,6 +25,7 @@ using Sitecore.Links;
 using Sitecore.Sites;
 using System.Runtime.InteropServices;
 using System.Web.UI.HtmlControls;
+using Sitecore.Publishing;
 using Sitecore.Shell.Applications.Install;
 using ImageField = Sitecore.Data.Fields.ImageField;
 
@@ -83,6 +84,19 @@ namespace ContentExportTool
             ddDatabase.DataSource = databaseNames;
             ddDatabase.DataBind();
 
+            if (masterDb != null)
+            {
+                databaseNames.Remove(masterDb);
+            }
+            var web = databaseNames.FirstOrDefault(x => x.ToLower().Contains("web"));
+            if (web != null)
+            {
+                databaseNames.Remove(web);
+                databaseNames.Insert(0, web);
+            }
+            ddPublishDatabase.DataSource = databaseNames;
+            ddPublishDatabase.DataBind();
+
             var languages = GetSiteLanguages().Select(x => x.GetDisplayName()).OrderBy(x => x).ToList();
             languages.Insert(0, "");
             ddLanguages.DataSource = languages;
@@ -112,7 +126,11 @@ namespace ContentExportTool
                     chkDateModified.Checked ||
                     chkCreatedBy.Checked ||
                     chkModifiedBy.Checked ||
+                    chkPublish.Checked ||
+                    chkUnpublish.Checked ||
                     chkNeverPublish.Checked ||
+                    chkOwner.Checked ||
+                    chkAllStandardFields.Checked ||
                     chkWorkflowName.Checked ||
                     chkWorkflowState.Checked ||
                     chkAllLanguages.Checked ||
@@ -345,7 +363,6 @@ namespace ContentExportTool
             PhBrowseModal.Visible = true;
             PhBrowseFields.Visible = false;
         }
-
         protected string GetAvailableTemplates()
         {
             SetDatabase("master");
@@ -524,11 +541,16 @@ namespace ContentExportTool
                 var dateVal = new DateTime();
                 var includeDateCreated = chkDateCreated.Checked || (!String.IsNullOrEmpty(txtStartDateCr.Value) && DateTime.TryParse(txtStartDateCr.Value, out dateVal)) || (!String.IsNullOrEmpty(txtEndDateCr.Value) && DateTime.TryParse(txtEndDateCr.Value, out dateVal));
                 var includeCreatedBy = chkCreatedBy.Checked;
-                var includeDateModified = chkDateModified.Checked || (!String.IsNullOrEmpty(txtStartDatePb.Value) && DateTime.TryParse(txtStartDatePb.Value, out dateVal)) || (!String.IsNullOrEmpty(txtEndDatePu.Value) && DateTime.TryParse(txtEndDatePu.Value, out dateVal)); ;
+                var includeDateModified = chkDateModified.Checked || (!String.IsNullOrEmpty(txtStartDatePb.Value) && DateTime.TryParse(txtStartDatePb.Value, out dateVal)) || (!String.IsNullOrEmpty(txtEndDatePu.Value) && DateTime.TryParse(txtEndDatePu.Value, out dateVal));
                 var includeModifiedBy = chkModifiedBy.Checked;
+                var publish = chkPublish.Checked;
+                var unpublish = chkUnpublish.Checked;
+                var owner = chkOwner.Checked;
                 var neverPublish = chkNeverPublish.Checked;
                 var includeReferrers = chkReferrers.Checked;
                 var includeRelated = chkRelateItems.Checked;
+
+                var allStandardFields = chkAllStandardFields.Checked;
 
                 var allLanguages = chkAllLanguages.Checked;
                 var selectedLanguage = ddLanguages.SelectedValue;
@@ -555,13 +577,16 @@ namespace ContentExportTool
                                         (allLanguages || !string.IsNullOrWhiteSpace(selectedLanguage)
                                             ? "Language,"
                                             : string.Empty)
-                                        + (includeDateCreated ? "Created," : string.Empty)
-                                        + (includeCreatedBy ? "Created By," : string.Empty)
-                                        + (includeDateModified ? "Modified," : string.Empty)
-                                        + (includeModifiedBy ? "Modified By," : string.Empty)
-                                        + (neverPublish ? "Never Publish," : string.Empty)
-                                        + (includeworkflowName ? "Workflow," : string.Empty)
-                                        + (includeWorkflowState ? "Workflow State," : string.Empty)
+                                        + (includeDateCreated && !allStandardFields ? "__Created," : string.Empty)
+                                        + (includeCreatedBy && !allStandardFields ? "__Created by," : string.Empty)
+                                        + (includeDateModified && !allStandardFields ? "__Updated," : string.Empty)
+                                        + (includeModifiedBy && !allStandardFields ? "__Updated by," : string.Empty)
+                                        + (publish && !allStandardFields ? "__Publish," : string.Empty)
+                                        + (unpublish && !allStandardFields ? "__Unpublish," : string.Empty)
+                                        + (neverPublish && !allStandardFields ? "__Never publish," : string.Empty)
+                                        + (owner && !allStandardFields ? "__Owner," : string.Empty)
+                                        + (includeworkflowName && !allStandardFields ? "__Workflow," : string.Empty)
+                                        + (includeWorkflowState && !allStandardFields ? "__Workflow state," : string.Empty)
                                         + (includeReferrers ? "Referrers," : string.Empty)
                                         + (includeRelated ? "Related Items," : string.Empty);
 
@@ -622,27 +647,56 @@ namespace ContentExportTool
                             {
                                 itemLine += item.Language.Name + ",";
                             }
+                      
+                            // need to see what's included in standar fields
+                            if (chkAllStandardFields.Checked)
+                            {
+                                item.Fields.ReadAll();
+                                foreach (Field field in item.Fields)
+                                {
+                                    if (!field.Name.StartsWith("__")) continue;
+                                    if (fields.All(x => x != field.Name))
+                                    {
+                                        fields.Add(field.Name);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (includeDateCreated)
+                                {
+                                    itemLine += item.Statistics.Created.ToString("d") + ",";
+                                }
+                                if (includeCreatedBy)
+                                {
+                                    itemLine += item.Statistics.CreatedBy + ",";
+                                }
+                                if (includeDateModified)
+                                {
+                                    itemLine += item.Statistics.Updated.ToString("d") + ",";
+                                }
+                                if (includeModifiedBy)
+                                {
+                                    itemLine += item.Statistics.UpdatedBy + ",";
+                                }
+                                if (publish)
+                                {
+                                    itemLine += item.Publishing.PublishDate.ToString("d") + ",";
+                                }
+                                if (unpublish)
+                                {
+                                    itemLine += item.Publishing.UnpublishDate.ToString("d") + ",";
+                                }
 
-                            if (includeDateCreated)
-                            {
-                                itemLine += item.Statistics.Created.ToString("d") + ",";
-                            }
-                            if (includeCreatedBy)
-                            {
-                                itemLine += item.Statistics.CreatedBy + ",";
-                            }
-                            if (includeDateModified)
-                            {
-                                itemLine += item.Statistics.Updated.ToString("d") + ",";
-                            }
-                            if (includeModifiedBy)
-                            {
-                                itemLine += item.Statistics.UpdatedBy + ",";
-                            }
-                            if (neverPublish)
-                            {
-                                var neverPublishVal = item.Publishing.NeverPublish;
-                                itemLine += neverPublishVal.ToString() + ",";
+                                if (neverPublish)
+                                {
+                                    var neverPublishVal = item.Publishing.NeverPublish;
+                                    itemLine += neverPublishVal.ToString() + ",";
+                                }
+                                if (owner)
+                                {
+                                    itemLine += item.Security.GetOwner() + ",";
+                                }
                             }
 
                             if (chkAllFields.Checked)
@@ -658,7 +712,7 @@ namespace ContentExportTool
                                 }
                             }
 
-                            if (includeWorkflowState || includeworkflowName)
+                            if ((includeWorkflowState || includeworkflowName) && !chkAllStandardFields.Checked)
                             {
                                 itemLine = AddWorkFlow(item, itemLine, includeworkflowName, includeWorkflowState);
                             }
@@ -1275,8 +1329,15 @@ namespace ContentExportTool
 
         #region Run Export
 
-        protected void ProcessImport(bool createItems)
+        protected void ProcessImport()
         {
+            var createItems = radImport.Checked;
+            var updateItems = radUpdate.Checked;
+            var publishOnly = radPublish.Checked;
+            var deleteItems = radDelete.Checked;
+
+            var publishChanges = chkPublishChanges.Checked;
+
             PhBrowseModal.Visible = false;
             PhBrowseFields.Visible = false;
             phScrollToImport.Visible = true;
@@ -1424,9 +1485,38 @@ namespace ContentExportTool
                                 }
                                 try
                                 {
-                                    EditItem(item, cells, itemPathIndex, itemNameIndex, itemTemplateIndex, languageIndex,
-                                        fieldsMap, i,
-                                        ref output);
+                                    // modification step
+                                    if (createItems || updateItems)
+                                    {
+                                        EditItem(item, cells, itemPathIndex, itemNameIndex, itemTemplateIndex,
+                                            languageIndex,
+                                            fieldsMap, i,
+                                            ref output);
+                                    }
+
+                                    if (deleteItems)
+                                    {
+                                        // if publishing, check off Never Publish and publish, THEN delete
+                                        if (publishChanges)
+                                        {
+                                            item.Editing.BeginEdit();
+                                            item.Fields["__Never publish"].Value = "1";
+                                            item.Editing.EndEdit();
+                                            var published = PublishItem(item, language);
+
+                                            if (!published)
+                                                output += "Line " + (line + 1) + " failed to publish";
+                                        }
+                                        item.Delete();
+                                    }
+                                    else if (publishOnly || publishChanges)
+                                    {
+                                        var published = PublishItem(item, language);
+
+                                        if (!published)
+                                            output += "Line " + (line + 1) + " failed to publish";
+                                    }
+
                                     itemsImported++;
                                 }
                                 catch (Exception ex)
@@ -1442,7 +1532,7 @@ namespace ContentExportTool
                 }
                 if (itemsImported > 0)
                 {
-                    output = "Successfully " + (createItems ? "created " : "edited ") + itemsImported + " items<br/>" +
+                    output = "Successfully " + (createItems ? "created " : publishOnly ? "published " : deleteItems ? "deleted " : "edited ") + itemsImported + " items<br/>" +
                              output;
                 }
                 else
@@ -1460,6 +1550,27 @@ namespace ContentExportTool
             }
         }
 
+        protected bool PublishItem(Item item, Language lang)
+        {
+            try
+            {
+                var targetDatabase = ddPublishDatabase.SelectedValue;
+                var targetDb = Sitecore.Configuration.Factory.GetDatabase(targetDatabase);
+                PublishOptions po = new PublishOptions(item.Database, targetDb, PublishMode.SingleItem, lang, DateTime.Now);
+                po.RootItem = item;
+                po.Deep = false; // Publishing subitems
+
+                var publisher = new Publisher(po);
+                publisher.Publish();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Sitecore.Diagnostics.Log.Error("Exception publishing items from custom pipeline! : " + ex, this);
+                return false;
+            }
+        }
+
         protected void EditItem(Item item, string[] cells, int itemPathIndex, int itemNameIndex, int itemTemplateIndex, int langIndex, List<string> fieldsMap, int line, ref string output)
         {
             item.Editing.BeginEdit();
@@ -1473,6 +1584,11 @@ namespace ContentExportTool
                 }
                 var fieldName = fieldsMap[i];
                 var value = cells[i];
+
+                if (fieldName == "__Created" || fieldName == "__Created by" || fieldName == "__Owner" || fieldName == "__Updated" || fieldName == "__Updated by")
+                {
+                    continue;
+                }
 
                 try
                 {
@@ -1522,7 +1638,6 @@ namespace ContentExportTool
                     else if (itemOfType is MultilistField)
                     {
                         MultilistField multiField = (MultilistField)item.Fields[fieldName];
-
                         var values = value.Split(';').Where(x => !String.IsNullOrEmpty(x));
                         if (value.Contains("|"))
                         {
@@ -1722,6 +1837,10 @@ namespace ContentExportTool
                 CreatedBy = chkCreatedBy.Checked,
                 ModifiedBy = chkModifiedBy.Checked,
                 NeverPublish = chkNeverPublish.Checked,
+                Publish = chkPublish.Checked,
+                Unpublish = chkUnpublish.Checked,
+                Owner = chkOwner.Checked,
+                AllStandardFields = chkAllStandardFields.Checked,
                 RequireLayout = chkItemsWithLayout.Checked,
                 Referrers = chkReferrers.Checked,
                 Related = chkRelateItems.Checked,
@@ -1852,6 +1971,10 @@ namespace ContentExportTool
             chkCreatedBy.Checked = settings.CreatedBy;
             chkModifiedBy.Checked = settings.ModifiedBy;
             chkNeverPublish.Checked = settings.NeverPublish;
+            chkPublish.Checked = settings.Publish;
+            chkUnpublish.Checked = settings.Unpublish;
+            chkOwner.Checked = settings.Owner;
+            chkAllStandardFields.Checked = settings.AllStandardFields;
             chkItemsWithLayout.Checked = settings.RequireLayout;
             chkReferrers.Checked = settings.Referrers;
             chkRelateItems.Checked = settings.Related;
@@ -1897,6 +2020,10 @@ namespace ContentExportTool
                 settings.DateModified ||
                 settings.CreatedBy ||
                 settings.ModifiedBy ||
+                settings.Publish ||
+                settings.Unpublish ||
+                settings.Owner ||
+                settings.AllStandardFields ||
                 settings.NeverPublish ||
                 settings.Workflow ||
                 settings.WorkflowState ||
@@ -1951,6 +2078,10 @@ namespace ContentExportTool
             txtStartDateCr.Value = string.Empty;
             txtEndDateCr.Value = string.Empty;
             chkNeverPublish.Checked = false;
+            chkPublish.Checked = false;
+            chkUnpublish.Checked = false;
+            chkOwner.Checked = false;
+            chkAllStandardFields.Checked = false;
             radDateRangeOr.Checked = true;
             radDateRangeAnd.Checked = false;
             chkNoChildren.Checked = false;
@@ -1993,6 +2124,10 @@ namespace ContentExportTool
                 CreatedBy = chkCreatedBy.Checked,
                 ModifiedBy = chkModifiedBy.Checked,
                 NeverPublish = chkNeverPublish.Checked,
+                Publish = chkPublish.Checked,
+                Unpublish = chkUnpublish.Checked,
+                Owner = chkOwner.Checked,
+                AllStandardFields = chkOwner.Checked,
                 RequireLayout = chkItemsWithLayout.Checked,
                 Referrers = chkReferrers.Checked,
                 Related = chkRelateItems.Checked,
@@ -2327,7 +2462,7 @@ namespace ContentExportTool
 
                     items.AddRange(templateItems);
                 }
-            }         
+            }
             else
             {
                 items = exportItems.ToList();
@@ -2583,7 +2718,7 @@ namespace ContentExportTool
 
         protected void btnBeginImport_OnClick(object sender, EventArgs e)
         {
-            ProcessImport(radImport.Checked);
+            ProcessImport();
         }
 
         protected void btnComponentAudit_OnClick(object sender, EventArgs e)
@@ -3033,6 +3168,10 @@ namespace ContentExportTool
         public string MultipleStartPaths;
         public bool IncludeInheritance;
         public bool NeverPublish;
+        public bool Publish;
+        public bool Unpublish;
+        public bool AllStandardFields;
+        public bool Owner;
         public bool DateCreated;
         public bool DateModified;
         public bool CreatedBy;

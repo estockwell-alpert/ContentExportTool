@@ -580,6 +580,69 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.CheckBox chkRelateItems;
         
         /// <summary>
+        /// divStandardFields control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl divStandardFields;
+        
+        /// <summary>
+        /// chkAllStandardFields control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkAllStandardFields;
+        
+        /// <summary>
+        /// chkWorkflowName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkWorkflowName;
+        
+        /// <summary>
+        /// chkWorkflowState control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkWorkflowState;
+        
+        /// <summary>
+        /// chkPublish control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkPublish;
+        
+        /// <summary>
+        /// chkUnpublish control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkUnpublish;
+        
+        /// <summary>
+        /// chkNeverPublish control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkNeverPublish;
+        
+        /// <summary>
         /// chkDateCreated control.
         /// </summary>
         /// <remarks>
@@ -616,31 +679,13 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.CheckBox chkModifiedBy;
         
         /// <summary>
-        /// chkNeverPublish control.
+        /// chkOwner control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox chkNeverPublish;
-        
-        /// <summary>
-        /// chkWorkflowName control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox chkWorkflowName;
-        
-        /// <summary>
-        /// chkWorkflowState control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox chkWorkflowState;
+        protected global::System.Web.UI.WebControls.CheckBox chkOwner;
         
         /// <summary>
         /// btnExport2 control.
@@ -769,6 +814,24 @@ namespace ContentExportTool {
         protected global::System.Web.UI.HtmlControls.HtmlInputRadioButton radUpdate;
         
         /// <summary>
+        /// radPublish control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputRadioButton radPublish;
+        
+        /// <summary>
+        /// radDelete control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputRadioButton radDelete;
+        
+        /// <summary>
         /// chkNoDuplicates control.
         /// </summary>
         /// <remarks>
@@ -776,6 +839,24 @@ namespace ContentExportTool {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.CheckBox chkNoDuplicates;
+        
+        /// <summary>
+        /// chkPublishChanges control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkPublishChanges;
+        
+        /// <summary>
+        /// ddPublishDatabase control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddPublishDatabase;
         
         /// <summary>
         /// btnBeginImport control.
