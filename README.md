@@ -37,4 +37,3 @@ Sitecore users can only view/export items that they have read permissions on. In
  /sitecore/shell/Themes/Standard/Images/ProgressIndicator/sc-spinner32.gif
 
 # Known Bugs:
-In the Content Import feature, when importing multiple IDs/names for a multilist field, whitespace does not get trimmed and will cause items to not be found correctly. Correct this by removing all whitespace from the field (e.g. "Name1;Name2;Name3" instead of "Name1; Name2; Name3"). This will be fixed in the next release.
