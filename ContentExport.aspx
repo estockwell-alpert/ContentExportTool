@@ -1246,7 +1246,7 @@
                                         <span class="notes">Select database to publish to</span>
                                     </div>
 
-                                    <asp:Button runat="server" ID="btnBeginImport" Text="Begin Import" OnClick="btnBeginImport_OnClick" />
+                                    <asp:Button runat="server" ID="btnBeginImport" CssClass="spinner-btn" Text="Begin Import" OnClick="btnBeginImport_OnClick" />
 
                                     <br />
                                     <br />
