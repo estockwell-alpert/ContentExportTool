@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="ContentExport.aspx.cs" Inherits="ContentExportTool.ContentExport" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="ContentExport.aspx.cs" Inherits="ContentExportTool.ContentExport" %>
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -1119,6 +1119,12 @@
                                     <br />
                                     <br />
                                     <asp:Button class="spinner-btn" runat="server" ID="btnComponentAudit" OnClick="btnComponentAudit_OnClick" Text="Run Audit" />
+
+                                    <br/><br /><br />
+                                    <span class="header"><b>Obsolete Component Audit</b></span>
+                                    <span class="notes">Run this export to get all of the components that are not in use</span>
+                                    <br /><br />
+                                    <asp:Button class="spinner-btn" runat="server" ID="btnObsoleteComponentAudit" OnClick="btnObsoleteComponentAudit_Click" Text="Run Audit" />
                                 </div>
                                 <div class="row advanced-search">
                                     <span class="header"><b>Template Audit</b></span>

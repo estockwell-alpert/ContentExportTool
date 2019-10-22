@@ -3105,6 +3105,55 @@ namespace ContentExportTool
 
             return true;
         }
+
+        protected void btnObsoleteComponentAudit_Click(object sender, EventArgs e)
+        {
+            if (!SetDatabase())
+            {
+                litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
+                return;
+            }
+
+
+            if (_db == null)
+            {
+                litFeedback.Text = "Invalid database. Selected database does not exist.";
+                return;
+            }
+
+            Item renderingFolder = _db.GetItem("/sitecore/layout/Renderings");
+            Item sublayoutsFolder = _db.GetItem("/sitecore/layout/Sublayouts");
+
+            IEnumerable<Item> renderings = renderingFolder.Axes.GetDescendants().Where(x => x.TemplateName.ToLower().Contains("rendering") && !x.TemplateName.ToLower().Contains("folder"));
+            IEnumerable<Item> sublayouts = sublayoutsFolder.Axes.GetDescendants().Where(x => x.TemplateName.ToLower() == "sublayout");
+
+            var items = renderings.ToList();
+            items.AddRange(sublayouts);
+
+            StartResponse(!string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "ObsoleteComponentAudit");
+
+            using (StringWriter sw = new StringWriter())
+            {
+                var headingString = "Name,Item Path";
+
+                sw.WriteLine(headingString);
+
+                foreach (var item in items)
+                {
+                    var path = item.Paths.FullPath;
+                    var name = item.Name;
+                    var referrers = Sitecore.Globals.LinkDatabase.GetItemReferrers(item, false);
+
+                    if (referrers.Any()) continue;
+
+                    // write line
+                    sw.WriteLine("{0},{1}", name, path);
+                }
+
+                SetCookieAndResponse(sw.ToString());
+            }
+        }
+
     }
 
     #region Classes
