@@ -1017,7 +1017,11 @@
                                         <span class="notes">Export the paths of all items each item refers to</span>
                                     </div>
 
-
+                                    <div class="row">
+                                        <span class="header">Delimiter</span>
+                                        <input name="radDelimiter" type="radio" runat="server" id="radSemicolon" /><span><b>Semicolon</b> (Ready-friendly)</span><br /><span style="margin-left:22px;display:block;">{E71C307E-E643-4CB7-9EE1-36B71BA0D6BD}; {4A193968-B0FE-4E85-B058-5871296786AB};</span><br />
+                                        <input name="radDelimiter" type="radio" runat="server" id="radPipe"/><span><b>Pipe</b> (Code-friendly)</span><br /><span style="margin-left:22px;display:block;">  {E71C307E-E643-4CB7-9EE1-36B71BA0D6BD}|{4A193968-B0FE-4E85-B058-5871296786AB}</span><br />
+                                    </div>
 
 
                                     <div class="advanced open open-default" runat="server" id="divStandardFields">

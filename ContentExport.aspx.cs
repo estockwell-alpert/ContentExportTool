@@ -69,6 +69,7 @@ namespace ContentExportTool
         protected void SetupForm()
         {
             radImport.Checked = true;
+            radSemicolon.Checked = true;
             chkNoDuplicates.Checked = true;
             txtSaveSettingsName.Value = string.Empty;
             PhBrowseModal.Visible = false;
@@ -733,7 +734,7 @@ namespace ContentExportTool
                                 }
 
                                 
-                                data += String.Join("; \n", referrerPaths);
+                                data += String.Join((radPipe.Checked ? "|" : "; \n"), referrerPaths);
 
                                 itemLine += "\"" + data + "\",";
 
@@ -755,7 +756,7 @@ namespace ContentExportTool
                                 }
 
 
-                                data += String.Join("; \n", relatedPaths);
+                                data += String.Join((radPipe.Checked ? "|" : "; \n"), relatedPaths);
 
                                 itemLine += "\"" + data + "\",";
 
@@ -1159,7 +1160,7 @@ namespace ContentExportTool
                 {
                     if (!first)
                     {
-                        data += "; \n";
+                        data += radPipe.Checked ? "|" : "; \n";
                     }
                     var url = (chkDroplistName.Checked ? i.Name : i.Paths.ContentPath);
                     data += url;
@@ -1175,7 +1176,7 @@ namespace ContentExportTool
                     {
                         if (!first)
                         {
-                            idData += "; \n";
+                            idData += radPipe.Checked ? "|" : "; \n";
                         }
                         idData += i.ID;
                         first = false;
@@ -1855,7 +1856,8 @@ namespace ContentExportTool
                 NoChildren = chkNoChildren.Checked,
                 RefNameOnly = chkDroplistName.Checked,
                 CreatedByFilter = txtCreatedByFilter.Value,
-                ModifiedByFilter = txtModifiedByFilter.Value
+                ModifiedByFilter = txtModifiedByFilter.Value,
+                PipeDelimit = radPipe.Checked
             };
 
             var settingsObject = new ExportSettings()
@@ -1992,6 +1994,12 @@ namespace ContentExportTool
             txtCreatedByFilter.Value = settings.CreatedByFilter;
             txtModifiedByFilter.Value = settings.ModifiedByFilter;
 
+            if (settings.PipeDelimit)
+            {
+                radPipe.Checked = true;
+                radSemicolon.Checked = false;
+            }
+
             if (settings.DateRangeAnd)
             {
                 radDateRangeOr.Checked = false;
@@ -2088,6 +2096,8 @@ namespace ContentExportTool
             chkComponentFields.Checked = false;
             txtCreatedByFilter.Value = string.Empty;
             txtModifiedByFilter.Value = string.Empty;
+            radPipe.Checked = false;
+            radSemicolon.Checked = true;
 
             PhBrowseModal.Visible = false;
             PhBrowseFields.Visible = false;
@@ -2135,7 +2145,8 @@ namespace ContentExportTool
                 NoChildren = chkNoChildren.Checked,
                 RefNameOnly = chkDroplistName.Checked,
                 CreatedByFilter = txtCreatedByFilter.Value,
-                ModifiedByFilter = txtModifiedByFilter.Value
+                ModifiedByFilter = txtModifiedByFilter.Value,
+                PipeDelimit = radPipe.Checked
             };
 
             var serializer = new JavaScriptSerializer();
@@ -3240,6 +3251,7 @@ namespace ContentExportTool
         public bool RefNameOnly;
         public string CreatedByFilter;
         public string ModifiedByFilter;
+        public bool PipeDelimit;
     }
 
     public class FieldData
