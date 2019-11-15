@@ -1425,8 +1425,7 @@ namespace ContentExportTool
                                         continue;
                                     }
                                     try
-                                    {
-                                        var template = _db.GetTemplate(templateItem.ID);
+                                    {                                      
                                         if (chkNoDuplicates.Checked)
                                         {
                                             var newItemPath = item.Paths.FullPath + "/" + name;
@@ -1440,7 +1439,18 @@ namespace ContentExportTool
                                             }
                                         }
 
-                                        var newItem = item.Add(name, template);
+                                        Item newItem = null;
+                                        if (templateItem.TemplateName == "Branch")
+                                        {
+                                            BranchItem branch = _db.GetItem(templatePath);
+                                            newItem = item.Add(name, branch);
+                                        }
+                                        else
+                                        {
+                                            var template = _db.GetTemplate(templateItem.ID);
+                                            newItem = item.Add(name, template);
+                                        }
+
                                         // additional check for duplicates
                                         var itemsAtPath =
                                             item.Children.Where(
