@@ -580,6 +580,24 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.CheckBox chkRelateItems;
         
         /// <summary>
+        /// radSemicolon control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputRadioButton radSemicolon;
+        
+        /// <summary>
+        /// radPipe control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputRadioButton radPipe;
+        
+        /// <summary>
         /// divStandardFields control.
         /// </summary>
         /// <remarks>
@@ -704,6 +722,15 @@ namespace ContentExportTool {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnComponentAudit;
+        
+        /// <summary>
+        /// btnObsoleteComponentAudit control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnObsoleteComponentAudit;
         
         /// <summary>
         /// chkObsoleteTemplates control.
