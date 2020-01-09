@@ -28,6 +28,7 @@ using System.Web.UI.HtmlControls;
 using Sitecore.Publishing;
 using Sitecore.Shell.Applications.Install;
 using ImageField = Sitecore.Data.Fields.ImageField;
+using System.Collections;
 
 namespace ContentExportTool
 {
@@ -49,6 +50,7 @@ namespace ContentExportTool
             phOverwriteScript.Visible = false;
             phDeleteScript.Visible = false;
             phScrollToImport.Visible = false;
+            phScrollToRenderingImport.Visible = false;
             litFastQueryTest.Text = String.Empty;
             if (!IsPostBack)
             {
@@ -95,8 +97,9 @@ namespace ContentExportTool
                 databaseNames.Remove(web);
                 databaseNames.Insert(0, web);
             }
-            ddPublishDatabase.DataSource = databaseNames;
+            ddPublishDatabase.DataSource = ddRenderingParamPublishDatabase.DataSource = databaseNames;
             ddPublishDatabase.DataBind();
+            ddRenderingParamPublishDatabase.DataBind();
 
             var languages = GetSiteLanguages().Select(x => x.GetDisplayName()).OrderBy(x => x).ToList();
             languages.Insert(0, "");
@@ -1312,7 +1315,15 @@ namespace ContentExportTool
             return header;
         }
 
-
+        public string GetExcelHeaderForParameters(IEnumerable<string> parameters)
+        {
+            var header = "";
+            foreach (var parameter in parameters)
+            {
+                header += parameter + ",";
+            }
+            return header;
+        }
 
         public string RemoveLineEndings(string value)
         {
@@ -1330,6 +1341,198 @@ namespace ContentExportTool
 
         #region Run Export
 
+        protected void ProcessRenderingParamsImport()
+        {
+            var publishChanges = chkPublishRenderingParamChanges.Checked;
+
+            PhBrowseModal.Visible = false;
+            PhBrowseFields.Visible = false;
+            phScrollToImport.Visible = false;
+            phScrollToRenderingImport.Visible = true;
+
+            try
+            {
+                var output = "";
+                _db = Sitecore.Configuration.Factory.GetDatabase("master");
+                var file = btnRenderingParamFileUpload.PostedFile;
+                if (file == null || String.IsNullOrEmpty(file.FileName))
+                {
+                    litUploadRenderingParamResponse.Text = "You must select a file first<br/>";
+                    return;
+                }
+
+                string extension = System.IO.Path.GetExtension(file.FileName);
+                if (extension.ToLower() != ".csv")
+                {
+                    litUploadRenderingParamResponse.Text = "Upload file must be in CSV format<br/>";
+                    return;
+                }
+
+                var fieldsMap = new List<String>();
+                var itemPathIndex = 0;
+                var componentNameIndex = 0;
+                var parameterNameIndex = -1;
+                var valueIndex = -1;
+                var placeholderIndex = -1;
+                var positionIndex = -1;
+                var positionInPlacholderIndex = -1;
+                var beforeIndex = -1;
+                var afterIndex = -1;
+                var languageIndex = -1;
+                var applyToSubitemsIndex = -1;
+                var templateIndex = -1;
+                var whenPlaceholderIndex = -1;
+                var nthOfTypeIndex = -1;
+
+                var itemsImported = 0;
+
+                using (TextReader tr = new StreamReader(file.InputStream))
+                {
+                    CsvParser csv = new CsvParser(tr);
+                    List<string[]> rows = csv.GetRows();
+                    var language = LanguageManager.DefaultLanguage;
+                    for (var i = 0; i < rows.Count; i++)
+                    {
+                        var line = i;
+                        var cells = rows[i];
+                        if (i == 0)
+                        {
+                            // create fields map
+                            fieldsMap = cells.ToList();
+                            itemPathIndex = fieldsMap.FindIndex(x => x.ToLower() == "item path");
+                            componentNameIndex = fieldsMap.FindIndex(x => x.ToLower() == "component name");
+                            parameterNameIndex = fieldsMap.FindIndex(x => x.ToLower() == "parameter name");
+                            valueIndex = fieldsMap.FindIndex(x => x.ToLower() == "value");
+                            placeholderIndex = fieldsMap.FindIndex(x => x.ToLower() == "placeholder");
+                            positionIndex = fieldsMap.FindIndex(x => x.ToLower() == "position");
+                            positionInPlacholderIndex = fieldsMap.FindIndex(x => x.ToLower() == "position in placeholder");
+                            beforeIndex = fieldsMap.FindIndex(x => x.ToLower() == "before");
+                            afterIndex = fieldsMap.FindIndex(x => x.ToLower() == "after");
+                            languageIndex = fieldsMap.FindIndex(x => x.ToLower() == "language");
+                            applyToSubitemsIndex = fieldsMap.FindIndex(x => x.ToLower() == "apply to all subitems");
+                            templateIndex = fieldsMap.FindIndex(x => x.ToLower() == "template");
+                            whenPlaceholderIndex = fieldsMap.FindIndex(x => x.ToLower() == "when placeholder equals");
+                            nthOfTypeIndex = fieldsMap.FindIndex(x => x.ToLower() == "nth of type");
+                        }
+                        else
+                        {
+                            var path = cells[itemPathIndex];
+                            Guid guid;
+                            if (!Guid.TryParse(path, out guid) && !path.ToLower().StartsWith("/sitecore/"))
+                            {
+                                path = "/sitecore/content" + (path.StartsWith("/") ? "" : "/") + path;
+                            }
+
+                            if (languageIndex > -1 && !String.IsNullOrEmpty(cells[languageIndex]))
+                            {
+                                var selectedLanguage = LanguageManager.GetLanguage(cells[languageIndex]);
+                                if (selectedLanguage != null) language = selectedLanguage;
+                            }
+
+                            using (new LanguageSwitcher(language))
+                            {
+
+                                // if we are editing items, then the current item = Item Path; if we are creatign items, then are our item is created under Item Path item
+                                Item item = _db.GetItem(path, language);
+                                if (item == null)
+                                {
+                                    output += "Line " + (line + 1) + " skipped; could not find " + path + "<br/>";
+                                    continue;
+                                }
+  
+                                else
+                                {
+                                    if (item.Versions.Count == 0)
+                                    {
+                                        item = item.Versions.AddVersion();
+                                    }
+                                }
+                                try
+                                {
+                                    var editItem = true;
+                                    var template = "";
+                                    if (templateIndex > -1 && !String.IsNullOrEmpty(cells[templateIndex]))
+                                    {
+                                        template = cells[templateIndex];
+                                        if (item.TemplateName.ToLower() == template.ToLower() || item.TemplateID.ToString().ToLower() == template.ToLower())
+                                        {
+                                            editItem = true;
+                                        }
+                                        else
+                                        {
+                                            editItem = false;
+                                        }
+                                    }
+
+                                    if (editItem)
+                                    {
+                                        var itemModified = EditRenderingParams(item, cells, componentNameIndex, parameterNameIndex, whenPlaceholderIndex, valueIndex, placeholderIndex, positionIndex, positionInPlacholderIndex, beforeIndex, afterIndex, nthOfTypeIndex, fieldsMap, line, ref output);
+
+                                        if (itemModified)
+                                            itemsImported++;
+
+                                        if (publishChanges && itemModified)
+                                        {
+                                            var published = PublishItem(item, language, ddRenderingParamPublishDatabase.SelectedValue);
+
+                                            if (!published)
+                                                output += "Line " + (line + 1) + ": " + item.Paths.FullPath + " failed to publish";
+                                        }
+                                    }
+
+                                    // get subitems
+                                    var applyToSubItems = cells[applyToSubitemsIndex].ToLower();
+                                    if (applyToSubitemsIndex > -1 && (applyToSubItems == "1" || applyToSubItems == "true" || applyToSubItems == "yes")){
+                                        var subItems = item.Axes.GetDescendants().ToList();
+                                        if (!String.IsNullOrEmpty(template))
+                                        {
+                                            subItems = subItems.Where(x => x.TemplateName.ToLower() == template.ToLower() || x.TemplateID.ToString().ToLower() == template.ToLower()).ToList();
+                                        }
+
+                                        foreach (var subItem in subItems)
+                                        {
+                                            var itemModified = EditRenderingParams(subItem, cells, componentNameIndex, parameterNameIndex, whenPlaceholderIndex, valueIndex, placeholderIndex, positionIndex, positionInPlacholderIndex, beforeIndex, afterIndex, nthOfTypeIndex, fieldsMap, line, ref output);
+                                            if (publishChanges && itemModified)
+                                            {
+                                                var published = PublishItem(subItem, language, ddRenderingParamPublishDatabase.SelectedValue);
+
+                                                if (!published)
+                                                    output += "Line " + (line + 1) + ": " + item.Paths.FullPath + " failed to publish";
+                                            }
+                                        }
+                                    }                                   
+                                }
+                                catch (Exception ex)
+                                {
+                                    if (ex.Message.Contains("The current user does not have write access to this item"))
+                                    {
+                                        output += "Line " + (line + 1) + " skipped; you do not have write access to this item<br/>";
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (itemsImported > 0)
+                {
+                    output = "Successfully processed " + itemsImported + " lines<br/>" +
+                             output;
+                }
+                else
+                {
+                    output = "No items were modified<br/>" + output;
+                }
+                btnBeginRenderingParamImport.Dispose();
+
+
+                litUploadRenderingParamResponse.Text = output;
+            }
+            catch (Exception ex)
+            {
+                litUploadRenderingParamResponse.Text = "Oops! An error occurred while importing: <br/>" + ex;
+            }
+        }
+
         protected void ProcessImport()
         {
             var createItems = radImport.Checked;
@@ -1341,6 +1544,7 @@ namespace ContentExportTool
 
             PhBrowseModal.Visible = false;
             PhBrowseFields.Visible = false;
+            phScrollToRenderingImport.Visible = false;
             phScrollToImport.Visible = true;
 
             try
@@ -1351,12 +1555,22 @@ namespace ContentExportTool
                 if (file == null || String.IsNullOrEmpty(file.FileName))
                 {
                     litUploadResponse.Text = "You must select a file first<br/>";
+                    return;
+                }
+
+                string extension = System.IO.Path.GetExtension(file.FileName);
+                if (extension.ToLower() != ".csv")
+                {
+                    litUploadResponse.Text = "Upload file must be in CSV format<br/>";
+                    return;
                 }
 
                 var fieldsMap = new List<String>();
                 var itemPathIndex = 0;
                 var itemNameIndex = 0;
                 var itemTemplateIndex = 0;
+                var placeholderIndex = 0;
+                var renderingIndex = 0;
                 var itemsImported = 0;
                 var languageIndex = 0;
 
@@ -1375,6 +1589,8 @@ namespace ContentExportTool
                             fieldsMap = cells.ToList();
                             itemPathIndex = fieldsMap.FindIndex(x => x.ToLower() == "item path");
                             itemTemplateIndex = fieldsMap.FindIndex(x => x.ToLower() == "template");
+                            renderingIndex = fieldsMap.FindIndex(x => x.ToLower() == "rendering");
+                            placeholderIndex = fieldsMap.FindIndex(x => x.ToLower() == "placeholder");
                             itemNameIndex = fieldsMap.FindIndex(x => x.ToLower() == "name");
                             languageIndex = fieldsMap.FindIndex(x => x.ToLower() == "language");
                         }
@@ -1382,7 +1598,7 @@ namespace ContentExportTool
                         {
                             var path = cells[itemPathIndex];
                             Guid guid;
-                            if (!Guid.TryParse(path, out guid) && !path.ToLower().StartsWith("/sitecore/content"))
+                            if (!Guid.TryParse(path, out guid) && !path.ToLower().StartsWith("/sitecore/"))
                             {
                                 path = "/sitecore/content" + (path.StartsWith("/") ? "" : "/") + path;
                             }
@@ -1513,7 +1729,7 @@ namespace ContentExportTool
                                             item.Editing.BeginEdit();
                                             item.Fields["__Never publish"].Value = "1";
                                             item.Editing.EndEdit();
-                                            var published = PublishItem(item, language);
+                                            var published = PublishItem(item, language, ddPublishDatabase.SelectedValue);
 
                                             if (!published)
                                                 output += "Line " + (line + 1) + " failed to publish";
@@ -1522,7 +1738,7 @@ namespace ContentExportTool
                                     }
                                     else if (publishOnly || publishChanges)
                                     {
-                                        var published = PublishItem(item, language);
+                                        var published = PublishItem(item, language, ddPublishDatabase.SelectedValue);
 
                                         if (!published)
                                             output += "Line " + (line + 1) + " failed to publish";
@@ -1561,11 +1777,10 @@ namespace ContentExportTool
             }
         }
 
-        protected bool PublishItem(Item item, Language lang)
+        protected bool PublishItem(Item item, Language lang, string targetDatabase)
         {
             try
             {
-                var targetDatabase = ddPublishDatabase.SelectedValue;
                 var targetDb = Sitecore.Configuration.Factory.GetDatabase(targetDatabase);
                 PublishOptions po = new PublishOptions(item.Database, targetDb, PublishMode.SingleItem, lang, DateTime.Now);
                 po.RootItem = item;
@@ -1702,6 +1917,168 @@ namespace ContentExportTool
                 }
             }
             item.Editing.EndEdit();
+        }
+
+        protected bool EditRenderingParams(Item item, string[] cells, int componentNameIndex, int parameterNameIndex, int whenPlaceholderEqualsIndex, int valueIndex, int placeholderIndex, int positionIndex, int positionInPlaceholderIndex, int beforeIndex, int afterIndex, int nthOfTypeIndex, List<string> fieldsMap, int line, ref string output)
+        {
+            item.Editing.BeginEdit();
+
+            var componentNameOrId = componentNameIndex > -1 ? cells[componentNameIndex] : "";
+            var paramName = parameterNameIndex > -1 ? cells[parameterNameIndex] : "";
+            var value = valueIndex > -1 ? cells[valueIndex] : "";
+            var placeholder = placeholderIndex > -1 ? cells[placeholderIndex] : "";
+            var position = positionIndex > -1 ? cells[positionIndex] : "";
+            var positionInPlaceholder = positionInPlaceholderIndex > -1 ? cells[positionInPlaceholderIndex] : "";
+            var before = beforeIndex > -1 ? cells[beforeIndex] : "";
+            var after = afterIndex > -1 ? cells[afterIndex] : "";
+            var whenPlaceholderEquals = whenPlaceholderEqualsIndex > -1 ? cells[whenPlaceholderEqualsIndex] : "";
+            var nthOfType = nthOfTypeIndex > -1 ? cells[nthOfTypeIndex] : "";
+
+            try
+            {
+                if (String.IsNullOrEmpty(componentNameOrId)) return false;
+
+                string defaultDeviceId = "{FE5D7FDF-89C0-4D99-9AA3-B5FBD009C9F3}";
+
+                var layoutField = new LayoutField(item.Fields[Sitecore.FieldIDs.FinalLayoutField]);
+                var layoutDefinition = LayoutDefinition.Parse(layoutField.Value);
+                var deviceDefinition = layoutDefinition.GetDevice(defaultDeviceId);
+
+                RenderingDefinition rendering;
+                int n;
+                var renderings = deviceDefinition.Renderings.Cast<RenderingDefinition>().ToList();
+                var matchingRenderings = renderings.Where(x => x != null &&
+                            (x.ItemID.ToLower() == componentNameOrId.ToLower() || _db.GetItem(x.ItemID).Name.ToLower() == componentNameOrId.ToLower())).ToList();
+
+                if (!String.IsNullOrEmpty(whenPlaceholderEquals))
+                {
+                    matchingRenderings = matchingRenderings.Where(x => x.Placeholder.ToLower() == whenPlaceholderEquals.ToLower()).ToList();
+                }
+
+                if (!String.IsNullOrEmpty(nthOfType) && Int32.TryParse(nthOfType, out n))
+                {
+                    rendering = n >= (matchingRenderings.Count()) ? matchingRenderings.LastOrDefault() : matchingRenderings[n - 1];
+                }
+                else
+                {
+                    rendering = matchingRenderings.FirstOrDefault();
+                }
+
+                if (rendering == null)
+                {
+                    output += "Line " + (line + 1) + ": " + componentNameOrId + " not found " + (String.IsNullOrEmpty(whenPlaceholderEquals) ? "" : "in " + whenPlaceholderEquals) + " on " + item.Paths.FullPath + "<br/>";
+                    return false;
+                }
+
+                // 1. set placeholder
+                if (!String.IsNullOrEmpty(placeholder))
+                {
+                    rendering.Placeholder = placeholder;
+                }
+
+                IEnumerable<RenderingDefinition> allRenderings = deviceDefinition.Renderings.ToArray().Cast<RenderingDefinition>();
+
+                var renderingIndex = allRenderings.ToList().IndexOf(rendering);
+
+
+                // 2. set position of rendering
+                if (!String.IsNullOrEmpty(after) || !String.IsNullOrEmpty(before) || !String.IsNullOrEmpty(positionInPlaceholder) || !String.IsNullOrEmpty(position))
+                {
+                    var index = allRenderings.ToList().IndexOf(rendering);
+
+                    // remove rendering
+                    List<RenderingDefinition> renderingsArray = deviceDefinition.Renderings.ToArray().Cast<RenderingDefinition>().ToList();
+                    renderingsArray.RemoveAt(renderingIndex);
+                    var updatedRenderings = new ArrayList(renderingsArray);
+                    deviceDefinition.Renderings = updatedRenderings;                
+
+                    if (!String.IsNullOrEmpty(after))
+                    {
+                        var lastRenderingBefore = allRenderings.Where(x => x.ItemID.ToString().ToLower() == after.ToLower() || _db.GetItem(x.ItemID).Name.ToLower() == after.ToLower()).LastOrDefault();
+                        if (lastRenderingBefore != null)
+                        {
+                            index = allRenderings.ToList().IndexOf(lastRenderingBefore);
+                        }
+                    }
+                    else if (!String.IsNullOrEmpty(before))
+                    {
+                        var firstRenderingAfter = allRenderings.Where(x => x.ItemID.ToString().ToLower() == before.ToLower() || _db.GetItem(x.ItemID).Name.ToLower() == before.ToLower()).FirstOrDefault();
+                        if (firstRenderingAfter != null)
+                        {
+                            index = allRenderings.ToList().IndexOf(firstRenderingAfter) - 1;
+                            if (index < 0)
+                                index = 0;
+                        }
+                    }
+                    else if (!String.IsNullOrEmpty(positionInPlaceholder))
+                    {
+                        var renderingsInPlaceholder = allRenderings.Where(x => x.Placeholder.ToLower() == rendering.Placeholder.ToLower() && x != rendering);
+
+                        int placeholderPosition;
+                        var valid = Int32.TryParse(positionInPlaceholder, out placeholderPosition);
+
+
+                        if (renderingsInPlaceholder.Any() && valid)
+                        {
+
+                            if (renderingsInPlaceholder.Count() <= placeholderPosition)
+                                placeholderPosition = renderingsInPlaceholder.Count() - 1;
+
+                            var firstRenderingAfter = renderingsInPlaceholder.ToList()[placeholderPosition];
+
+                            index = allRenderings.ToList().IndexOf(firstRenderingAfter);
+                            if (index < 0)
+                                index = 0;
+                        }
+                    }
+                    else if (!String.IsNullOrEmpty(position))
+                    {
+                        int newIndex;
+                        var valid = Int32.TryParse(position, out newIndex);
+                        if (valid)
+                        {
+                            index = newIndex;
+                        }
+                    }                   
+
+                    // add it back at the specified index
+                    deviceDefinition.Insert(index, rendering);
+                }
+
+                // 3. update rendering params
+                if (!String.IsNullOrEmpty(paramName) && !String.IsNullOrEmpty(value))
+                {
+
+                    var parameters = HttpUtility.ParseQueryString(rendering.Parameters);
+                    var existingKey = parameters.AllKeys.FirstOrDefault(x => x.ToLower() == paramName);
+                    if (!String.IsNullOrEmpty(existingKey))
+                    {
+                        parameters.Remove(paramName);
+                        parameters[existingKey] = value;
+                    }
+                    else
+                    {
+                        TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+                        paramName = textInfo.ToTitleCase(paramName);
+                        parameters[paramName] = value;
+                    }
+                    var newParams = HttpUtility.UrlDecode(parameters.ToString());
+                    rendering.Parameters = newParams;
+                }
+                // end edit rendering
+
+                item.Editing.BeginEdit();
+                item[Sitecore.FieldIDs.LayoutField] = layoutDefinition.ToXml();
+                layoutField.Value = layoutDefinition.ToXml();
+                item.Editing.EndEdit();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                output += "Line " + (line + 1) + ": Unable to set " + paramName + " on " + componentNameOrId + " for " + item.Paths.FullPath + ": " + ex.Message + "<br/>";
+                return false;
+            }
         }
 
         protected Item GetReferenceFieldItem(string value, Field itemField)
@@ -3175,6 +3552,204 @@ namespace ContentExportTool
             }
         }
 
+        public bool ItemHasPresentationDetails(string itemId)
+        {
+            if (Sitecore.Data.ID.IsID(itemId))
+            {
+                Item item = _db.GetItem(Sitecore.Data.ID.Parse(itemId));
+                if (item != null)
+                {
+                    return item.Fields[Sitecore.FieldIDs.LayoutField] != null
+                           && !String.IsNullOrEmpty(item.Fields[Sitecore.FieldIDs.LayoutField].Value);
+                }
+            }
+            return false;
+        }
+
+
+        protected void btnRenderingParametersAudit_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!SetDatabase())
+                {
+                    litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
+                    return;
+                }
+
+                if (_db == null)
+                {
+                    litFeedback.Text = "Invalid database. Selected database does not exist.";
+                    return;
+                }
+
+                var includeName = chkIncludeName.Checked;
+                var includeTemplate = chkIncludeTemplate.Checked;
+                var includeIds = chkIncludeIds.Checked;
+
+                var allLanguages = chkAllLanguages.Checked;
+                var selectedLanguage = ddLanguages.SelectedValue;
+
+                List<Item> items = GetItems(!chkNoChildren.Checked);
+
+                _fieldsList = new List<FieldData>();
+                var parameters = new List<string>();
+
+                StartResponse(!string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "RenderingParametersExport");
+
+                using (StringWriter sw = new StringWriter())
+                {
+                    var headingString = "Item Path,"
+                                        + (includeName ? "Name," : string.Empty)
+                                        + (includeIds ? "Item ID," : string.Empty)
+                                        + (includeTemplate ? "Template," : string.Empty)
+                                        +
+                                        (allLanguages || !string.IsNullOrWhiteSpace(selectedLanguage)
+                                            ? "Language,"
+                                            : string.Empty) +
+                                            "Rendering,Placeholder,";
+
+
+                    var dataLines = new List<string>();
+
+                    var createdByAuthors = txtCreatedByFilter.Value.Split(',');
+                    var modifiedByAuthors = txtModifiedByFilter.Value.Split(',');
+
+                    foreach (var baseItem in items)
+                    {
+                        var itemVersions = GetItemVersions(baseItem, allLanguages, selectedLanguage);
+
+                        foreach (var item in itemVersions)
+                        {
+                            if (!ItemHasPresentationDetails(item.ID.ToString()))
+                            {
+                                continue;
+                            }
+
+                            // check author filters
+                            if (!String.IsNullOrEmpty(txtCreatedByFilter.Value))
+                            {
+                                var author = item.Statistics.CreatedBy.Replace("sitecore\\", "").ToLower();
+
+                                if (
+                                    !createdByAuthors.Any(
+                                        x => x.Trim().Replace("sitecore\\", "").ToLower().Equals(author)))
+                                    continue;
+                            }
+
+                            if (!String.IsNullOrEmpty(txtModifiedByFilter.Value))
+                            {
+                                var author = item.Statistics.UpdatedBy.Replace("sitecore\\", "").ToLower();
+
+                                if (
+                                    !modifiedByAuthors.Any(
+                                        x => x.Trim().Replace("sitecore\\", "").ToLower().Equals(author)))
+                                    continue;
+                            }                           
+
+                            string defaultDeviceId = "{FE5D7FDF-89C0-4D99-9AA3-B5FBD009C9F3}";
+                            var layoutField = new LayoutField(item.Fields[Sitecore.FieldIDs.FinalLayoutField]);
+                            var layoutDefinition = LayoutDefinition.Parse(layoutField.Value);
+                            var deviceDefinition = layoutDefinition.GetDevice(defaultDeviceId);
+                            foreach (RenderingDefinition rendering in deviceDefinition.Renderings)
+                            {
+                                var placeholderId = rendering.Placeholder;
+
+                                if (rendering.Parameters == null) continue;
+
+                                var itemParams = rendering.Parameters.Split('&');
+
+                                var itemPath = item.Paths.ContentPath;
+                                if (String.IsNullOrEmpty(itemPath)) continue;
+                                var itemLine = itemPath + ",";
+
+                                if (includeName)
+                                {
+                                    itemLine += item.Name + ",";
+                                }
+
+                                if (includeIds)
+                                {
+                                    itemLine += item.ID + ",";
+                                }
+
+                                if (includeTemplate)
+                                {
+                                    var template = item.TemplateName;
+                                    itemLine += template + ",";
+                                }
+
+                                if (allLanguages || !string.IsNullOrWhiteSpace(selectedLanguage))
+                                {
+                                    itemLine += item.Language.Name + ",";
+                                }
+
+                                itemLine += _db.GetItem(rendering.ItemID).Name + ",";
+                                itemLine += placeholderId + ",";
+
+                                // here is where we add all of the rendering parameters
+                                var nvsParams = itemParams.Select(x => x.Split('=')).Where(y => y.Length == 2);
+
+                                foreach (string[] param in nvsParams)
+                                {
+                                    var key = param[0];
+                                    var value = param[1];
+                                    if (parameters.All(x => x != key))
+                                    {
+                                        parameters.Add(key);
+                                    }
+
+                                    
+                                }
+
+                                foreach (string param in parameters)
+                                {
+                                    var parameter = nvsParams.FirstOrDefault(x => x[0] == param);
+                                    itemLine += (parameter == null ? "n/a" : parameter[1]) + ",";
+                                }
+
+                                dataLines.Add(itemLine);
+
+                            }                          
+                        }
+                    }
+
+                    headingString += GetExcelHeaderForParameters(parameters);
+
+                    sw.WriteLine(headingString);
+
+                    foreach (var line in dataLines)
+                    {
+                        sw.WriteLine(line);
+                    }
+
+                    SetCookieAndResponse(sw.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                litFeedback.Text = "<span style='color:red'>" + ex + "</span>";
+            }
+        }
+
+        protected void btnBeginRenderingParamImport_Click(object sender, EventArgs e)
+        {
+            ProcessRenderingParamsImport();
+        }
+
+
+        protected void btnDownloadRenderingParamsSample_Click(object sender, EventArgs e)
+        {
+            using (StringWriter sw = new StringWriter())
+            {
+                var headingString = "Item Path,Apply to All Subitems,Template,Component Name,When Placeholder Equals,Nth of Type,Parameter Name,Value,Placeholder,Position,Position in Placeholder,Before,After\n";
+
+                StartResponse("CSVRenderingParametersImportTemplate");
+                sw.WriteLine(headingString);
+
+                SetCookieAndResponse(sw.ToString());
+            }
+        }
     }
 
     #region Classes

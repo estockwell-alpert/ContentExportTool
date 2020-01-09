@@ -43,10 +43,11 @@
         .container {
             margin-bottom: 10px;
             font-family: Arial;
-            width: 700px;
             padding: 10px;
             font-size: 12px;
-            max-width: 80%;
+            width: calc(100% - 412px);
+            max-width: 70%;
+            min-width:200px;
         }
 
         .controls {
@@ -656,6 +657,22 @@
             text-decoration: none;
             cursor: pointer;
         }
+
+        input#btnDownloadRenderingParamsSample {
+            background: none;
+            border: none;
+            text-decoration: underline;
+            cursor: pointer;
+            color: rgb(38, 148, 192);
+            padding: 0;
+            font-size: 12px;
+        }
+
+        span.uploadResponse {
+            display: block;
+            margin-bottom: 4px;
+        }
+
     </style>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
@@ -684,6 +701,13 @@
         <script>
             $(document).ready(function () {
                 location.href = "#contentImport";
+            });
+        </script>
+    </asp:PlaceHolder>
+    <asp:PlaceHolder runat="server" ID="phScrollToRenderingImport" Visible="False">
+        <script>
+            $(document).ready(function () {
+                location.href = "#renderingParamsImport";
             });
         </script>
     </asp:PlaceHolder>
@@ -735,6 +759,7 @@
                         <a class="navButton" href="#divAudits">Special Audits & Search</a>
                         <a class="navButton" href="#packageExport">Package Export</a>
                         <a class="navButton" href="#contentImport">Content Import</a>
+                        <a class="navButton" href="#renderingParamsImport">Rendering Parameters Import</a>
                         <a class="navButton" href="javascript:void(0)" onclick="window.scrollTo(0,0);">Back to Top</a>
                     </div>
                 </div>
@@ -1019,10 +1044,11 @@
 
                                     <div class="row">
                                         <span class="header">Delimiter</span>
-                                        <input name="radDelimiter" type="radio" runat="server" id="radSemicolon" /><span><b>Semicolon</b> (Ready-friendly)</span><br /><span style="margin-left:22px;display:block;">{E71C307E-E643-4CB7-9EE1-36B71BA0D6BD}; {4A193968-B0FE-4E85-B058-5871296786AB};</span><br />
-                                        <input name="radDelimiter" type="radio" runat="server" id="radPipe"/><span><b>Pipe</b> (Code-friendly)</span><br /><span style="margin-left:22px;display:block;">  {E71C307E-E643-4CB7-9EE1-36B71BA0D6BD}|{4A193968-B0FE-4E85-B058-5871296786AB}</span><br />
+                                        <input name="radDelimiter" type="radio" runat="server" id="radSemicolon" /><span><b>Semicolon</b> (Ready-friendly)</span><br />
+                                        <span style="margin-left: 22px; display: block;">{E71C307E-E643-4CB7-9EE1-36B71BA0D6BD}; {4A193968-B0FE-4E85-B058-5871296786AB};</span><br />
+                                        <input name="radDelimiter" type="radio" runat="server" id="radPipe" /><span><b>Pipe</b> (Code-friendly)</span><br />
+                                        <span style="margin-left: 22px; display: block;">{E71C307E-E643-4CB7-9EE1-36B71BA0D6BD}|{4A193968-B0FE-4E85-B058-5871296786AB}</span><br />
                                     </div>
-
 
                                     <div class="advanced open open-default" runat="server" id="divStandardFields">
                                         <a class="advanced-btn">Standard Fields</a>
@@ -1106,8 +1132,6 @@
                         </div>
                         <br />
 
-
-
                         <asp:Button class="spinner-btn" runat="server" ID="btnExport2" OnClick="btnRunExport_OnClick" Text="Run Content Export" /><br />
                         <br />
                         <br />
@@ -1122,13 +1146,26 @@
                                     </span>
                                     <br />
                                     <br />
-                                    <asp:Button class="spinner-btn" runat="server" ID="btnComponentAudit" OnClick="btnComponentAudit_OnClick" Text="Run Audit" />
+                                    <asp:Button class="spinner-btn" runat="server" ID="btnComponentAudit" OnClick="btnComponentAudit_OnClick" Text="Run Component Audit" />
 
-                                    <br/><br /><br />
+                                    <br />
+                                    <br />
+                                    <br />
                                     <span class="header"><b>Obsolete Component Audit</b></span>
                                     <span class="notes">Run this export to get all of the components that are not in use</span>
-                                    <br /><br />
-                                    <asp:Button class="spinner-btn" runat="server" ID="btnObsoleteComponentAudit" OnClick="btnObsoleteComponentAudit_Click" Text="Run Audit" />
+                                    <br />
+                                    <br />
+                                    <asp:Button class="spinner-btn" runat="server" ID="btnObsoleteComponentAudit" OnClick="btnObsoleteComponentAudit_Click" Text="Run Obsolete Component Audit" />
+                                </div>
+                                <div class="row advanced-search">
+                                    <span class="header"><b>Rendering Parameters</b></span>
+                                    <span class="notes">Run this export to get all of the Rendering Parameters on each Sitecore item. You can use the Start Item, Template and Created/Published Date filters and Language options to select items. This export will look the same as a Content Export, but will include Rendering Parameters rather than Template Fields.
+                                        <br />
+                                        Supported options: Template Name, Item Name, Item ID, Start Item(s), all Filters
+                                    </span>
+                                    <br />
+                                    <br />
+                                    <asp:Button class="spinner-btn" runat="server" ID="btnRenderingParametersAudit" OnClick="btnRenderingParametersAudit_Click" Text="Run Rendering Parameters Audit" />
                                 </div>
                                 <div class="row advanced-search">
                                     <span class="header"><b>Template Audit</b></span>
@@ -1138,7 +1175,7 @@
                                     <br />
                                     <asp:CheckBox runat="server" ID="chkObsoleteTemplates" /><span class="notes"><b style="color: black">Obsolete templates</b> - Generate a report of all templates that are not in use</span><br />
                                     <br />
-                                    <asp:Button class="spinner-btn" runat="server" ID="btnTemplateAudit" OnClick="btnTemplateAudit_OnClick" Text="Run Audit" />
+                                    <asp:Button class="spinner-btn" runat="server" ID="btnTemplateAudit" OnClick="btnTemplateAudit_OnClick" Text="Run Obsolete Template Audit Audit" />
                                 </div>
                                 <div class="row advanced-search">
                                     <span class="header"><b>Advanced Search:</b></span>
@@ -1214,7 +1251,7 @@
                                     <asp:FileUpload runat="server" ID="btnFileUpload" Text="Upload File" />
                                     <span class="" style="display: block; margin-top: 10px;">
                                         <b>Getting Started</b><br />
-                                        To create new items, CSV must include the following fields: <b>Item Path</b>, <b>Template</b>, <b>Name</b>. In the Item Path field, put in the path of the parent item.
+                                        To create new items, CSV must include the following columns: <b>Item Path</b>, <b>Template</b>, <b>Name</b>. In the Item Path field, put in the path of the parent item.
                                     <br />
                                         <br />
                                         To edit existing items, CSV must include <b>Item Path</b>
@@ -1226,15 +1263,14 @@
                                     <br />
                                         <br />
 
-                                        <input name="radDateRange" type="radio" runat="server" id="radImport" /><span><b>Create</b></span> new items using a specified Template (existing items will be ignored)<br />
-                                        <input name="radDateRange" type="radio" runat="server" id="radUpdate" /><span><b>Update</b></span> existing items based on the item <b>Id</b> or <b>path</b> (new items will not be created) 
+                                        <input name="radImpport" type="radio" runat="server" id="radImport" /><span><b>Create</b></span> new items using a specified Template (existing items will be ignored)<br />
+                                        <input name="radImpport" type="radio" runat="server" id="radUpdate" /><span><b>Update</b></span> existing items based on the item <b>Id</b> or <b>path</b> (new items will not be created) 
                                         
                                         <hr />
 
-                                        <input name="radDateRange" type="radio" runat="server" id="radPublish" /><span><b>Publish</b></span> existing items based on the item <b>Id</b> or <b>path</b>. This is for items that <b>already exist</b> that you want to publish.
+                                        <input name="radImpport" type="radio" runat="server" id="radPublish" /><span><b>Publish</b></span> existing items based on the item <b>Id</b> or <b>path</b>. This is for items that <b>already exist</b> that you want to publish.
                                         <br />
-                                        <input name="radDateRange" type="radio" runat="server" id="radDelete" /><span><b>Delete</b></span> existing items based on the item <b>Id</b> or <b>path</b>. <b>Use with caution!</b> Check off the <b>publish</b> option below to publish deletions
- 
+                                        <input name="radImpport" type="radio" runat="server" id="radDelete" /><span><b>Delete</b></span> existing items based on the item <b>Id</b> or <b>path</b>. <b>Use with caution!</b> Check off the <b>publish</b> option below to publish deletions
                          
                                     <br />
                                         <br />
@@ -1325,6 +1361,95 @@
                                         </ul>
                                         </li>
                                         <li>If you want to <b>create</b> new language versions of <b>existing items</b>, use the <b>EDIT</b> option</li>
+                                    </ul>
+
+                                </div>
+
+                            </div>
+                        </div>
+                        <br />
+                        <br />
+                        <div class="advanced open open-default" id="renderingParamsImport">
+                            <a class="advanced-btn">Rendering Parameters Import</a>
+                            <div class="advanced-inner">
+                                <div class="row advanced-search">
+                                    <span style="color: red" class="uploadResponse">
+                                        <asp:Literal runat="server" ID="litUploadRenderingParamResponse"></asp:Literal></span>
+                                    <asp:FileUpload runat="server" ID="btnRenderingParamFileUpload" Text="Upload File" />
+                                    <span class="" style="display: block; margin-top: 10px;">
+                                        <b>Getting Started</b><br />
+
+                                        Use this import method to modify the rendering parameters (FINAL LAYOUT) of the components on your Sitecore items.
+                                        <br />
+                                        <br />
+                                        This import is recommended for when ou have a rendering(s) that exists on a large number of pages, and need to:
+                                        <ul>
+                                            <li>
+                                                change the placeholder that it lives in on every page.
+                                            </li>
+                                            <li>
+                                                change its position on the page (i.e. make it first, or put it above or below another rendering) on every page.
+                                            </li>
+                                            <li>
+                                                change the value of one of the rendering parameters on every page.
+                                            </li>
+                                        </ul>
+                                        <b style="color:red">Caution!</b><br /> Renderings on a page do not have an ID and can only be identified by name. You can use the <b>When Placeholder Equals</b> and <b>Nth of Type</b> columns to specify which rendering to modify.
+                                        If there are multiple renderings of the same name, by default only the <b>first</b> matching rendering will be modified. <b>When Placeholder Equals</b> and <b>Nth of Type</b> can be used in combination to get the nth rendering of that name within a particular placeholder.
+
+                                    </span>
+                                    <br />
+
+                                    <ul>
+                                        <li><b>Item Path</b> <span class="notes">This column should contain the item path or ID</span></li>
+                                        <li><b>Apply to All Subitems</b> <span class="notes">Apply the changes on this line to the item and all subitems, defaults to false (TRUE/FALSE)</span></li>
+                                        <li><b>Template</b> <span class="notes">With Apply to All Subitems, apply the changes only to items with the specified template name or ID</span></li>
+                                        <li><b>Component Name</b> <span class="notes">The name or ID of the component to modify</span></li>
+                                        <li><b>When Placeholder Equals</b> <span class="notes">Modify a component within this particular placeholder</span></li>
+                                        <li><b>Nth of Type</b> <span class="notes">Modify the Nth component with the specified name (NUMERIC, STARTS AT 1)</span>
+                                            <ul>
+                                                <li><span class="notes">With <b>When Placeholder Equals</b>, modify the Nth component within the specified placeholder with the specified name</span></li>
+                                            </ul>
+                                        </li>
+                                        <li><b>Parameter Name</b> <span class="notes">The name of the rendering parameter to modify or add</span></li>
+                                        <li><b>Value</b> <span class="notes">The value to set for the rendering parameter</span></li>
+                                        <li><b>Placeholder</b> <span class="notes">The placeholder to move the rendering to</span></li>
+                                        <li><b>Position</b> <span class="notes">The position to put the rendering in relative to all other renderings (NUMERIC, STARTS AT 0)</span></li>
+                                        <li><b>Position in Placeholder</b> <span class="notes">The position to put the rendering in relative to its placeholder (NUMERIC, STARTS AT 0)</span></li>
+                                        <li><b>Before</b> <span class="notes">The name of the FIRST rendering to put this rendering before</span></li>
+                                        <li><b>After</b> <span class="notes">The name of the LAST rendering to put this rendering after</span></li>
+                                    </ul>
+
+                                    <div class="row">
+                                        <asp:CheckBox runat="server" ID="chkPublishRenderingParamChanges" /><span class="notes"><b style="color: black">Publish changes</b></span><br />
+                                        <span class="notes">Check this box to automatically publish all changes made during the import. This will <b>only</b> publish the items specified in the CSV (no children or parents)</span>
+                                    </div>
+
+                                    <div class="row">
+                                        <span class="header"><b>Publishing Target</b></span>
+                                        <asp:DropDownList runat="server" ID="ddRenderingParamPublishDatabase" CssClass="ddDatabase" />
+                                        <span class="notes">Select database to publish to</span>
+                                    </div>
+
+                                    <asp:Button runat="server" ID="btnBeginRenderingParamImport" CssClass="spinner-btn" Text="Begin Import" OnClick="btnBeginRenderingParamImport_Click" />
+
+                                    <br />
+                                    <br />
+
+                                    <asp:Button class="spinner-btn" runat="server" ID="btnDownloadRenderingParamsSample" Text="Download Template" OnClick="btnDownloadRenderingParamsSample_Click" />
+
+                                    <h3>READ ME!</h3>
+                                    <ul>
+                                        <li>Blank cells will be skipped on each line; if a column is blank for a particular item, it will be ignored</li>
+                                        <li>You will need a <b>new line</b> for each rendering parameter you want to change; you may have multiple lines with the same Item Path</li>
+                                        <li>The columns will be executed in the order listed above
+                                            <ul>
+                                                <li>If Placeholder and Position in Placeholder are both populated, the placeholder will be changed first and then the position within that placeholder will be updated</li>
+                                                <li>If Position and Position in Placeholder are both populated, Position in Placeholder will override Position</li>
+                                                <li>If Position in Placeholder and Before/After are both populated, Before/After will be executed last which will override the Position in Placeholder</li>
+                                                <li>If Before and After are both populated, After will override Before</li>
+                                            </ul>
+                                        </li>
                                     </ul>
 
                                 </div>
