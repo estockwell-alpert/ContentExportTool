@@ -769,6 +769,51 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.Button btnTemplateAudit;
         
         /// <summary>
+        /// txtDeletedStart control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputText txtDeletedStart;
+        
+        /// <summary>
+        /// txtDeletedEnd control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputText txtDeletedEnd;
+        
+        /// <summary>
+        /// radAllDeletions control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputRadioButton radAllDeletions;
+        
+        /// <summary>
+        /// radMyItems control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputRadioButton radMyItems;
+        
+        /// <summary>
+        /// btnDeletionsAudit control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnDeletionsAudit;
+        
+        /// <summary>
         /// txtAdvancedSearch control.
         /// </summary>
         /// <remarks>

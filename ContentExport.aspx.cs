@@ -29,6 +29,7 @@ using Sitecore.Publishing;
 using Sitecore.Shell.Applications.Install;
 using ImageField = Sitecore.Data.Fields.ImageField;
 using System.Collections;
+using Sitecore.Data.Archiving;
 
 namespace ContentExportTool
 {
@@ -72,6 +73,7 @@ namespace ContentExportTool
         {
             radImport.Checked = true;
             radSemicolon.Checked = true;
+            radMyItems.Checked = true;
             chkNoDuplicates.Checked = true;
             txtSaveSettingsName.Value = string.Empty;
             PhBrowseModal.Visible = false;
@@ -3746,6 +3748,114 @@ namespace ContentExportTool
 
                 StartResponse("CSVRenderingParametersImportTemplate");
                 sw.WriteLine(headingString);
+
+                SetCookieAndResponse(sw.ToString());
+            }
+        }
+
+        protected void btnDeletionsAudit_Click(object sender, EventArgs e)
+        {
+            string archiveName = "recyclebin";
+            var database = Sitecore.Data.Database.GetDatabase("master"); // Get content database
+
+            Archive archive = Sitecore.Data.Archiving.ArchiveManager.GetArchive(archiveName, database);
+            IEnumerable<ArchiveEntry> deletedItems = new List<ArchiveEntry>();
+
+            if (radAllDeletions.Checked)
+            {
+                deletedItems = archive.GetEntries(0, 100000);
+            }
+            else
+            {
+                deletedItems = archive.GetEntriesForUser(Sitecore.Context.User, 0, 100000);
+            }
+
+            StartResponse(!string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "Deletions Export");
+
+            using (StringWriter sw = new StringWriter())
+            {
+                sw.WriteLine("Item Path,Item ID,Archive Date");
+
+                var startNode = inputStartitem.Value;
+                List<String> startItems;
+                if (string.IsNullOrWhiteSpace(startNode)) startItems = new List<String> { "/sitecore/content" };
+                else startItems = inputStartitem.Value.Split(',').ToList();
+
+                var startPaths = new List<string>();
+
+                foreach (var startItem in startItems)
+                {
+                    Guid g;
+                    if (Guid.TryParse(startItem, out g))
+                    {
+                        var item = database.GetItem(g.ToString());
+                        if (item != null)
+                            startPaths.Add(item.Paths.Path.ToLower());
+                    }
+                    else
+                    {
+                        startPaths.Add(startItem.ToLower());
+                    }
+                }
+
+                foreach (var archiveItem in deletedItems)
+                {
+                    try
+                    {
+                        var path = archiveItem.OriginalLocation;
+                        var id = archiveItem.ItemId;
+                        var name = archiveItem.Name;
+                        var archiveDate = archiveItem.ArchiveDate;
+
+                        // path filters
+                        if (startPaths.Any())
+                        {
+                            // escape if item path isn't under one of the starting paths
+                            if (!startPaths.Any(x => path.ToLower().StartsWith(x.ToLower())))
+                            {
+                                continue;
+                            }
+                        }
+
+                        if (!String.IsNullOrEmpty(txtDeletedStart.Value))
+                        {
+                            try
+                            {
+                                var startDate = DateTime.Parse(txtDeletedStart.Value);
+                                if (archiveDate.Date < startDate.Date)
+                                    continue;
+                            }
+                            catch (Exception ex)
+                            {
+                                continue;
+                            }
+                        }
+
+                        if (!String.IsNullOrEmpty(txtDeletedEnd.Value))
+                        {
+                            try
+                            {
+                                var endDate = DateTime.Parse(txtDeletedEnd.Value);
+                                if (archiveDate.Date > endDate.Date)
+                                    continue;
+                            }
+                            catch (Exception ex)
+                            {
+                                continue;
+                            }
+                        }
+
+                        sw.WriteLine(String.Format("{0},{1},{2}", path, id, archiveDate.ToShortDateString()));
+                    }
+                    catch (Exception ex)
+                    {
+                        Sitecore.Diagnostics.Log.Info("Error in Deletions Audit: " + ex.Message, this);
+                    }
+                }
+
+                var file = sw.ToString();
+
+                var test = "hi";
 
                 SetCookieAndResponse(sw.ToString());
             }

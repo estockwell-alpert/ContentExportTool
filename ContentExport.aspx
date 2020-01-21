@@ -1178,6 +1178,21 @@
                                     <asp:Button class="spinner-btn" runat="server" ID="btnTemplateAudit" OnClick="btnTemplateAudit_OnClick" Text="Run Obsolete Template Audit Audit" />
                                 </div>
                                 <div class="row advanced-search">
+                                    <span class="header"><b>Deletions Audit</b></span>
+                                    <span class="notes">Run this export to get a CSV of the paths of all items in the recycle bin. Works with the Start Item field. This CSV can be used to promote deletions to another environment.
+                                    </span>
+                                    <br /><br />
+                                    <span>Deleted between</span>
+                                    <input type="text" runat="server" id="txtDeletedStart" autocomplete="off" />
+                                    <span> and </span>
+                                    <input type="text" runat="server" id="txtDeletedEnd" autocomplete="off" />
+                                    <br /><br />
+                                    <input name="radUser" type="radio" runat="server" id="radAllDeletions" /><span>All Deleted items</span><br />
+                                    <input name="radUser" type="radio" runat="server" id="radMyItems" /><span>My Deleted items</span>
+                                    <br /><br />
+                                    <asp:Button class="spinner-btn" runat="server" ID="btnDeletionsAudit" OnClick="btnDeletionsAudit_Click" Text="Run Deletions Audit" />
+                                </div>
+                                <div class="row advanced-search">
                                     <span class="header"><b>Advanced Search:</b></span>
                                     <input runat="server" id="txtAdvancedSearch" /><asp:Button class="spinner-btn" runat="server" ID="btnAdvancedSearch" OnClick="btnAdvancedSearch_OnClick" Text="Go" />
                                     <span class="border-notes">Export all items that contain the search text in a field. 
