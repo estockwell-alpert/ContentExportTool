@@ -1862,6 +1862,10 @@ namespace ContentExportTool
                         {
                             item[fieldName] = refItem.ID.ToString();
                         }
+                        else
+                        {
+                            item[fieldName] = String.Empty;
+                        }
                     }
                     else if (itemOfType is MultilistField)
                     {
@@ -2086,6 +2090,10 @@ namespace ContentExportTool
         protected Item GetReferenceFieldItem(string value, Field itemField)
         {
             value = value.Trim();
+            if (String.IsNullOrEmpty(value))
+            {
+                return null;
+            }
             Guid id;
             if (Guid.TryParse(value, out id))
             {
