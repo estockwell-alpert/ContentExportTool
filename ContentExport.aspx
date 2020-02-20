@@ -1050,6 +1050,12 @@
                                         <span style="margin-left: 22px; display: block;">{E71C307E-E643-4CB7-9EE1-36B71BA0D6BD}|{4A193968-B0FE-4E85-B058-5871296786AB}</span><br />
                                     </div>
 
+                                    <div class="row">
+                                        <span class="header">Raw Values</span>
+                                        <asp:CheckBox runat="server" ID="chkRawValues" class="chkRawValues" />
+                                        <span class="notes">Export <b>all</b> data as raw values (This will provide the same output as Raw HTML for Image and Link fields; This will provide the same output as Linked Item IDs for Reference and Multilist fields)</span>
+                                    </div>
+
                                     <div class="advanced open open-default" runat="server" id="divStandardFields">
                                         <a class="advanced-btn">Standard Fields</a>
                                         <div class="advanced-inner">

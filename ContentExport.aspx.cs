@@ -30,6 +30,7 @@ using Sitecore.Shell.Applications.Install;
 using ImageField = Sitecore.Data.Fields.ImageField;
 using System.Collections;
 using Sitecore.Data.Archiving;
+using System.Text.RegularExpressions;
 
 namespace ContentExportTool
 {
@@ -40,6 +41,7 @@ namespace ContentExportTool
         private Database _db;
         private string _settingsItemPath = "/sitecore/system/Modules/Content Export Tool/Saved Settings";
         private List<FieldData> _fieldsList;
+        private string ItemNotFoundText = "[Item not found]";
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -556,6 +558,8 @@ namespace ContentExportTool
                 var includeReferrers = chkReferrers.Checked;
                 var includeRelated = chkRelateItems.Checked;
 
+                var rawValues = chkRawValues.Checked;
+
                 var allStandardFields = chkAllStandardFields.Checked;
 
                 var allLanguages = chkAllLanguages.Checked;
@@ -1053,7 +1057,16 @@ namespace ContentExportTool
             }
             else
             {
-                itemLine += imageField.MediaItem.Paths.MediaPath + ",";
+                if (chkRawValues.Checked)
+                {
+                    itemLine += itemField.Value + ",";
+                }
+                else
+                {
+                    itemLine += imageField.MediaItem.Paths.MediaPath + ",";
+                }
+
+                
                 if (includeLinkedIds)
                 {
                     itemLine += imageField.MediaItem.ID + ",";
@@ -1089,7 +1102,14 @@ namespace ContentExportTool
             }
             else
             {
-                itemLine += linkField.Url + ",";
+                if (chkRawValues.Checked)
+                {
+                    itemLine += itemField.Value + ",";
+                }
+                else
+                {
+                    itemLine += linkField.Url + ",";
+                }
 
                 if (includeRawHtml)
                 {
@@ -1098,7 +1118,7 @@ namespace ContentExportTool
             }
             return new Tuple<string, string>(itemLine, headingString);
         }
-
+        
         private Tuple<string, string> ParseReferenceField(Field itemField, string itemLine, string headingString, string fieldName, bool includeLinkedIds, bool includeRawHtml)
         {
             ReferenceField refField = itemField;
@@ -1118,17 +1138,38 @@ namespace ContentExportTool
                     itemLine += "n/a,";
                 }
             }
-            else if (refField.TargetItem == null)
+            else if (refField.TargetItem == null && String.IsNullOrEmpty(itemField.Value))
             {
                 itemLine += ",";
                 if (includeLinkedIds)
                 {
                     itemLine += ",";
                 }
+            }else if (refField.TargetItem == null && !String.IsNullOrEmpty(itemField.Value))
+            {
+                if (chkRawValues.Checked)
+                {
+                    itemLine += itemField.Value + ",";
+                }
+                else
+                {
+                    itemLine += itemField.Value + " " + ItemNotFoundText + ",";
+                }
+                if (includeLinkedIds)
+                {
+                    itemLine += itemField.Value + ",";
+                }
             }
             else
             {
-                itemLine += (chkDroplistName.Checked ? refField.TargetItem.Name : refField.TargetItem.Paths.ContentPath) + ",";
+                if (chkRawValues.Checked)
+                {
+                    itemLine += itemField.Value + ",";
+                }
+                else
+                {
+                    itemLine += (chkDroplistName.Checked ? refField.TargetItem.Name : refField.TargetItem.Paths.ContentPath) + ",";
+                }
                 if (includeLinkedIds)
                 {
                     itemLine += refField.TargetID + ",";
@@ -1157,33 +1198,54 @@ namespace ContentExportTool
                 }
             }
             else
-            {
-                var multiItems = multiField.GetItems();
+            {              
                 var data = "";
                 var first = true;
-                foreach (var i in multiItems)
+                var multilistItemIds = itemField.Value.Split('|').Where(x => !String.IsNullOrEmpty(x));
+
+                if (chkRawValues.Checked)
                 {
-                    if (!first)
-                    {
-                        data += radPipe.Checked ? "|" : "; \n";
-                    }
-                    var url = (chkDroplistName.Checked ? i.Name : i.Paths.ContentPath);
-                    data += url;
-                    first = false;
+                    itemLine += itemField.Value + ",";
                 }
-                itemLine += "\"" + data + "\"" + ",";
+                else
+                {
+                    foreach (var id in multilistItemIds)
+                    {
+                        var item = _db.GetItem(id);
+                        var value = "";
+
+                        if (!first)
+                        {
+                            data += radPipe.Checked ? "|" : "; \n";
+                        }
+
+                        if (item == null)
+                        {
+                            value = id + " " + ItemNotFoundText;
+                        }
+                        else
+                        {
+                            value = (chkDroplistName.Checked ? item.Name : item.Paths.ContentPath);
+                        }
+
+                        data += value;
+                        first = false;
+                    }
+
+                    itemLine += "\"" + data + "\"" + ",";
+                }
 
                 if (includeLinkedIds)
                 {
                     first = true;
                     var idData = "";
-                    foreach (var i in multiItems)
+                    foreach (var i in multilistItemIds)
                     {
                         if (!first)
                         {
                             idData += radPipe.Checked ? "|" : "; \n";
                         }
-                        idData += i.ID;
+                        idData += i;
                         first = false;
                     }
                     itemLine += "\"" + idData + "\"" + ",";
@@ -1196,7 +1258,14 @@ namespace ContentExportTool
         {
             CheckboxField checkboxField = itemField;
             headingString = headingString.Replace(String.Format("{0}-ID", fieldName), string.Empty).Replace(String.Format("{0}-HTML", fieldName), string.Empty);
-            itemLine += checkboxField.Checked.ToString() + ",";
+            if (chkRawValues.Checked)
+            {
+                itemLine += itemField.Value + ",";
+            }
+            else
+            {
+                itemLine += checkboxField.Checked.ToString() + ",";
+            }
             return new Tuple<string, string>(itemLine, headingString);
         }
 
@@ -1204,7 +1273,14 @@ namespace ContentExportTool
         {
             DateField dateField = itemField;
 
-            itemLine += dateField.DateTime.ToString("d");
+            if (chkRawValues.Checked)
+            {
+                itemLine += itemField.Value;
+            }
+            else
+            {
+                itemLine += dateField.DateTime.ToString("d");
+            }
 
             itemLine += ",";
             return new Tuple<string, string>(itemLine, headingString);
@@ -1857,6 +1933,7 @@ namespace ContentExportTool
                     }
                     else if (itemOfType is ReferenceField || itemOfType is GroupedDroplistField || itemOfType is LookupField)
                     {
+                        if (value.Contains(ItemNotFoundText)) continue;
                         var refItem = GetReferenceFieldItem(value, itemField);
                         if (refItem != null)
                         {
@@ -1870,6 +1947,7 @@ namespace ContentExportTool
                     else if (itemOfType is MultilistField)
                     {
                         MultilistField multiField = (MultilistField)item.Fields[fieldName];
+                        value = Regex.Replace(value, @"\t|\n|\r", "");
                         var values = value.Split(';').Where(x => !String.IsNullOrEmpty(x));
                         if (value.Contains("|"))
                         {
@@ -1880,6 +1958,8 @@ namespace ContentExportTool
 
                         foreach (var val in values)
                         {
+                            if (val.Contains(ItemNotFoundText))
+                                continue;
                             var refItem = GetReferenceFieldItem(val, itemField);
                             if (refItem == null)
                             {
@@ -2254,7 +2334,8 @@ namespace ContentExportTool
                 RefNameOnly = chkDroplistName.Checked,
                 CreatedByFilter = txtCreatedByFilter.Value,
                 ModifiedByFilter = txtModifiedByFilter.Value,
-                PipeDelimit = radPipe.Checked
+                PipeDelimit = radPipe.Checked,
+                RawValues = chkRawValues.Checked
             };
 
             var settingsObject = new ExportSettings()
@@ -2387,6 +2468,7 @@ namespace ContentExportTool
             txtStartDatePb.Value = settings.StartDatePb;
             txtEndDatePu.Value = settings.EndDatePb;
             chkNoChildren.Checked = settings.NoChildren;
+            chkRawValues.Checked = settings.RawValues;
 
             txtCreatedByFilter.Value = settings.CreatedByFilter;
             txtModifiedByFilter.Value = settings.ModifiedByFilter;
@@ -2490,6 +2572,7 @@ namespace ContentExportTool
             radDateRangeOr.Checked = true;
             radDateRangeAnd.Checked = false;
             chkNoChildren.Checked = false;
+            chkRawValues.Checked = false;
             chkComponentFields.Checked = false;
             txtCreatedByFilter.Value = string.Empty;
             txtModifiedByFilter.Value = string.Empty;
@@ -2540,6 +2623,7 @@ namespace ContentExportTool
                 Related = chkRelateItems.Checked,
                 FileName = txtFileName.Value,
                 NoChildren = chkNoChildren.Checked,
+                RawValues = chkRawValues.Checked,
                 RefNameOnly = chkDroplistName.Checked,
                 CreatedByFilter = txtCreatedByFilter.Value,
                 ModifiedByFilter = txtModifiedByFilter.Value,
@@ -3955,6 +4039,7 @@ namespace ContentExportTool
         public string CreatedByFilter;
         public string ModifiedByFilter;
         public bool PipeDelimit;
+        public bool RawValues;
     }
 
     public class FieldData
