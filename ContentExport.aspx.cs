@@ -1297,6 +1297,49 @@ namespace ContentExportTool
             {
                 fieldValue = "\"" + fieldValue + "\"";
             }
+
+            // CODE FOR REFERENCED ITEMS IN CUSTOM FIELD
+            var maybeGuids = fieldValue.Split('|');
+            List<string> guids = new List<string>();
+            foreach (var guid in maybeGuids)
+            {
+                Guid g;
+                if (Guid.TryParse(guid, out g))
+                {
+                    guids.Add(guid);
+                }
+            }
+
+            if (guids.Any())
+            {
+                var refItemData = "";
+                var first = true;
+                foreach (var guid in guids)
+                {
+                    var item = _db.GetItem(guid);
+                    var value = "";
+
+                    if (!first)
+                    {
+                        refItemData += "; \n";
+                    }
+
+                    if (item == null)
+                    {
+                        value = guid + " " + ItemNotFoundText;
+                    }
+                    else
+                    {
+                        value = (chkDroplistName.Checked ? item.Name : item.Paths.ContentPath);
+                    }
+
+                    refItemData += value;
+                    first = false;
+                }
+                fieldValue = "\"" + refItemData + "\"";
+            }
+            // END CUSTOM FIELD CODE
+
             itemLine += fieldValue + ",";
             headingString = headingString.Replace(String.Format("{0}-ID", fieldName), string.Empty).Replace(String.Format("{0}-HTML", fieldName), string.Empty);
             return new Tuple<string, string>(itemLine, headingString);
