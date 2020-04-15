@@ -1,11 +1,14 @@
 # ContentExportTool
-Custom tool to audit Sitecore content
+Custom tool to export, modify, and create Sitecore content
 
 # Installation:
-Use the Installation Wizard to install Content Export Tool.zip
+Use the Installation Wizard to install Content Export Tool.zip from the latest release
 
 # Dependencies:
-Sitecore 6.5 or higher<br />
+LATEST VERSION: Sitecore 8+
+For older versions of Sitecore, download https://github.com/estockwell-alpert/ContentExportTool/releases/download/8.3/Content.Export.Tool.for.Sitecore.6.zip 
+
+Releases: https://github.com/estockwell-alpert/ContentExportTool/releases
 
 # To use:
 You must be logged into Sitecore to access the tool<br />
