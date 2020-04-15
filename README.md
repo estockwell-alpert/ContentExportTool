@@ -6,6 +6,7 @@ Use the Installation Wizard to install Content Export Tool.zip from the latest r
 
 # Dependencies:
 LATEST VERSION: Sitecore 8+
+
 For older versions of Sitecore, download https://github.com/estockwell-alpert/ContentExportTool/releases/download/8.3/Content.Export.Tool.for.Sitecore.6.zip 
 
 Releases: https://github.com/estockwell-alpert/ContentExportTool/releases
