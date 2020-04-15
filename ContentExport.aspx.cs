@@ -657,7 +657,7 @@ namespace ContentExportTool
                             {
                                 itemLine += item.Language.Name + ",";
                             }
-                      
+
                             // need to see what's included in standar fields
                             if (chkAllStandardFields.Checked)
                             {
@@ -742,7 +742,7 @@ namespace ContentExportTool
                                     referrerPaths = referrerPaths.Take(100).ToList();
                                 }
 
-                                
+
                                 data += String.Join((radPipe.Checked ? "|" : "; \n"), referrerPaths);
 
                                 itemLine += "\"" + data + "\",";
@@ -822,7 +822,7 @@ namespace ContentExportTool
                     {
                         var newLine = line;
                         foreach (var field in fields)
-                        {                          
+                        {
                             newLine = newLine.Replace(String.Format("{0}-ID", field), headingString.Contains(String.Format("{0} ID", field)) ? "n/a," : string.Empty);
                             newLine = newLine.Replace(String.Format("{0}-HTML", field), headingString.Contains(String.Format("{0} Raw HTML", field)) ? "n/a," : string.Empty);
                         }
@@ -1066,7 +1066,7 @@ namespace ContentExportTool
                     itemLine += imageField.MediaItem.Paths.MediaPath + ",";
                 }
 
-                
+
                 if (includeLinkedIds)
                 {
                     itemLine += imageField.MediaItem.ID + ",";
@@ -1118,7 +1118,7 @@ namespace ContentExportTool
             }
             return new Tuple<string, string>(itemLine, headingString);
         }
-        
+
         private Tuple<string, string> ParseReferenceField(Field itemField, string itemLine, string headingString, string fieldName, bool includeLinkedIds, bool includeRawHtml)
         {
             ReferenceField refField = itemField;
@@ -1145,7 +1145,8 @@ namespace ContentExportTool
                 {
                     itemLine += ",";
                 }
-            }else if (refField.TargetItem == null && !String.IsNullOrEmpty(itemField.Value))
+            }
+            else if (refField.TargetItem == null && !String.IsNullOrEmpty(itemField.Value))
             {
                 if (chkRawValues.Checked)
                 {
@@ -1198,7 +1199,7 @@ namespace ContentExportTool
                 }
             }
             else
-            {              
+            {
                 var data = "";
                 var first = true;
                 var multilistItemIds = itemField.Value.Split('|').Where(x => !String.IsNullOrEmpty(x));
@@ -1560,7 +1561,7 @@ namespace ContentExportTool
                                     output += "Line " + (line + 1) + " skipped; could not find " + path + "<br/>";
                                     continue;
                                 }
-  
+
                                 else
                                 {
                                     if (item.Versions.Count == 0)
@@ -1603,7 +1604,8 @@ namespace ContentExportTool
 
                                     // get subitems
                                     var applyToSubItems = cells[applyToSubitemsIndex].ToLower();
-                                    if (applyToSubitemsIndex > -1 && (applyToSubItems == "1" || applyToSubItems == "true" || applyToSubItems == "yes")){
+                                    if (applyToSubitemsIndex > -1 && (applyToSubItems == "1" || applyToSubItems == "true" || applyToSubItems == "yes"))
+                                    {
                                         var subItems = item.Axes.GetDescendants().ToList();
                                         if (!String.IsNullOrEmpty(template))
                                         {
@@ -1621,7 +1623,7 @@ namespace ContentExportTool
                                                     output += "Line " + (line + 1) + ": " + item.Paths.FullPath + " failed to publish";
                                             }
                                         }
-                                    }                                   
+                                    }
                                 }
                                 catch (Exception ex)
                                 {
@@ -1762,7 +1764,7 @@ namespace ContentExportTool
                                         continue;
                                     }
                                     try
-                                    {                                      
+                                    {
                                         if (chkNoDuplicates.Checked)
                                         {
                                             var newItemPath = item.Paths.FullPath + "/" + name;
@@ -1996,7 +1998,7 @@ namespace ContentExportTool
                         {
                             values = value.Split('|').Where(x => !String.IsNullOrEmpty(x));
                         }
-                        
+
                         List<Item> refItems = new ItemList();
 
                         foreach (var val in values)
@@ -2119,7 +2121,7 @@ namespace ContentExportTool
                     List<RenderingDefinition> renderingsArray = deviceDefinition.Renderings.ToArray().Cast<RenderingDefinition>().ToList();
                     renderingsArray.RemoveAt(renderingIndex);
                     var updatedRenderings = new ArrayList(renderingsArray);
-                    deviceDefinition.Renderings = updatedRenderings;                
+                    deviceDefinition.Renderings = updatedRenderings;
 
                     if (!String.IsNullOrEmpty(after))
                     {
@@ -2168,7 +2170,7 @@ namespace ContentExportTool
                         {
                             index = newIndex;
                         }
-                    }                   
+                    }
 
                     // add it back at the specified index
                     deviceDefinition.Insert(index, rendering);
@@ -3045,7 +3047,7 @@ namespace ContentExportTool
                 items.AddRange(newChildItems);
             }
 
-            var itemsAsRelatedItems = items.Select(x => new RelatedItem() {Item = x, RelatedTo = ""}).ToList();
+            var itemsAsRelatedItems = items.Select(x => new RelatedItem() { Item = x, RelatedTo = "" }).ToList();
 
             // related items
             if (addRelatedItems)
@@ -3053,7 +3055,7 @@ namespace ContentExportTool
                 var relatedItems = new List<RelatedItem>();
                 foreach (var item in items)
                 {
-                    var relItems = GetRelatedItems(item,true);
+                    var relItems = GetRelatedItems(item, true);
 
                     relatedItems.AddRange(relItems);
                 }
@@ -3595,18 +3597,18 @@ namespace ContentExportTool
                 var relatedContentItems = relatedItems.Where(
                     x =>
                         (x.Paths.FullPath.ToLower().StartsWith("/sitecore/content")));
-                
+
                 if (deep && relatedContentItems.Any() && iteration < 5)
-                {                    
+                {
                     foreach (var relItem in relatedContentItems)
                     {
                         var relatedItemsDeep = GetRelatedItems(relItem, true, iteration + 1);
                         if (relatedItemsDeep.Any()) relItems.AddRange(relatedItemsDeep);
-                    }                   
+                    }
                 }
 
                 var relatedItemsList =
-                    relatedItems.Select(x => new RelatedItem() {Item = x, RelatedTo = item.Paths.FullPath});
+                    relatedItems.Select(x => new RelatedItem() { Item = x, RelatedTo = item.Paths.FullPath });
 
                 relItems.AddRange(relatedItemsList);
 
@@ -3619,7 +3621,7 @@ namespace ContentExportTool
             {
                 return relItems;
             }
-        } 
+        }
 
         protected bool CheckIfObsolete(Item template, IEnumerable<Item> inheritors, IEnumerable<Item> referrers, IEnumerable<TemplateItem> allTemplates)
         {
@@ -3782,7 +3784,7 @@ namespace ContentExportTool
                                     !modifiedByAuthors.Any(
                                         x => x.Trim().Replace("sitecore\\", "").ToLower().Equals(author)))
                                     continue;
-                            }                           
+                            }
 
                             string defaultDeviceId = "{FE5D7FDF-89C0-4D99-9AA3-B5FBD009C9F3}";
                             var layoutField = new LayoutField(item.Fields[Sitecore.FieldIDs.FinalLayoutField]);
@@ -3836,7 +3838,7 @@ namespace ContentExportTool
                                         parameters.Add(key);
                                     }
 
-                                    
+
                                 }
 
                                 foreach (string param in parameters)
@@ -3847,7 +3849,7 @@ namespace ContentExportTool
 
                                 dataLines.Add(itemLine);
 
-                            }                          
+                            }
                         }
                     }
 
@@ -3991,6 +3993,147 @@ namespace ContentExportTool
                 var file = sw.ToString();
 
                 var test = "hi";
+
+                SetCookieAndResponse(sw.ToString());
+            }
+        }
+
+        protected void btnPersonalizationBasicAudit_Click(object sender, EventArgs e)
+        {
+            if (!SetDatabase())
+            {
+                litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
+                return;
+            }
+
+            if (_db == null)
+            {
+                litFeedback.Text = "Invalid database. Selected database does not exist.";
+                return;
+            }
+
+            var includeName = chkIncludeName.Checked;
+            var includeTemplate = chkIncludeTemplate.Checked;
+            var includeIds = chkIncludeIds.Checked;
+
+            var allLanguages = chkAllLanguages.Checked;
+            var selectedLanguage = ddLanguages.SelectedValue;
+
+            List<Item> items = GetItems(!chkNoChildren.Checked);
+
+            StartResponse(!string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "PersonalizedItemsReport");
+
+            using (StringWriter sw = new StringWriter())
+            {
+                var headingString = "Item Path,"
+                                    + (includeName ? "Name," : string.Empty)
+                                    + (includeIds ? "Item ID," : string.Empty)
+                                    + (includeTemplate ? "Template," : string.Empty)
+                                    +
+                                    (allLanguages || !string.IsNullOrWhiteSpace(selectedLanguage)
+                                        ? "Language,"
+                                        : string.Empty)
+                                        + "Personalized Renderings";
+
+
+                var dataLines = new List<string>();
+
+                var createdByAuthors = txtCreatedByFilter.Value.Split(',');
+                var modifiedByAuthors = txtModifiedByFilter.Value.Split(',');
+
+                foreach (var baseItem in items)
+                {
+                    var itemVersions = GetItemVersions(baseItem, allLanguages, selectedLanguage);
+
+                    foreach (var item in itemVersions)
+                    {
+                        if (!ItemHasPresentationDetails(item.ID.ToString()))
+                        {
+                            continue;
+                        }
+
+                        // check author filters
+                        if (!String.IsNullOrEmpty(txtCreatedByFilter.Value))
+                        {
+                            var author = item.Statistics.CreatedBy.Replace("sitecore\\", "").ToLower();
+
+                            if (
+                                !createdByAuthors.Any(
+                                    x => x.Trim().Replace("sitecore\\", "").ToLower().Equals(author)))
+                                continue;
+                        }
+
+                        if (!String.IsNullOrEmpty(txtModifiedByFilter.Value))
+                        {
+                            var author = item.Statistics.UpdatedBy.Replace("sitecore\\", "").ToLower();
+
+                            if (
+                                !modifiedByAuthors.Any(
+                                    x => x.Trim().Replace("sitecore\\", "").ToLower().Equals(author)))
+                                continue;
+                        }
+
+                        var layoutField = new LayoutField(item.Fields[Sitecore.FieldIDs.FinalLayoutField]);
+                        DeviceRecords devices = item.Database.Resources.Devices;
+                        DeviceItem defaultDevice = devices.GetAll().Where(d => d.Name.ToLower() == "default").First();
+                        Sitecore.Layouts.RenderingReference[] renderings = layoutField.GetReferences(defaultDevice);
+
+                        var personalized = false;
+                        var personalizedRenderingsString = "";
+
+                        foreach (RenderingReference rendering in renderings)
+                        {
+                            if (rendering != null && rendering.Settings.Rules != null && rendering.Settings.Rules.Count > 0)
+                            {
+                                if (personalized)
+                                {
+                                    personalizedRenderingsString += ";\n";
+                                }
+                                personalizedRenderingsString += rendering.WebEditDisplayName;
+                                personalized = true;
+                            }
+                        }
+
+                        if (personalized)
+                        {
+                            var itemPath = item.Paths.ContentPath;
+                            if (String.IsNullOrEmpty(itemPath)) continue;
+                            var itemLine = itemPath + ",";
+
+                            if (includeName)
+                            {
+                                itemLine += item.Name + ",";
+                            }
+
+                            if (includeIds)
+                            {
+                                itemLine += item.ID + ",";
+                            }
+
+                            if (includeTemplate)
+                            {
+                                var template = item.TemplateName;
+                                itemLine += template + ",";
+                            }
+
+                            if (allLanguages || !string.IsNullOrWhiteSpace(selectedLanguage))
+                            {
+                                itemLine += item.Language.Name + ",";
+                            }
+
+                            itemLine += "\"" + personalizedRenderingsString + "\"";
+
+                            dataLines.Add(itemLine);
+                        }
+                    }
+                }
+
+                sw.WriteLine(headingString);
+
+                foreach (var line in dataLines)
+                {
+                    sw.WriteLine(line);
+                }
 
                 SetCookieAndResponse(sw.ToString());
             }

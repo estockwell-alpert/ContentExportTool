@@ -1164,7 +1164,7 @@
                                     <asp:Button class="spinner-btn" runat="server" ID="btnObsoleteComponentAudit" OnClick="btnObsoleteComponentAudit_Click" Text="Run Obsolete Component Audit" />
                                 </div>
                                 <div class="row advanced-search">
-                                    <span class="header"><b>Rendering Parameters</b></span>
+                                    <span class="header"><b>Rendering Parameters Audit</b></span>
                                     <span class="notes">Run this export to get all of the Rendering Parameters on each Sitecore item. You can use the Start Item, Template and Created/Published Date filters and Language options to select items. This export will look the same as a Content Export, but will include Rendering Parameters rather than Template Fields.
                                         <br />
                                         Supported options: Template Name, Item Name, Item ID, Start Item(s), all Filters
@@ -1172,6 +1172,16 @@
                                     <br />
                                     <br />
                                     <asp:Button class="spinner-btn" runat="server" ID="btnRenderingParametersAudit" OnClick="btnRenderingParametersAudit_Click" Text="Run Rendering Parameters Audit" />
+                                </div>
+                                <div class="row advanced-search">
+                                    <span class="header"><b>Personalization Audit (basic)</b></span>
+                                    <span class="notes">Run this export to get a report of every item that has personalization on one or more renderings. You can use the Start Item, Template and Created/Published Date filters.
+                                        <br />
+                                        Supported options: Template Name, Item Name, Item ID, Start Item(s), all Filters
+                                    </span>
+                                    <br />
+                                    <br />
+                                    <asp:Button class="spinner-btn" runat="server" ID="btnPersonalizationBasicAudit" OnClick="btnPersonalizationBasicAudit_Click" Text="Run Personalization Audit" />
                                 </div>
                                 <div class="row advanced-search">
                                     <span class="header"><b>Template Audit</b></span>
