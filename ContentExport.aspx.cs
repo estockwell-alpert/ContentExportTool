@@ -31,6 +31,8 @@ using ImageField = Sitecore.Data.Fields.ImageField;
 using System.Collections;
 using Sitecore.Data.Archiving;
 using System.Text.RegularExpressions;
+using System.Web.Security;
+using Sitecore.Security.Accounts;
 
 namespace ContentExportTool
 {
@@ -116,6 +118,11 @@ namespace ContentExportTool
             SetSavedSettingsDropdown();
             _db = Sitecore.Configuration.Factory.GetDatabase(databaseNames.FirstOrDefault());
             SetLanguageList();
+
+            var roles = Roles.GetAllRoles().ToList();
+            roles.Insert(0, "");
+            ddRoles.DataSource = roles;
+            ddRoles.DataBind();
         }
 
         protected bool OpenAdvancedOptions()
@@ -2339,6 +2346,7 @@ namespace ContentExportTool
 
             var settingsData = new ExportSettingsData()
             {
+                ComponentNames = txtComponentNames.Value,
                 Database = ddDatabase.SelectedValue,
                 IncludeIds = chkIncludeIds.Checked,
                 StartItem = inputStartitem.Value,
@@ -2514,6 +2522,7 @@ namespace ContentExportTool
             txtEndDatePu.Value = settings.EndDatePb;
             chkNoChildren.Checked = settings.NoChildren;
             chkRawValues.Checked = settings.RawValues;
+            txtComponentNames.Value = settings.ComponentNames;
 
             txtCreatedByFilter.Value = settings.CreatedByFilter;
             txtModifiedByFilter.Value = settings.ModifiedByFilter;
@@ -2623,6 +2632,7 @@ namespace ContentExportTool
             txtModifiedByFilter.Value = string.Empty;
             radPipe.Checked = false;
             radSemicolon.Checked = true;
+            txtComponentNames.Value = string.Empty;
 
             PhBrowseModal.Visible = false;
             PhBrowseFields.Visible = false;
@@ -2638,6 +2648,7 @@ namespace ContentExportTool
 
             var settingsData = new ExportSettingsData()
             {
+                ComponentNames = txtComponentNames.Value,
                 Database = ddDatabase.SelectedValue,
                 IncludeIds = chkIncludeIds.Checked,
                 StartItem = inputStartitem.Value,
@@ -3289,6 +3300,8 @@ namespace ContentExportTool
                     var allLanguages = chkAllLanguages.Checked;
                     var selectedLanguage = ddLanguages.SelectedValue;
 
+                    var selectedRenderings = txtComponentNames.Value.Split(',').Select(x => x.Trim().ToLower()).Where(x => !String.IsNullOrEmpty(x));
+
                     foreach (var baseItem in items)
                     {
                         try
@@ -3314,6 +3327,9 @@ namespace ContentExportTool
                                     {
                                         var datasourceId = rendering.Settings.DataSource;
                                         var name = rendering.RenderingItem != null ? rendering.RenderingItem.Name : "";
+
+                                        if (selectedRenderings.Any() && !selectedRenderings.Any(x => x == name.ToLower().Trim())) continue;
+
                                         var datasource = String.IsNullOrEmpty(datasourceId)
                                             ? null
                                             : _db.GetItem(datasourceId);
@@ -3992,8 +4008,6 @@ namespace ContentExportTool
 
                 var file = sw.ToString();
 
-                var test = "hi";
-
                 SetCookieAndResponse(sw.ToString());
             }
         }
@@ -4043,88 +4057,95 @@ namespace ContentExportTool
 
                 foreach (var baseItem in items)
                 {
-                    var itemVersions = GetItemVersions(baseItem, allLanguages, selectedLanguage);
-
-                    foreach (var item in itemVersions)
+                    try
                     {
-                        if (!ItemHasPresentationDetails(item.ID.ToString()))
+                        var itemVersions = GetItemVersions(baseItem, allLanguages, selectedLanguage);
+
+                        foreach (var item in itemVersions)
                         {
-                            continue;
-                        }
-
-                        // check author filters
-                        if (!String.IsNullOrEmpty(txtCreatedByFilter.Value))
-                        {
-                            var author = item.Statistics.CreatedBy.Replace("sitecore\\", "").ToLower();
-
-                            if (
-                                !createdByAuthors.Any(
-                                    x => x.Trim().Replace("sitecore\\", "").ToLower().Equals(author)))
-                                continue;
-                        }
-
-                        if (!String.IsNullOrEmpty(txtModifiedByFilter.Value))
-                        {
-                            var author = item.Statistics.UpdatedBy.Replace("sitecore\\", "").ToLower();
-
-                            if (
-                                !modifiedByAuthors.Any(
-                                    x => x.Trim().Replace("sitecore\\", "").ToLower().Equals(author)))
-                                continue;
-                        }
-
-                        var layoutField = new LayoutField(item.Fields[Sitecore.FieldIDs.FinalLayoutField]);
-                        DeviceRecords devices = item.Database.Resources.Devices;
-                        DeviceItem defaultDevice = devices.GetAll().Where(d => d.Name.ToLower() == "default").First();
-                        Sitecore.Layouts.RenderingReference[] renderings = layoutField.GetReferences(defaultDevice);
-
-                        var personalized = false;
-                        var personalizedRenderingsString = "";
-
-                        foreach (RenderingReference rendering in renderings)
-                        {
-                            if (rendering != null && rendering.Settings.Rules != null && rendering.Settings.Rules.Count > 0)
+                            if (!ItemHasPresentationDetails(item.ID.ToString()))
                             {
-                                if (personalized)
+                                continue;
+                            }
+
+                            // check author filters
+                            if (!String.IsNullOrEmpty(txtCreatedByFilter.Value))
+                            {
+                                var author = item.Statistics.CreatedBy.Replace("sitecore\\", "").ToLower();
+
+                                if (
+                                    !createdByAuthors.Any(
+                                        x => x.Trim().Replace("sitecore\\", "").ToLower().Equals(author)))
+                                    continue;
+                            }
+
+                            if (!String.IsNullOrEmpty(txtModifiedByFilter.Value))
+                            {
+                                var author = item.Statistics.UpdatedBy.Replace("sitecore\\", "").ToLower();
+
+                                if (
+                                    !modifiedByAuthors.Any(
+                                        x => x.Trim().Replace("sitecore\\", "").ToLower().Equals(author)))
+                                    continue;
+                            }
+
+                            var layoutField = new LayoutField(item.Fields[Sitecore.FieldIDs.FinalLayoutField]);
+                            DeviceRecords devices = item.Database.Resources.Devices;
+                            DeviceItem defaultDevice = devices.GetAll().Where(d => d.Name.ToLower() == "default").First();
+                            Sitecore.Layouts.RenderingReference[] renderings = layoutField.GetReferences(defaultDevice);
+
+                            var personalized = false;
+                            var personalizedRenderingsString = "";
+
+                            foreach (RenderingReference rendering in renderings)
+                            {
+                                if (rendering != null && rendering.Settings.Rules != null && rendering.Settings.Rules.Count > 0)
                                 {
-                                    personalizedRenderingsString += ";\n";
+                                    if (personalized)
+                                    {
+                                        personalizedRenderingsString += ";\n";
+                                    }
+                                    personalizedRenderingsString += rendering.WebEditDisplayName;
+                                    personalized = true;
                                 }
-                                personalizedRenderingsString += rendering.WebEditDisplayName;
-                                personalized = true;
+                            }
+
+                            if (personalized)
+                            {
+                                var itemPath = item.Paths.ContentPath;
+                                if (String.IsNullOrEmpty(itemPath)) continue;
+                                var itemLine = itemPath + ",";
+
+                                if (includeName)
+                                {
+                                    itemLine += item.Name + ",";
+                                }
+
+                                if (includeIds)
+                                {
+                                    itemLine += item.ID + ",";
+                                }
+
+                                if (includeTemplate)
+                                {
+                                    var template = item.TemplateName;
+                                    itemLine += template + ",";
+                                }
+
+                                if (allLanguages || !string.IsNullOrWhiteSpace(selectedLanguage))
+                                {
+                                    itemLine += item.Language.Name + ",";
+                                }
+
+                                itemLine += "\"" + personalizedRenderingsString + "\"";
+
+                                dataLines.Add(itemLine);
                             }
                         }
+                    }
+                    catch(Exception ex)
+                    {
 
-                        if (personalized)
-                        {
-                            var itemPath = item.Paths.ContentPath;
-                            if (String.IsNullOrEmpty(itemPath)) continue;
-                            var itemLine = itemPath + ",";
-
-                            if (includeName)
-                            {
-                                itemLine += item.Name + ",";
-                            }
-
-                            if (includeIds)
-                            {
-                                itemLine += item.ID + ",";
-                            }
-
-                            if (includeTemplate)
-                            {
-                                var template = item.TemplateName;
-                                itemLine += template + ",";
-                            }
-
-                            if (allLanguages || !string.IsNullOrWhiteSpace(selectedLanguage))
-                            {
-                                itemLine += item.Language.Name + ",";
-                            }
-
-                            itemLine += "\"" + personalizedRenderingsString + "\"";
-
-                            dataLines.Add(itemLine);
-                        }
                     }
                 }
 
@@ -4134,6 +4155,44 @@ namespace ContentExportTool
                 {
                     sw.WriteLine(line);
                 }
+
+                SetCookieAndResponse(sw.ToString());
+            }
+        }
+
+        protected void btnUsersAudit_Click(object sender, EventArgs e)
+        {
+            StartResponse(!string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "UserAudit");
+
+            using (StringWriter sw = new StringWriter())
+            {
+                sw.WriteLine("Username,Role,Admin");
+
+                IEnumerable<User> users;
+
+                if (!String.IsNullOrEmpty(ddRoles.SelectedValue))
+                {
+                    var role = Role.FromName(ddRoles.SelectedValue);
+                    users = Sitecore.Security.Accounts.RolesInRolesManager.GetUsersInRole(role, true);
+                }
+                else
+                {
+                    users = Sitecore.Security.Accounts.UserManager.GetUsers();
+                }
+
+                if (chkAdmins.Checked)
+                {
+                    users = users.Where(x => x.IsAdministrator);
+                }
+
+                foreach (var user in users)
+                {
+                    var roles = user.Roles;
+                    var roleString = String.Join(";\n", roles.Select(x => x.Name));
+                    sw.WriteLine(String.Format("{0},\"{1}\",{2}", user.Name, roleString, (user.IsAdministrator ? "Y" : "")));
+                }
+
+                var file = sw.ToString();
 
                 SetCookieAndResponse(sw.ToString());
             }
@@ -4183,6 +4242,7 @@ namespace ContentExportTool
 
     public class ExportSettingsData
     {
+        public string ComponentNames;
         public string Database;
         public bool IncludeIds;
         public string StartItem;

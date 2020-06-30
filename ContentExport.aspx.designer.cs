@@ -733,6 +733,15 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.Button btnExport2;
         
         /// <summary>
+        /// txtComponentNames control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlTextArea txtComponentNames;
+        
+        /// <summary>
         /// btnComponentAudit control.
         /// </summary>
         /// <remarks>
@@ -830,6 +839,15 @@ namespace ContentExportTool {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnDeletionsAudit;
+        
+        /// <summary>
+        /// btnUsersAudit control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnUsersAudit;
         
         /// <summary>
         /// txtAdvancedSearch control.

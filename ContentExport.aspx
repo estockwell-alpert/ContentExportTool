@@ -1147,11 +1147,13 @@
                             <a class="advanced-btn">Special Audits & Search</a>
                             <div class="advanced-inner">
                                 <div class="row advanced-search">
-                                    <span class="header"><b>Component Audit</b></span>
+                                    <span class="header"><b>Component Audit</b></span>                                    
                                     <span class="notes">Run this export to audit the components on each Sitecore item. You can use the Start Item, Template and Created/Published Date filters and Language options to select items. The exported data will include the name of the component, the page it is on, and any associated datasource item
-                                    </span>
+                                    </span><br />
                                     <br />
-                                    <br />
+                                    <span class="header">Component Names (optional) - only report instances of the specified components</span>
+                                    <textarea runat="server" id="txtComponentNames" />
+                                    <br /><br />
                                     <asp:Button class="spinner-btn" runat="server" ID="btnComponentAudit" OnClick="btnComponentAudit_OnClick" Text="Run Component Audit" />
 
                                     <br />
@@ -1207,6 +1209,18 @@
                                     <input name="radUser" type="radio" runat="server" id="radMyItems" /><span>My Deleted items</span>
                                     <br /><br />
                                     <asp:Button class="spinner-btn" runat="server" ID="btnDeletionsAudit" OnClick="btnDeletionsAudit_Click" Text="Run Deletions Audit" />
+                                </div>
+                                <div class="row advanced-search">
+                                    <span class="header"><b>User Audit</b></span>
+                                    <span class="notes">Run this export to get a CSV of all users with their roles.
+                                    </span>
+                                    <br /><br />
+                                   <span class="header">Role (optional):</span>
+                                    <asp:DropDownList runat="server" ID="ddRoles"></asp:DropDownList>
+                                    <br /> <br />                                                   
+                                    <asp:CheckBox runat="server" ID="chkAdmins" /><span>Admins only</span>
+                                    <br /><br />
+                                    <asp:Button class="spinner-btn" runat="server" ID="btnUsersAudit" OnClick="btnUsersAudit_Click" Text="Run User Audit" />
                                 </div>
                                 <div class="row advanced-search">
                                     <span class="header"><b>Advanced Search:</b></span>
