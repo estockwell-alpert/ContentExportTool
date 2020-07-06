@@ -33,6 +33,9 @@ using Sitecore.Data.Archiving;
 using System.Text.RegularExpressions;
 using System.Web.Security;
 using Sitecore.Security.Accounts;
+using ICSharpCode.SharpZipLib.Zip;
+using Sitecore.Resources.Media;
+using ICSharpCode.SharpZipLib.Core;
 
 namespace ContentExportTool
 {
@@ -3362,6 +3365,98 @@ namespace ContentExportTool
             }
         }
 
+        protected void btnMediaExport_OnClick(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!SetDatabase())
+                {
+                    litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
+                    return;
+                }
+
+
+                if (_db == null)
+                {
+                    litFeedback.Text = "Invalid database. Selected database does not exist.";
+                    return;
+                }
+
+                List<Item> items = GetItems(!chkNoChildren.Checked, chkIncludeRelatedItems.Checked, chkIncludeSubitems.Checked);
+
+                // only media items
+                items = items.Where(x => x.Paths.IsMediaItem && (x.TemplateID != TemplateIDs.MediaFolder)).ToList();
+
+                MemoryStream outputMemStream = new MemoryStream();
+                ZipOutputStream zipStream = new ZipOutputStream(outputMemStream);
+
+                zipStream.SetLevel(3); //0-9, 9 being the highest level of compression
+
+                // loops through the media items
+                foreach (var item in items)
+                {
+                    var mediaItem = (MediaItem)item;
+                    var media = MediaManager.GetMedia(mediaItem);
+                    if (media == null) continue;
+                    var mediaStream = media.GetStream();
+                    if (mediaStream == null) continue;
+                    var stream = mediaStream.Stream;
+                    if (stream == null) continue;
+                    var bytes = ReadFully(stream);
+
+                    var filePath = ZipEntry.CleanName(mediaItem.MediaPath) + "." + mediaItem.Extension;
+
+                    var newEntry = new ZipEntry(filePath);
+                    newEntry.DateTime = DateTime.Now;
+
+                    zipStream.PutNextEntry(newEntry);
+
+                    MemoryStream inStream = new MemoryStream(bytes);
+                    StreamUtils.Copy(inStream, zipStream, new byte[4096]);
+                    inStream.Close();
+                    zipStream.CloseEntry();
+                }
+
+                zipStream.IsStreamOwner = false;    // False stops the Close also Closing the underlying stream.
+                zipStream.Close();          // Must finish the ZipOutputStream before using outputMemStream.
+
+                outputMemStream.Position = 0;
+
+                Response.Clear();
+                Response.BufferOutput = false;
+                Response.AddHeader("content-disposition", string.Format("attachment;filename={0}", "MediaExport.zip"));
+                Response.ContentType = "application/zip";
+                var downloadToken = txtDownloadToken.Value;
+                var responseCookie = new HttpCookie("DownloadToken");
+                responseCookie.Value = downloadToken;
+                responseCookie.HttpOnly = false;
+                responseCookie.Expires = DateTime.Now.AddDays(1);
+                Response.Cookies.Add(responseCookie);
+                Response.BinaryWrite(outputMemStream.ToArray());
+                Response.Flush();
+                Response.End();
+            }
+            catch(Exception ex)
+            {
+                litFeedback.Text = ex.ToString();
+                return;
+            }
+        }
+
+        public byte[] ReadFully(Stream input)
+        {
+            byte[] buffer = new byte[16 * 1024];
+            using (MemoryStream ms = new MemoryStream())
+            {
+                int read;
+                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    ms.Write(buffer, 0, read);
+                }
+                return ms.ToArray();
+            }
+        }
+
         protected void btnPackageExport_OnClick(object sender, EventArgs e)
         {
             try
@@ -3442,6 +3537,42 @@ namespace ContentExportTool
         public string FullPackageProjectPath(string packageFileName)
         {
             return Path.GetFullPath(Path.Combine(PackageProjectPath, packageFileName));
+        }
+
+        protected void btnMediaSummary_OnClick(object sender, EventArgs e)
+        {
+            if (!SetDatabase())
+            {
+                litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
+                return;
+            }
+
+
+            if (_db == null)
+            {
+                litFeedback.Text = "Invalid database. Selected database does not exist.";
+                return;
+            }
+
+            List<Item> items = GetItems(!chkNoChildren.Checked, chkIncludeRelatedItems.Checked, chkIncludeSubitems.Checked);
+
+            // only media items
+            items = items.Where(x => x.Paths.IsMediaItem && (x.TemplateID != TemplateIDs.MediaFolder)).ToList();
+
+            StartResponse(!string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value + " - Media Summary" : "ContentExportPackage - Media Summary");
+
+            using (StringWriter sw = new StringWriter())
+            {
+                var headingString = "Item Path";
+
+                sw.WriteLine(headingString);
+                foreach (var item in items)
+                {
+                    sw.WriteLine(String.Format("{0}", item.Paths.FullPath));
+                }
+
+                SetCookieAndResponse(sw.ToString());
+            }
         }
 
         protected void btnPackageSummary_OnClick(object sender, EventArgs e)
