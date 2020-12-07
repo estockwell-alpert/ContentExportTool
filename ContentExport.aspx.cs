@@ -2189,13 +2189,23 @@ namespace ContentExportTool
                 // 3. update rendering params
                 if (!String.IsNullOrEmpty(paramName) && !String.IsNullOrEmpty(value))
                 {
+                    var parameters = new System.Collections.Specialized.NameValueCollection();
 
-                    var parameters = HttpUtility.ParseQueryString(rendering.Parameters);
-                    var existingKey = parameters.AllKeys.FirstOrDefault(x => x.ToLower() == paramName);
-                    if (!String.IsNullOrEmpty(existingKey))
+                    if (!String.IsNullOrEmpty(rendering.Parameters))
                     {
-                        parameters.Remove(paramName);
-                        parameters[existingKey] = value;
+                        parameters = HttpUtility.ParseQueryString(rendering.Parameters);
+                        var existingKey = parameters.AllKeys.FirstOrDefault(x => x.ToLower() == paramName);
+                        if (!String.IsNullOrEmpty(existingKey))
+                        {
+                            parameters.Remove(paramName);
+                            parameters[existingKey] = value;
+                        }
+                        else
+                        {
+                            TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+                            paramName = textInfo.ToTitleCase(paramName);
+                            parameters[paramName] = value;
+                        }
                     }
                     else
                     {
