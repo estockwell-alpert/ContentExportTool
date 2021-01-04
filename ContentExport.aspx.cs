@@ -1983,7 +1983,18 @@ namespace ContentExportTool
                     else if (itemOfType is LinkField)
                     {
                         var linkField = (LinkField)item.Fields[fieldName];
+
+                        // set raw value
+                        if (value.Contains("<link"))
+                        {
+                            linkField.Value = value;
+                        }
+                        else // treat as a direct url
+                        {
                         linkField.Url = value;
+                        }
+
+                        
 
                     }
                     else if (itemOfType is ReferenceField || itemOfType is GroupedDroplistField || itemOfType is LookupField)
@@ -2951,13 +2962,13 @@ namespace ContentExportTool
         }
 
         public List<Item> GetItems(bool children = true, bool addRelatedItems = false,
-            bool addChildrenNoFiltering = false)
+            bool addChildrenNoFiltering = false, bool mediaItems = false)
         {
-            var items = GetItemsAsRelatedItems(children, addRelatedItems, addChildrenNoFiltering);
+            var items = GetItemsAsRelatedItems(children, addRelatedItems, addChildrenNoFiltering, mediaItems);
             return items.Select(x => x.Item).ToList();
         }
 
-        public List<RelatedItem> GetItemsAsRelatedItems(bool children = true, bool addRelatedItems = false, bool addChildrenNoFiltering = false)
+        public List<RelatedItem> GetItemsAsRelatedItems(bool children = true, bool addRelatedItems = false, bool addChildrenNoFiltering = false, bool mediaItems = false)
         {
             var templateString = inputTemplates.Value;
             var templates = templateString.ToLower().Split(',').Select(x => x.Trim()).ToList();
@@ -2982,7 +2993,7 @@ namespace ContentExportTool
             {
                 var startNode = inputStartitem.Value;
                 List<String> startItems;
-                if (string.IsNullOrWhiteSpace(startNode)) startItems = new List<String> { "/sitecore/content" };
+                if (string.IsNullOrWhiteSpace(startNode)) startItems = (mediaItems ? new List<String> { "/sitecore/media library" } : new List<String> { "/sitecore/content" });
                 else startItems = inputStartitem.Value.Split(',').ToList();
                 foreach (var startItem in startItems)
                 {
@@ -3392,7 +3403,7 @@ namespace ContentExportTool
                     return;
                 }
 
-                List<Item> items = GetItems(!chkNoChildren.Checked, chkIncludeRelatedItems.Checked, chkIncludeSubitems.Checked);
+                List<Item> items = GetItems(!chkNoChildren.Checked, chkIncludeRelatedItems.Checked, chkIncludeSubitems.Checked, true);
 
                 // only media items
                 items = items.Where(x => x.Paths.IsMediaItem && (x.TemplateID != TemplateIDs.MediaFolder)).ToList();
