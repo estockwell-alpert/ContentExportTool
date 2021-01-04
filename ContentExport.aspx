@@ -758,6 +758,7 @@
                         <a class="navButton" href="#divExportData">Fields and Data</a>
                         <a class="navButton" href="#divAudits">Special Audits & Search</a>
                         <a class="navButton" href="#packageExport">Package Export</a>
+                        <a class="navButton" href="#mediaExport">Media Export</a>
                         <a class="navButton" href="#contentImport">Content Import</a>
                         <a class="navButton" href="#renderingParamsImport">Rendering Parameters Import</a>
                         <a class="navButton" href="javascript:void(0)" onclick="window.scrollTo(0,0);">Back to Top</a>
@@ -1283,6 +1284,30 @@
                                     <br />
                                     <asp:Button runat="server" class="spinner-btn" ID="btnPackageSummary" Text="Get Package Preview" OnClick="btnPackageSummary_OnClick" /><br />
                                     <span class="notes">Download a CSV file that shows all of the items included in the package</span>
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <br />
+                         <div class="advanced open open-default" id="mediaExport">
+                            <a class="advanced-btn">Media Export</a>
+                            <div class="advanced-inner">
+                                <div class="row advanced-search">
+                                    <h3>Media Export</h3>
+                                    <p>Export a zip of <b>Media files</b> from the media library</p>
+                                    <p>
+                                        This will generate a regular zip file of all of the media items selected by the export filters.<br />
+                                        <br />
+                                        The Media Export uses the same selection and filtering logic as the Content export. Click Get Media Preview to get a CSV report of all the media items that will be included in the zip.
+                                        <br /><br />
+                                        Use the <a href="#inputStartitem">Start Item(s)</a> field to select start path; if left blank, starting path will default to <b>/sitecore/Media Library</b>
+                                    </p>
+
+                                    <asp:Button runat="server" class="spinner-btn" ID="btnMediaExport" Text="Begin Media Export" OnClick="btnMediaExport_OnClick" />
+                                    <br />
+                                    <br />
+                                    <asp:Button runat="server" class="spinner-btn" ID="btnMediaSummary" Text="Get Media Preview" OnClick="btnMediaSummary_OnClick" /><br />
+                                    <span class="notes">Download a CSV file that shows all of the media items that will be downloaded</span>
                                 </div>
                             </div>
                         </div>
