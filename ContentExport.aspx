@@ -675,8 +675,8 @@
 
     </style>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
-    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.11.3/jquery-ui.min.js"></script>
+    <script src="jquery-2.2.4.min.js"></script>
+    <script src="jquery-ui.min.js"></script>
     <script src="ContentExportScripts.js"></script>
 </head>
 <body>

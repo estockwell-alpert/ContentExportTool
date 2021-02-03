@@ -80,6 +80,8 @@ namespace ContentExportTool
             fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\Kofax-82\\web\\Website\\sitecore\\shell\\Applications\\ContentExport\\ContentExport.aspx"));
             fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\Kofax-82\\web\\Website\\sitecore\\shell\\Applications\\ContentExport\\ContentExport.aspx.cs"));
             fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\Kofax-82\\web\\Website\\sitecore\\shell\\Applications\\ContentExport\\ContentExport.aspx.designer.cs"));
+            fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\Kofax-82\\web\\Website\\sitecore\\shell\\Applications\\ContentExport\\jquery-2.2.4.min.js"));
+            fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\Kofax-82\\web\\Website\\sitecore\\shell\\Applications\\ContentExport\\jquery-ui.min.js"));
             fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\Kofax-82\\web\\Website\\sitecore\\shell\\Applications\\ContentExport\\ContentExportScripts.js"));
             fileSource.Entries.Add(
                 MainUtil.MapPath("C:\\Dev\\Kofax-82\\web\\Website\\temp\\IconCache\\Network\\16x16\\download.png"));
