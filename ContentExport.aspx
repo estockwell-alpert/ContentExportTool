@@ -1461,10 +1461,11 @@
                                         <li><b>Parameter Name</b> <span class="notes">The name of the rendering parameter to modify or add</span></li>
                                         <li><b>Value</b> <span class="notes">The value to set for the rendering parameter</span></li>
                                         <li><b>Placeholder</b> <span class="notes">The placeholder to move the rendering to</span></li>
-                                        <li><b>Position</b> <span class="notes">The position to put the rendering in relative to all other renderings (NUMERIC, STARTS AT 0)</span></li>
+                                        <li><b>Position</b> <span class="notes">The position to put the rendering in relative to all other renderings (NUMERIC, STARTS AT 0); you can also DELETE by setting this value to -1</span></li>
                                         <li><b>Position in Placeholder</b> <span class="notes">The position to put the rendering in relative to its placeholder (NUMERIC, STARTS AT 0)</span></li>
                                         <li><b>Before</b> <span class="notes">The name of the FIRST rendering to put this rendering before</span></li>
                                         <li><b>After</b> <span class="notes">The name of the LAST rendering to put this rendering after</span></li>
+                                        <li><b>Delete</b> <span class="notes">Delete this rendering, defaults to false (TRUE/FALSE) (alternative to using Position -1)</span></li>
                                     </ul>
 
                                     <div class="row">

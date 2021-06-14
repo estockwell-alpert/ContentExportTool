@@ -841,6 +841,24 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.Button btnDeletionsAudit;
         
         /// <summary>
+        /// ddRoles control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddRoles;
+        
+        /// <summary>
+        /// chkAdmins control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkAdmins;
+        
+        /// <summary>
         /// btnUsersAudit control.
         /// </summary>
         /// <remarks>
