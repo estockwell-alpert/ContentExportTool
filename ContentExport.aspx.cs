@@ -1298,12 +1298,14 @@ namespace ContentExportTool
         private Tuple<string, string> ParseDefaultField(Field itemField, string itemLine, string headingString, string fieldName)
         {
             var fieldValue = RemoveLineEndings(itemField.Value);
-            if (fieldValue.Contains("\""))
-            {
-                fieldValue = fieldValue.Replace("\"", "\"\"");
-            }
+
             if (fieldValue.Contains(","))
             {
+                if (fieldValue.Contains("\""))
+                {
+                    fieldValue = fieldValue.Replace("\"", "\"\"");
+                }
+
                 fieldValue = "\"" + fieldValue + "\"";
             }
 
@@ -1464,7 +1466,7 @@ namespace ContentExportTool
             string lineSeparator = ((char)0x2028).ToString();
             string paragraphSeparator = ((char)0x2029).ToString();
 
-            return value.Replace("\r\n", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty).Replace(lineSeparator, string.Empty).Replace(paragraphSeparator, string.Empty).Replace("<br/>", string.Empty).Replace("<br />", string.Empty).Replace("\t", "   ");
+            return value.Replace("\r\n", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty).Replace(lineSeparator, string.Empty).Replace(paragraphSeparator, string.Empty).Replace("\t", "   ");
         }
 
         #endregion
