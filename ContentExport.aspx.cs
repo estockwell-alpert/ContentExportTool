@@ -1969,7 +1969,7 @@ namespace ContentExportTool
                         Guid id;
                         if (!Guid.TryParse(value, out id))
                         {
-                            if (!mediaPath.ToLower().StartsWith("/sitecore/media library"))
+                            if (!mediaPath.ToLower().StartsWith("/sitecore/media library") && !String.IsNullOrEmpty(mediaPath))
                             {
                                 mediaPath = "/sitecore/media library" + (mediaPath.StartsWith("/") ? "" : "/") + value;
                             }
