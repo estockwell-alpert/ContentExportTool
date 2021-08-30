@@ -2212,7 +2212,7 @@ namespace ContentExportTool
                     if (!String.IsNullOrEmpty(rendering.Parameters))
                     {
                         parameters = HttpUtility.ParseQueryString(rendering.Parameters);
-                        var existingKey = parameters.AllKeys.FirstOrDefault(x => x.ToLower() == paramName);
+                        var existingKey = parameters.AllKeys.FirstOrDefault(x => x != null && x.ToLower() == paramName);
                         if (!String.IsNullOrEmpty(existingKey))
                         {
                             parameters.Remove(paramName);
