@@ -3384,7 +3384,8 @@ namespace ContentExportTool
                                     }
                                     catch (Exception ex)
                                     {
-
+                                        var itemLine = "Error for " + item.Paths.Path + ": " + ex.StackTrace;
+                                        sw.WriteLine(itemLine);
                                     }
                                 }
                             }
@@ -3916,6 +3917,8 @@ namespace ContentExportTool
                 var allLanguages = chkAllLanguages.Checked;
                 var selectedLanguage = ddLanguages.SelectedValue;
 
+                var selectedRenderings = txtComponentNameRenderingParams.Value.Split(',').Select(x => x.Trim().ToLower()).Where(x => !String.IsNullOrEmpty(x));
+
                 List<Item> items = GetItems(!chkNoChildren.Checked);
 
                 _fieldsList = new List<FieldData>();
@@ -3979,62 +3982,72 @@ namespace ContentExportTool
                             var deviceDefinition = layoutDefinition.GetDevice(defaultDeviceId);
                             foreach (RenderingDefinition rendering in deviceDefinition.Renderings)
                             {
-                                var placeholderId = rendering.Placeholder;
-
-                                if (rendering.Parameters == null) continue;
-
-                                var itemParams = rendering.Parameters.Split('&');
-
-                                var itemPath = item.Paths.ContentPath;
-                                if (String.IsNullOrEmpty(itemPath)) continue;
-                                var itemLine = itemPath + ",";
-
-                                if (includeName)
+                                try
                                 {
-                                    itemLine += item.Name + ",";
-                                }
+                                    var placeholderId = rendering.Placeholder;
 
-                                if (includeIds)
-                                {
-                                    itemLine += item.ID + ",";
-                                }
+                                    if (rendering.Parameters == null) continue;
 
-                                if (includeTemplate)
-                                {
-                                    var template = item.TemplateName;
-                                    itemLine += template + ",";
-                                }
+                                    var name = _db.GetItem(rendering.ItemID)?.Name;
+                                    if (selectedRenderings.Any() && !selectedRenderings.Any(x => x == name.ToLower().Trim())) continue;
 
-                                if (allLanguages || !string.IsNullOrWhiteSpace(selectedLanguage))
-                                {
-                                    itemLine += item.Language.Name + ",";
-                                }
+                                    var itemParams = rendering.Parameters.Split('&');
 
-                                itemLine += _db.GetItem(rendering.ItemID).Name + ",";
-                                itemLine += placeholderId + ",";
+                                    var itemPath = item.Paths.ContentPath;
+                                    if (String.IsNullOrEmpty(itemPath)) continue;
+                                    var itemLine = itemPath + ",";
 
-                                // here is where we add all of the rendering parameters
-                                var nvsParams = itemParams.Select(x => x.Split('=')).Where(y => y.Length == 2);
-
-                                foreach (string[] param in nvsParams)
-                                {
-                                    var key = param[0];
-                                    var value = param[1];
-                                    if (parameters.All(x => x != key))
+                                    if (includeName)
                                     {
-                                        parameters.Add(key);
+                                        itemLine += item.Name + ",";
                                     }
 
+                                    if (includeIds)
+                                    {
+                                        itemLine += item.ID + ",";
+                                    }
 
-                                }
+                                    if (includeTemplate)
+                                    {
+                                        var template = item.TemplateName;
+                                        itemLine += template + ",";
+                                    }
 
-                                foreach (string param in parameters)
+                                    if (allLanguages || !string.IsNullOrWhiteSpace(selectedLanguage))
+                                    {
+                                        itemLine += item.Language.Name + ",";
+                                    }
+
+                                    itemLine += _db.GetItem(rendering.ItemID).Name + ",";
+                                    itemLine += placeholderId + ",";
+
+                                    // here is where we add all of the rendering parameters
+                                    var nvsParams = itemParams.Select(x => x.Split('=')).Where(y => y.Length == 2);
+
+                                    foreach (string[] param in nvsParams)
+                                    {
+                                        var key = param[0];
+                                        var value = param[1];
+                                        if (parameters.All(x => x != key))
+                                        {
+                                            parameters.Add(key);
+                                        }
+
+
+                                    }
+
+                                    foreach (string param in parameters)
+                                    {
+                                        var parameter = nvsParams.FirstOrDefault(x => x[0] == param);
+                                        itemLine += (parameter == null ? "n/a" : parameter[1]) + ",";
+                                    }
+
+                                    dataLines.Add(itemLine);
+                                }catch(Exception ex)
                                 {
-                                    var parameter = nvsParams.FirstOrDefault(x => x[0] == param);
-                                    itemLine += (parameter == null ? "n/a" : parameter[1]) + ",";
+                                    var itemLine = "Error for " + item.Paths.Path + ": " + ex.StackTrace;
+                                    dataLines.Add(itemLine);
                                 }
-
-                                dataLines.Add(itemLine);
 
                             }
                         }

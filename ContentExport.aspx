@@ -1183,6 +1183,9 @@
                                     <span>This provides a report of the <b>rendering parameters</b> for each rendering (i.e. the custom properties of the rendering)</span>
                                     <br />
                                     <br />
+                                    <span class="header">Component Names (optional) - only report rendering parameters of the specified components</span>
+                                    <textarea runat="server" id="txtComponentNameRenderingParams" />
+                                    <br /><br />
                                     <asp:Button class="spinner-btn" runat="server" ID="btnRenderingParametersAudit" OnClick="btnRenderingParametersAudit_Click" Text="Run Rendering Parameters Audit" />
                                 </div>
                                 <div class="row advanced-search">
