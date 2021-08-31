@@ -3988,7 +3988,7 @@ namespace ContentExportTool
 
                                     if (rendering.Parameters == null) continue;
 
-                                    var name = _db.GetItem(rendering.ItemID)?.Name;
+                                    var name = _db.GetItem(rendering.ItemID).Name;
                                     if (selectedRenderings.Any() && !selectedRenderings.Any(x => x == name.ToLower().Trim())) continue;
 
                                     var itemParams = rendering.Parameters.Split('&');
