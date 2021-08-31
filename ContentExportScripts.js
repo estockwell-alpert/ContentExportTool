@@ -1,6 +1,6 @@
 ﻿$(document).ready(function () {
 
-    $("#txtStartDateCr, #txtStartDatePb, #txtEndDateCr, #txtEndDatePu").datepicker();
+    $("#txtStartDateCr, #txtStartDatePb, #txtEndDateCr, #txtEndDatePu, .datepicker").datepicker();
 
     $(".btnSampleLink").on("click", function () {
         $("#singleTemplateModal").show();

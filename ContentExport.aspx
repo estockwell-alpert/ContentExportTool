@@ -21,6 +21,10 @@
             margin-bottom: 7px;
         }
 
+        .ui-datepicker {
+            background: white;
+        }
+
         .notes, .border-notes {
             color: GrayText;
             font-size: 12px;
@@ -1151,6 +1155,9 @@
                                     <span class="notes">Run this export to audit the components on each Sitecore item. You can use the Start Item, Template and Created/Published Date filters and Language options to select items. The exported data will include the name of the component, the page it is on, and any associated datasource item
                                     </span><br />
                                     <br />
+                                    <span>This provides a report of which renderings are on each item (and those renderings' datasources)</span>
+                                    <br />
+                                    <br />
                                     <span class="header">Component Names (optional) - only report instances of the specified components</span>
                                     <textarea runat="server" id="txtComponentNames" />
                                     <br /><br />
@@ -1167,10 +1174,13 @@
                                 </div>
                                 <div class="row advanced-search">
                                     <span class="header"><b>Rendering Parameters Audit</b></span>
-                                    <span class="notes">Run this export to get all of the Rendering Parameters on each Sitecore item. You can use the Start Item, Template and Created/Published Date filters and Language options to select items. This export will look the same as a Content Export, but will include Rendering Parameters rather than Template Fields.
+                                    <span class="notes">Run this export to get all of the Rendering Parameters for each rendering on each Sitecore item. You can use the Start Item, Template and Created/Published Date filters and Language options to select items. This export will look the same as a Content Export, but will include Rendering Parameters rather than Template Fields.
                                         <br />
                                         Supported options: Template Name, Item Name, Item ID, Start Item(s), all Filters
                                     </span>
+                                    <br />
+                                    <br />
+                                    <span>This provides a report of the <b>rendering parameters</b> for each rendering (i.e. the custom properties of the rendering)</span>
                                     <br />
                                     <br />
                                     <asp:Button class="spinner-btn" runat="server" ID="btnRenderingParametersAudit" OnClick="btnRenderingParametersAudit_Click" Text="Run Rendering Parameters Audit" />
@@ -1201,9 +1211,9 @@
                                     </span>
                                     <br /><br />
                                     <span>Deleted between</span>
-                                    <input type="text" runat="server" id="txtDeletedStart" autocomplete="off" />
+                                    <input type="text" runat="server" id="txtDeletedStart" class="datepicker" autocomplete="off" />
                                     <span> and </span>
-                                    <input type="text" runat="server" id="txtDeletedEnd" autocomplete="off" />
+                                    <input type="text" runat="server" id="txtDeletedEnd" class="datepicker" autocomplete="off" />
                                     <br /><br />
                                     <input name="radUser" type="radio" runat="server" id="radAllDeletions" /><span>All Deleted items</span><br />
                                     <input name="radUser" type="radio" runat="server" id="radMyItems" /><span>My Deleted items</span>
