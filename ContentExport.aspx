@@ -1193,7 +1193,7 @@
                                     <br />
                                     <asp:CheckBox runat="server" ID="chkObsoleteTemplates" /><span class="notes"><b style="color: black">Obsolete templates</b> - Generate a report of all templates that are not in use</span><br />
                                     <br />
-                                    <asp:Button class="spinner-btn" runat="server" ID="btnTemplateAudit" OnClick="btnTemplateAudit_OnClick" Text="Run Obsolete Template Audit Audit" />
+                                    <asp:Button class="spinner-btn" runat="server" ID="btnTemplateAudit" OnClick="btnTemplateAudit_OnClick" Text="Run Template Audit" />
                                 </div>
                                 <div class="row advanced-search">
                                     <span class="header"><b>Deletions Audit</b></span>
@@ -1453,6 +1453,11 @@
                                         <li><b>Template</b> <span class="notes">With Apply to All Subitems, apply the changes only to items with the specified template name or ID</span></li>
                                         <li><b>Component Name</b> <span class="notes">The name or ID of the component to modify</span></li>
                                         <li><b>When Placeholder Equals</b> <span class="notes">Modify a component within this particular placeholder</span></li>
+                                        <li><b>All Matching Components</b> <span class="notes">Set to TRUE to modify ALL components that match the name (otherwise will only modify the first match)</span>
+                                            <ul>
+                                                <li><span class="notes">With <b>When Placeholder Equals</b>, modify ALL components within the specified placeholder with the specified name</span></li>
+                                            </ul>
+                                        </li>
                                         <li><b>Nth of Type</b> <span class="notes">Modify the Nth component with the specified name (NUMERIC, STARTS AT 1)</span>
                                             <ul>
                                                 <li><span class="notes">With <b>When Placeholder Equals</b>, modify the Nth component within the specified placeholder with the specified name</span></li>

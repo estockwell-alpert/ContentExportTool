@@ -1515,6 +1515,7 @@ namespace ContentExportTool
                 var templateIndex = -1;
                 var whenPlaceholderIndex = -1;
                 var nthOfTypeIndex = -1;
+                var allIndex = -1;
                 var deleteIndex = -1;
 
                 var itemsImported = 0;
@@ -1545,6 +1546,7 @@ namespace ContentExportTool
                             applyToSubitemsIndex = fieldsMap.FindIndex(x => x.ToLower() == "apply to all subitems");
                             templateIndex = fieldsMap.FindIndex(x => x.ToLower() == "template");
                             whenPlaceholderIndex = fieldsMap.FindIndex(x => x.ToLower() == "when placeholder equals");
+                            allIndex = fieldsMap.FindIndex(x => x.ToLower() == "all matching components");
                             nthOfTypeIndex = fieldsMap.FindIndex(x => x.ToLower() == "nth of type");
                             deleteIndex = fieldsMap.FindIndex(x => x.ToLower() == "delete");
                         }
@@ -1600,7 +1602,7 @@ namespace ContentExportTool
 
                                     if (editItem)
                                     {
-                                        var itemModified = EditRenderingParams(item, cells, componentNameIndex, parameterNameIndex, whenPlaceholderIndex, valueIndex, placeholderIndex, positionIndex, positionInPlacholderIndex, beforeIndex, afterIndex, nthOfTypeIndex, fieldsMap, line, deleteIndex, ref output);
+                                        var itemModified = EditRenderingParams(item, cells, componentNameIndex, parameterNameIndex, whenPlaceholderIndex, valueIndex, placeholderIndex, positionIndex, positionInPlacholderIndex, beforeIndex, afterIndex, nthOfTypeIndex, fieldsMap, line, deleteIndex, allIndex, ref output);
 
                                         if (itemModified)
                                             itemsImported++;
@@ -1626,7 +1628,7 @@ namespace ContentExportTool
 
                                         foreach (var subItem in subItems)
                                         {
-                                            var itemModified = EditRenderingParams(subItem, cells, componentNameIndex, parameterNameIndex, whenPlaceholderIndex, valueIndex, placeholderIndex, positionIndex, positionInPlacholderIndex, beforeIndex, afterIndex, nthOfTypeIndex, fieldsMap, line, deleteIndex, ref output);
+                                            var itemModified = EditRenderingParams(subItem, cells, componentNameIndex, parameterNameIndex, whenPlaceholderIndex, valueIndex, placeholderIndex, positionIndex, positionInPlacholderIndex, beforeIndex, afterIndex, nthOfTypeIndex, fieldsMap, line, deleteIndex, allIndex, ref output);
                                             if (publishChanges && itemModified)
                                             {
                                                 var published = PublishItem(subItem, language, ddRenderingParamPublishDatabase.SelectedValue);
@@ -2073,7 +2075,7 @@ namespace ContentExportTool
             item.Editing.EndEdit();
         }
 
-        protected bool EditRenderingParams(Item item, string[] cells, int componentNameIndex, int parameterNameIndex, int whenPlaceholderEqualsIndex, int valueIndex, int placeholderIndex, int positionIndex, int positionInPlaceholderIndex, int beforeIndex, int afterIndex, int nthOfTypeIndex, List<string> fieldsMap, int line, int deleteIndex, ref string output)
+        protected bool EditRenderingParams(Item item, string[] cells, int componentNameIndex, int parameterNameIndex, int whenPlaceholderEqualsIndex, int valueIndex, int placeholderIndex, int positionIndex, int positionInPlaceholderIndex, int beforeIndex, int afterIndex, int nthOfTypeIndex, List<string> fieldsMap, int line, int deleteIndex, int allIndex, ref string output)
         {
             item.Editing.BeginEdit();
 
@@ -2087,6 +2089,7 @@ namespace ContentExportTool
             var after = afterIndex > -1 ? cells[afterIndex] : "";
             var whenPlaceholderEquals = whenPlaceholderEqualsIndex > -1 ? cells[whenPlaceholderEqualsIndex] : "";
             var nthOfType = nthOfTypeIndex > -1 ? cells[nthOfTypeIndex] : "";
+            var all = cells[allIndex] == "-1" || (allIndex > -1 ? cells[allIndex].ToLower() == "true" || cells[allIndex].ToLower() == "yes" || cells[allIndex] == "1" : false);
             var delete = position == "-1" || (deleteIndex > -1 ? cells[deleteIndex].ToLower() == "true" || cells[deleteIndex].ToLower() == "yes" || cells[deleteIndex] == "1" : false);
 
             try
@@ -2099,7 +2102,7 @@ namespace ContentExportTool
                 var layoutDefinition = LayoutDefinition.Parse(layoutField.Value);
                 var deviceDefinition = layoutDefinition.GetDevice(defaultDeviceId);
 
-                RenderingDefinition rendering;
+                List<RenderingDefinition> selectedRenderings = new List<RenderingDefinition>();
                 int n;
                 var renderings = deviceDefinition.Renderings.Cast<RenderingDefinition>().ToList();
                 var matchingRenderings = renderings.Where(x => x != null &&
@@ -2112,111 +2115,126 @@ namespace ContentExportTool
 
                 if (!String.IsNullOrEmpty(nthOfType) && Int32.TryParse(nthOfType, out n))
                 {
-                    rendering = n >= (matchingRenderings.Count()) ? matchingRenderings.LastOrDefault() : matchingRenderings[n - 1];
+                    var rendering = n >= (matchingRenderings.Count()) ? matchingRenderings.LastOrDefault() : matchingRenderings[n - 1];
+                    selectedRenderings.Add(rendering);
+                }
+                else if (all)
+                {
+                    selectedRenderings = matchingRenderings;
                 }
                 else
                 {
-                    rendering = matchingRenderings.FirstOrDefault();
+                    var rendering = matchingRenderings.FirstOrDefault();
+                    selectedRenderings.Add(rendering);
                 }
 
-                if (rendering == null)
+                foreach (var rendering in selectedRenderings)
                 {
-                    output += "Line " + (line + 1) + ": " + componentNameOrId + " not found " + (String.IsNullOrEmpty(whenPlaceholderEquals) ? "" : "in " + whenPlaceholderEquals) + " on " + item.Paths.FullPath + "<br/>";
-                    return false;
-                }
-
-                // 1. set placeholder
-                if (!String.IsNullOrEmpty(placeholder))
-                {
-                    rendering.Placeholder = placeholder;
-                }
-
-                IEnumerable<RenderingDefinition> allRenderings = deviceDefinition.Renderings.ToArray().Cast<RenderingDefinition>();
-
-                var renderingIndex = allRenderings.ToList().IndexOf(rendering);
-
-
-                // 2. set position of rendering
-                if (delete || !String.IsNullOrEmpty(after) || !String.IsNullOrEmpty(before) || !String.IsNullOrEmpty(positionInPlaceholder) || !String.IsNullOrEmpty(position))
-                {
-                    var index = allRenderings.ToList().IndexOf(rendering);
-
-                    // remove rendering
-                    List<RenderingDefinition> renderingsArray = deviceDefinition.Renderings.ToArray().Cast<RenderingDefinition>().ToList();
-                    renderingsArray.RemoveAt(renderingIndex);
-                    var updatedRenderings = new ArrayList(renderingsArray);
-                    deviceDefinition.Renderings = updatedRenderings;
-
-                    // rendering has been removed; add it back in new location unless delete is true
-                    if (!delete)
+                    if (rendering == null)
                     {
-                        if (!String.IsNullOrEmpty(after))
-                        {
-                            var lastRenderingBefore = allRenderings.Where(x => x.ItemID.ToString().ToLower() == after.ToLower() || _db.GetItem(x.ItemID).Name.ToLower() == after.ToLower()).LastOrDefault();
-                            if (lastRenderingBefore != null)
-                            {
-                                index = allRenderings.ToList().IndexOf(lastRenderingBefore);
-                            }
-                        }
-                        else if (!String.IsNullOrEmpty(before))
-                        {
-                            var firstRenderingAfter = allRenderings.Where(x => x.ItemID.ToString().ToLower() == before.ToLower() || _db.GetItem(x.ItemID).Name.ToLower() == before.ToLower()).FirstOrDefault();
-                            if (firstRenderingAfter != null)
-                            {
-                                index = allRenderings.ToList().IndexOf(firstRenderingAfter) - 1;
-                                if (index < 0)
-                                    index = 0;
-                            }
-                        }
-                        else if (!String.IsNullOrEmpty(positionInPlaceholder))
-                        {
-                            var renderingsInPlaceholder = allRenderings.Where(x => x.Placeholder.ToLower() == rendering.Placeholder.ToLower() && x != rendering);
-
-                            int placeholderPosition;
-                            var valid = Int32.TryParse(positionInPlaceholder, out placeholderPosition);
-
-
-                            if (renderingsInPlaceholder.Any() && valid)
-                            {
-
-                                if (renderingsInPlaceholder.Count() <= placeholderPosition)
-                                    placeholderPosition = renderingsInPlaceholder.Count() - 1;
-
-                                var firstRenderingAfter = renderingsInPlaceholder.ToList()[placeholderPosition];
-
-                                index = allRenderings.ToList().IndexOf(firstRenderingAfter);
-                                if (index < 0)
-                                    index = 0;
-                            }
-                        }
-                        else if (!String.IsNullOrEmpty(position))
-                        {
-                            int newIndex;
-                            var valid = Int32.TryParse(position, out newIndex);
-                            if (valid)
-                            {
-                                index = newIndex;
-                            }
-                        }
-
-                        // add it back at the specified index
-                        deviceDefinition.Insert(index, rendering);
+                        output += "Line " + (line + 1) + ": " + componentNameOrId + " not found " + (String.IsNullOrEmpty(whenPlaceholderEquals) ? "" : "in " + whenPlaceholderEquals) + " on " + item.Paths.FullPath + "<br/>";
+                        return false;
                     }
-                }
 
-                // 3. update rendering params
-                if (!String.IsNullOrEmpty(paramName) && !String.IsNullOrEmpty(value))
-                {
-                    var parameters = new System.Collections.Specialized.NameValueCollection();
-
-                    if (!String.IsNullOrEmpty(rendering.Parameters))
+                    // 1. set placeholder
+                    if (!String.IsNullOrEmpty(placeholder))
                     {
-                        parameters = HttpUtility.ParseQueryString(rendering.Parameters);
-                        var existingKey = parameters.AllKeys.FirstOrDefault(x => x != null && x.ToLower() == paramName);
-                        if (!String.IsNullOrEmpty(existingKey))
+                        rendering.Placeholder = placeholder;
+                    }
+
+                    IEnumerable<RenderingDefinition> allRenderings = deviceDefinition.Renderings.ToArray().Cast<RenderingDefinition>();
+
+                    var renderingIndex = allRenderings.ToList().IndexOf(rendering);
+
+
+                    // 2. set position of rendering
+                    if (delete || !String.IsNullOrEmpty(after) || !String.IsNullOrEmpty(before) || !String.IsNullOrEmpty(positionInPlaceholder) || !String.IsNullOrEmpty(position))
+                    {
+                        var index = allRenderings.ToList().IndexOf(rendering);
+
+                        // remove rendering
+                        List<RenderingDefinition> renderingsArray = deviceDefinition.Renderings.ToArray().Cast<RenderingDefinition>().ToList();
+                        renderingsArray.RemoveAt(renderingIndex);
+                        var updatedRenderings = new ArrayList(renderingsArray);
+                        deviceDefinition.Renderings = updatedRenderings;
+
+                        // rendering has been removed; add it back in new location unless delete is true
+                        if (!delete)
                         {
-                            parameters.Remove(paramName);
-                            parameters[existingKey] = value;
+                            if (!String.IsNullOrEmpty(after))
+                            {
+                                var lastRenderingBefore = allRenderings.Where(x => x.ItemID.ToString().ToLower() == after.ToLower() || _db.GetItem(x.ItemID).Name.ToLower() == after.ToLower()).LastOrDefault();
+                                if (lastRenderingBefore != null)
+                                {
+                                    index = allRenderings.ToList().IndexOf(lastRenderingBefore);
+                                }
+                            }
+                            else if (!String.IsNullOrEmpty(before))
+                            {
+                                var firstRenderingAfter = allRenderings.Where(x => x.ItemID.ToString().ToLower() == before.ToLower() || _db.GetItem(x.ItemID).Name.ToLower() == before.ToLower()).FirstOrDefault();
+                                if (firstRenderingAfter != null)
+                                {
+                                    index = allRenderings.ToList().IndexOf(firstRenderingAfter) - 1;
+                                    if (index < 0)
+                                        index = 0;
+                                }
+                            }
+                            else if (!String.IsNullOrEmpty(positionInPlaceholder))
+                            {
+                                var renderingsInPlaceholder = allRenderings.Where(x => x.Placeholder.ToLower() == rendering.Placeholder.ToLower() && x != rendering);
+
+                                int placeholderPosition;
+                                var valid = Int32.TryParse(positionInPlaceholder, out placeholderPosition);
+
+
+                                if (renderingsInPlaceholder.Any() && valid)
+                                {
+
+                                    if (renderingsInPlaceholder.Count() <= placeholderPosition)
+                                        placeholderPosition = renderingsInPlaceholder.Count() - 1;
+
+                                    var firstRenderingAfter = renderingsInPlaceholder.ToList()[placeholderPosition];
+
+                                    index = allRenderings.ToList().IndexOf(firstRenderingAfter);
+                                    if (index < 0)
+                                        index = 0;
+                                }
+                            }
+                            else if (!String.IsNullOrEmpty(position))
+                            {
+                                int newIndex;
+                                var valid = Int32.TryParse(position, out newIndex);
+                                if (valid)
+                                {
+                                    index = newIndex;
+                                }
+                            }
+
+                            // add it back at the specified index
+                            deviceDefinition.Insert(index, rendering);
+                        }
+                    }
+
+                    // 3. update rendering params
+                    if (!String.IsNullOrEmpty(paramName) && !String.IsNullOrEmpty(value))
+                    {
+                        var parameters = new System.Collections.Specialized.NameValueCollection();
+
+                        if (!String.IsNullOrEmpty(rendering.Parameters))
+                        {
+                            parameters = HttpUtility.ParseQueryString(rendering.Parameters);
+                            var existingKey = parameters.AllKeys.FirstOrDefault(x => x != null && x == paramName);
+                            if (!String.IsNullOrEmpty(existingKey))
+                            {
+                                parameters.Remove(paramName);
+                                parameters[existingKey] = value;
+                            }
+                            else
+                            {
+                                TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+                                paramName = textInfo.ToTitleCase(paramName);
+                                parameters[paramName] = value;
+                            }
                         }
                         else
                         {
@@ -2224,15 +2242,9 @@ namespace ContentExportTool
                             paramName = textInfo.ToTitleCase(paramName);
                             parameters[paramName] = value;
                         }
+                        var newParams = HttpUtility.UrlDecode(parameters.ToString());
+                        rendering.Parameters = newParams;
                     }
-                    else
-                    {
-                        TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
-                        paramName = textInfo.ToTitleCase(paramName);
-                        parameters[paramName] = value;
-                    }
-                    var newParams = HttpUtility.UrlDecode(parameters.ToString());
-                    rendering.Parameters = newParams;
                 }
                 // end edit rendering
 
@@ -4056,7 +4068,7 @@ namespace ContentExportTool
         {
             using (StringWriter sw = new StringWriter())
             {
-                var headingString = "Item Path,Apply to All Subitems,Template,Component Name,When Placeholder Equals,Nth of Type,Parameter Name,Value,Placeholder,Position,Position in Placeholder,Before,After\n";
+                var headingString = "Item Path,Apply to All Subitems,Template,Component Name,When Placeholder Equals,Nth of Type,All Matching Components,Parameter Name,Value,Placeholder,Position,Position in Placeholder,Before,After\n";
 
                 StartResponse("CSVRenderingParametersImportTemplate");
                 sw.WriteLine(headingString);
