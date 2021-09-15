@@ -1578,7 +1578,7 @@ namespace ContentExportTool
 
                                 else
                                 {
-                                    if (item.Versions.Count == 0)
+                                    if (item.Versions.Count == 0 || item.IsFallback)
                                     {
                                         item = item.Versions.AddVersion();
                                     }
@@ -1842,7 +1842,7 @@ namespace ContentExportTool
                                 }
                                 else
                                 {
-                                    if (item.Versions.Count == 0)
+                                    if (item.Versions.Count == 0 || item.IsFallback)
                                     {
                                         item = item.Versions.AddVersion();
                                     }
