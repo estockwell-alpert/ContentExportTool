@@ -1116,7 +1116,7 @@ namespace ContentExportTool
                 }
                 else
                 {
-                    if (linkField.IsInternal && linkField.TargetItem != null)
+                    if (linkField.TargetItem != null)
 					{
 						var targetItem = linkField.TargetItem;
 						if (targetItem != null)
