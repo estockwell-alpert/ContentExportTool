@@ -77,19 +77,19 @@ namespace ContentExportTool
             var fileSource = new ExplicitFileSource();
             fileSource.Name = "Files";
 
-            fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\BayerCA\\web\\Website\\sitecore\\shell\\Applications\\ContentExport\\ContentExport.aspx"));
-            fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\BayerCA\\web\\Website\\sitecore\\shell\\Applications\\ContentExport\\ContentExport.aspx.cs"));
-            fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\BayerCA\\web\\Website\\sitecore\\shell\\Applications\\ContentExport\\ContentExport.aspx.designer.cs"));
-            fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\BayerCA\\web\\Website\\sitecore\\shell\\Applications\\ContentExport\\jquery-2.2.4.min.js"));
-            fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\BayerCA\\web\\Website\\sitecore\\shell\\Applications\\ContentExport\\jquery-ui.min.js"));
-            fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\BayerCA\\web\\Website\\sitecore\\shell\\Applications\\ContentExport\\ContentExportScripts.js"));
+            fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\Kofax-82\\web\\Website\\sitecore\\shell\\Applications\\ContentExport\\ContentExport.aspx"));
+            fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\Kofax-82\\web\\Website\\sitecore\\shell\\Applications\\ContentExport\\ContentExport.aspx.cs"));
+            fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\Kofax-82\\web\\Website\\sitecore\\shell\\Applications\\ContentExport\\ContentExport.aspx.designer.cs"));
+            fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\Kofax-82\\web\\Website\\sitecore\\shell\\Applications\\ContentExport\\jquery-2.2.4.min.js"));
+            fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\Kofax-82\\web\\Website\\sitecore\\shell\\Applications\\ContentExport\\jquery-ui.min.js"));
+            fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\Kofax-82\\web\\Website\\sitecore\\shell\\Applications\\ContentExport\\ContentExportScripts.js"));
             fileSource.Entries.Add(
-                MainUtil.MapPath("C:\\Dev\\BayerCA\\web\\Website\\temp\\IconCache\\Network\\16x16\\download.png"));
+                MainUtil.MapPath("C:\\Dev\\Kofax-82\\web\\Website\\temp\\IconCache\\Network\\16x16\\download.png"));
             fileSource.Entries.Add(
-                MainUtil.MapPath("C:\\Dev\\BayerCA\\web\\Website\\temp\\IconCache\\Network\\32x32\\download.png"));
+                MainUtil.MapPath("C:\\Dev\\Kofax-82\\web\\Website\\temp\\IconCache\\Network\\32x32\\download.png"));
             fileSource.Entries.Add(
-                MainUtil.MapPath("C:\\Dev\\BayerCA\\web\\Website\\temp\\IconCache\\Network\\24x24\\download.png"));
-            fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\BayerCA\\web\\Website\\sitecore\\shell\\Themes\\Standard\\Images\\ProgressIndicator\\sc-spinner32.gif"));
+                MainUtil.MapPath("C:\\Dev\\Kofax-82\\web\\Website\\temp\\IconCache\\Network\\24x24\\download.png"));
+            fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\Kofax-82\\web\\Website\\sitecore\\shell\\Themes\\Standard\\Images\\ProgressIndicator\\sc-spinner32.gif"));
 
             packageProject.Sources.Add(fileSource);
 

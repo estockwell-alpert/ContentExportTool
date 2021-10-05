@@ -1116,13 +1116,13 @@ namespace ContentExportTool
                 }
                 else
                 {
-                    if (String.IsNullOrEmpty(linkField.Url) && linkField.IsInternal)
+                    if (linkField.IsInternal && linkField.TargetItem != null)
 					{
 						var targetItem = linkField.TargetItem;
 						if (targetItem != null)
-						{
-							var itemUrl = Sitecore.Links.LinkManager.GetItemUrl(targetItem);
-							itemLine += itemUrl + ",";
+						{							
+							var itemUrl = targetItem.Paths.Path.Replace("/sitecore/content", "");
+							itemLine += itemUrl + ",";													
 						}
 						else
 						{
