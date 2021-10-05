@@ -1116,7 +1116,23 @@ namespace ContentExportTool
                 }
                 else
                 {
-                    itemLine += linkField.Url + ",";
+                    if (String.IsNullOrEmpty(linkField.Url) && linkField.IsInternal)
+					{
+						var targetItem = linkField.TargetItem;
+						if (targetItem != null)
+						{
+							var itemUrl = Sitecore.Links.LinkManager.GetItemUrl(targetItem);
+							itemLine += itemUrl + ",";
+						}
+						else
+						{
+							itemLine += ",";
+						}
+					}
+					else
+					{
+						itemLine += linkField.Url + ",";
+					}
                 }
 
                 if (includeRawHtml)
