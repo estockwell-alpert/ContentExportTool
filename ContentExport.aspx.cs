@@ -617,6 +617,12 @@ namespace ContentExportTool
                     {
                         var itemVersions = GetItemVersions(baseItem, allLanguages, selectedLanguage);
 
+                        // if we're filtering on date ranges, only include item versions within the date range
+                        if (allLanguages)
+                        {
+                            itemVersions = FilterByDateRanges(itemVersions, false);
+                        }
+
                         foreach (var item in itemVersions)
                         {
                             // check author filters
@@ -3138,8 +3144,11 @@ namespace ContentExportTool
             return itemsAsRelatedItems;
         }
 
-        protected List<Item> FilterByDateRanges(List<Item> exportItems)
+        protected List<Item> FilterByDateRanges(List<Item> exportItems, bool checkAllVersions = true)
         {
+            var allLanguages = chkAllLanguages.Checked;
+            var selectedLanguage = ddLanguages.SelectedValue;
+
             var startDateCr = new DateTime();
             var startDatePb = new DateTime();
             var endDateCr = new DateTime();
@@ -3191,22 +3200,40 @@ namespace ContentExportTool
 
             if (validStartDateCr || validEndDateCr || radDateRangeAnd.Checked) // only populate list if we've selected filters, otherwise should be empty
             {
-                createdFilterItems =
-                    exportItems.Where(
-                        x =>
-                            (x.Statistics.Created >= startDateCr && x.Statistics.Created <= endDateCr &&
-                             x.Statistics.Created != DateTime.MinValue && x.Statistics.Created != DateTime.MaxValue))
-                        .ToList();
+                if (checkAllVersions)
+                {
+                    createdFilterItems =
+                        exportItems.Where(
+                            x => GetItemVersions(x, allLanguages, selectedLanguage).Any(
+                                y => y.Statistics.Created >= startDateCr && y.Statistics.Created <= endDateCr &&
+                                 y.Statistics.Created != DateTime.MinValue && y.Statistics.Created != DateTime.MaxValue)).ToList();
+                }
+                else
+                {
+                    createdFilterItems =
+                        exportItems.Where(
+                                y => y.Statistics.Created >= startDateCr && y.Statistics.Created <= endDateCr &&
+                                 y.Statistics.Created != DateTime.MinValue && y.Statistics.Created != DateTime.MaxValue).ToList();
+                }
             }
 
             if (validStartDatePb || validEndDatePb || radDateRangeAnd.Checked)
             {
-                updatedFilterItems =
+                if (checkAllVersions)
+                {
+                    updatedFilterItems =
                     exportItems.Where(
-                        x =>
-                            (x.Statistics.Updated >= startDatePb && x.Statistics.Updated <= endDatePb &&
-                             x.Statistics.Updated != DateTime.MinValue && x.Statistics.Updated != DateTime.MaxValue))
-                        .ToList();
+                        x => GetItemVersions(x, allLanguages, selectedLanguage).Any(
+                            y => y.Statistics.Updated >= startDatePb && y.Statistics.Updated <= endDatePb &&
+                             y.Statistics.Updated != DateTime.MinValue && y.Statistics.Updated != DateTime.MaxValue)).ToList();
+                }
+                else
+                {
+                    updatedFilterItems =
+                    exportItems.Where(
+                            y => y.Statistics.Updated >= startDatePb && y.Statistics.Updated <= endDatePb &&
+                             y.Statistics.Updated != DateTime.MinValue && y.Statistics.Updated != DateTime.MaxValue).ToList();
+                }
             }
 
             exportItems = radDateRangeOr.Checked ? createdFilterItems.Union(updatedFilterItems).ToList() : createdFilterItems.Intersect(updatedFilterItems).ToList();
@@ -3366,6 +3393,12 @@ namespace ContentExportTool
                         try
                         {
                             var itemVersions = GetItemVersions(baseItem, allLanguages, selectedLanguage);
+
+                            // if we're filtering on date ranges, only include item versions within the date range
+                            if (allLanguages)
+                            {
+                                itemVersions = FilterByDateRanges(itemVersions, false);
+                            }
 
                             foreach (var item in itemVersions)
                             {
@@ -3964,6 +3997,12 @@ namespace ContentExportTool
                     {
                         var itemVersions = GetItemVersions(baseItem, allLanguages, selectedLanguage);
 
+                        // if we're filtering on date ranges, only include item versions within the date range
+                        if (allLanguages)
+                        {
+                            itemVersions = FilterByDateRanges(itemVersions, false);
+                        }
+
                         foreach (var item in itemVersions)
                         {
                             if (!ItemHasPresentationDetails(item.ID.ToString()))
@@ -4260,6 +4299,12 @@ namespace ContentExportTool
                     try
                     {
                         var itemVersions = GetItemVersions(baseItem, allLanguages, selectedLanguage);
+
+                        // if we're filtering on date ranges, only include item versions within the date range
+                        if (allLanguages)
+                        {
+                            itemVersions = FilterByDateRanges(itemVersions, false);
+                        }
 
                         foreach (var item in itemVersions)
                         {
