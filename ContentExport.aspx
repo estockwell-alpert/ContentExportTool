@@ -1045,6 +1045,13 @@
                                         <asp:CheckBox runat="server" ID="chkRelateItems" class="chkRelatedItems" />
                                         <span class="notes">Export the paths of all items each item refers to</span>
                                     </div>
+                                    <div class="row">
+                                        <span class="header">Published</span>
+                                        <asp:CheckBox runat="server" ID="chkPublishedItems" class="chkPublished" />
+                                        <span class="notes">Export whether the item is published to web (True/False) <br />
+                                            Note: This does not say if the item in web is up-to-date with master, but only whether it exists in web <br />
+                                            <b>WARNING: This may double the processing time</b></span>
+                                    </div>
 
                                     <div class="row">
                                         <span class="header">Delimiter</span>

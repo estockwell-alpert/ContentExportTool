@@ -565,6 +565,7 @@ namespace ContentExportTool
                 var neverPublish = chkNeverPublish.Checked;
                 var includeReferrers = chkReferrers.Checked;
                 var includeRelated = chkRelateItems.Checked;
+                var publishedItems = chkPublishedItems.Checked && ddDatabase.SelectedValue != "web";
 
                 var rawValues = chkRawValues.Checked;
 
@@ -606,12 +607,15 @@ namespace ContentExportTool
                                         + (includeworkflowName && !allStandardFields ? "__Workflow," : string.Empty)
                                         + (includeWorkflowState && !allStandardFields ? "__Workflow state," : string.Empty)
                                         + (includeReferrers ? "Referrers," : string.Empty)
-                                        + (includeRelated ? "Related Items," : string.Empty);
+                                        + (includeRelated ? "Related Items," : string.Empty)
+                                        + (publishedItems ? "Published," : string.Empty);
 
                     var dataLines = new List<string>();
 
                     var createdByAuthors = txtCreatedByFilter.Value.Split(',');
                     var modifiedByAuthors = txtModifiedByFilter.Value.Split(',');
+
+                    var webDb = Sitecore.Configuration.Factory.GetDatabase("web"); 
 
                     foreach (var baseItem in items)
                     {
@@ -784,6 +788,12 @@ namespace ContentExportTool
                                 itemLine += "\"" + data + "\",";
 
 
+                            }
+
+                            if (publishedItems)
+                            {
+                                var itemInWeb = webDb.GetItem(item.ID);
+                                itemLine += "\"" + (itemInWeb != null) + "\",";
                             }
 
                             foreach (var field in fields)
@@ -2438,6 +2448,7 @@ namespace ContentExportTool
                 Owner = chkOwner.Checked,
                 AllStandardFields = chkAllStandardFields.Checked,
                 RequireLayout = chkItemsWithLayout.Checked,
+                PublishedItems = chkPublishedItems.Checked,
                 Referrers = chkReferrers.Checked,
                 Related = chkRelateItems.Checked,
                 FileName = txtFileName.Value,
@@ -2577,6 +2588,7 @@ namespace ContentExportTool
             chkReferrers.Checked = settings.Referrers;
             chkRelateItems.Checked = settings.Related;
             chkIncludeRelatedItems.Checked = settings.Related;
+            chkPublishedItems.Checked = settings.PublishedItems;
             txtFileName.Value = settings.FileName;
             chkAllFields.Checked = settings.AllFields;
             txtAdvancedSearch.Value = settings.AdvancedSearch;
@@ -2675,6 +2687,7 @@ namespace ContentExportTool
             chkReferrers.Checked = false;
             chkRelateItems.Checked = false;
             chkIncludeRelatedItems.Checked = false;
+            chkPublishedItems.Checked = false;
             chkIncludeSubitems.Checked = false;
             txtFileName.Value = string.Empty;
             chkAllFields.Checked = false;
@@ -2740,6 +2753,7 @@ namespace ContentExportTool
                 Owner = chkOwner.Checked,
                 AllStandardFields = chkOwner.Checked,
                 RequireLayout = chkItemsWithLayout.Checked,
+                PublishedItems = chkPublishedItems.Checked,
                 Referrers = chkReferrers.Checked,
                 Related = chkRelateItems.Checked,
                 FileName = txtFileName.Value,
@@ -4517,6 +4531,7 @@ namespace ContentExportTool
         public bool RequireLayout;
         public bool Referrers;
         public bool Related;
+        public bool PublishedItems;
         public string FileName;
         public bool AllFields;
         public string AdvancedSearch;

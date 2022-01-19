@@ -589,6 +589,15 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.CheckBox chkRelateItems;
         
         /// <summary>
+        /// chkPublishedItems control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkPublishedItems;
+        
+        /// <summary>
         /// radSemicolon control.
         /// </summary>
         /// <remarks>
