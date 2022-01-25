@@ -598,6 +598,24 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.CheckBox chkPublishedItems;
         
         /// <summary>
+        /// chkVersionPublished control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkVersionPublished;
+        
+        /// <summary>
+        /// chkVersionUpToDate control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkVersionUpToDate;
+        
+        /// <summary>
         /// radSemicolon control.
         /// </summary>
         /// <remarks>

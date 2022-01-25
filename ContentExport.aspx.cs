@@ -566,6 +566,7 @@ namespace ContentExportTool
                 var includeReferrers = chkReferrers.Checked;
                 var includeRelated = chkRelateItems.Checked;
                 var publishedItems = chkPublishedItems.Checked && ddDatabase.SelectedValue != "web";
+                var upToDate = chkVersionUpToDate.Checked && ddDatabase.SelectedValue != "web";
 
                 var rawValues = chkRawValues.Checked;
 
@@ -608,7 +609,8 @@ namespace ContentExportTool
                                         + (includeWorkflowState && !allStandardFields ? "__Workflow state," : string.Empty)
                                         + (includeReferrers ? "Referrers," : string.Empty)
                                         + (includeRelated ? "Related Items," : string.Empty)
-                                        + (publishedItems ? "Published," : string.Empty);
+                                        + (publishedItems ? "Published," : string.Empty)
+                                        + (upToDate ? "Up To Date," : string.Empty);
 
                     var dataLines = new List<string>();
 
@@ -792,8 +794,28 @@ namespace ContentExportTool
 
                             if (publishedItems)
                             {
-                                var itemInWeb = webDb.GetItem(item.ID);
-                                itemLine += "\"" + (itemInWeb != null) + "\",";
+                                // check if the item exists in web
+                                var itemInWeb = webDb.GetItem(item.ID, item.Language);
+
+                                var hasVersion = itemInWeb != null && itemInWeb.Versions.Count > 0;
+
+                                itemLine += "\"" + (hasVersion) + "\",";
+                            }
+
+                            if (upToDate)
+                            {
+                                var languageItem = webDb.GetItem(item.ID, item.Language);
+                                
+                                if (languageItem == null || languageItem.Versions.Count == 0)
+                                {
+                                    var message = "n/a";
+                                    itemLine += "\"" + message + "\",";
+                                }
+                                else
+                                {
+                                    // compare the master version Updated date to the web version Updated date
+                                    itemLine += "\"" + (item.Statistics.Updated == languageItem.Statistics.Updated) + "\",";
+                                }
                             }
 
                             foreach (var field in fields)

@@ -1046,10 +1046,16 @@
                                         <span class="notes">Export the paths of all items each item refers to</span>
                                     </div>
                                     <div class="row">
-                                        <span class="header">Published</span>
+                                        <span class="header">Item is Published</span>
                                         <asp:CheckBox runat="server" ID="chkPublishedItems" class="chkPublished" />
-                                        <span class="notes">Export whether the item is published to web (True/False) <br />
-                                            Note: This does not say if the item in web is up-to-date with master, but only whether it exists in web <br />
+                                        <span class="notes">Export whether the item (in the default or selected language version) is published to web (True/False) <br />
+                                            Note: This does not say if the item in web is up-to-date with master <br />
+                                            <b>WARNING: This may double the processing time</b></span>
+                                    </div>
+                                    <div class="row">
+                                        <span class="header">Version is Up To Date</span>
+                                        <asp:CheckBox runat="server" ID="chkVersionUpToDate" class="chkPublished" />
+                                        <span class="notes">Export whether the version in web is up to date with master (True/False) <br />
                                             <b>WARNING: This may double the processing time</b></span>
                                     </div>
 
