@@ -3596,7 +3596,7 @@ namespace ContentExportTool
             PhBrowseModal.Visible = false;
             phScrollToImport.Visible = false;
             phScrollToRenderingImport.Visible = false;
-            phScrollToMediaExport.Visible = true;
+            phScrollToMediaExport.Visible = false;
 
             if (!SetDatabase())
             {
@@ -4414,6 +4414,12 @@ namespace ContentExportTool
 
         protected void ButtonExportMedia_Click(object sender, EventArgs e)
         {
+            PhBrowseFields.Visible = false;
+            PhBrowseModal.Visible = false;
+            phScrollToImport.Visible = false;
+            phScrollToRenderingImport.Visible = false;
+            phScrollToMediaExport.Visible = true;
+
             var db = Database.GetDatabase("master");
 
             var downloadPath = txtDownloadPath.Text;
