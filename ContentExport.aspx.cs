@@ -57,6 +57,7 @@ namespace ContentExportTool
             phDeleteScript.Visible = false;
             phScrollToImport.Visible = false;
             phScrollToRenderingImport.Visible = false;
+            phScrollToMediaExport.Visible = false;
             litFastQueryTest.Text = String.Empty;
             if (!IsPostBack)
             {
@@ -1534,6 +1535,7 @@ namespace ContentExportTool
             PhBrowseModal.Visible = false;
             PhBrowseFields.Visible = false;
             phScrollToImport.Visible = false;
+            phScrollToMediaExport.Visible = false;
             phScrollToRenderingImport.Visible = true;
 
             try
@@ -1736,6 +1738,7 @@ namespace ContentExportTool
             PhBrowseModal.Visible = false;
             PhBrowseFields.Visible = false;
             phScrollToRenderingImport.Visible = false;
+            phScrollToMediaExport.Visible = false;
             phScrollToImport.Visible = true;
 
             try
@@ -3491,84 +3494,6 @@ namespace ContentExportTool
             }
         }
 
-        //protected void btnMediaExport_OnClick(object sender, EventArgs e)
-        //{
-        //    try
-        //    {
-        //        if (!SetDatabase())
-        //        {
-        //            litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
-        //            return;
-        //        }
-
-
-        //        if (_db == null)
-        //        {
-        //            litFeedback.Text = "Invalid database. Selected database does not exist.";
-        //            return;
-        //        }
-
-        //        List<Item> items = GetItems(!chkNoChildren.Checked, chkIncludeRelatedItems.Checked, chkIncludeSubitems.Checked, true);
-
-        //        // only media items
-        //        items = items.Where(x => x.Paths.IsMediaItem && (x.TemplateID != TemplateIDs.MediaFolder)).ToList();
-
-        //        MemoryStream outputMemStream = new MemoryStream();
-        //        ZipOutputStream zipStream = new ZipOutputStream(outputMemStream);
-
-        //        zipStream.SetLevel(3); //0-9, 9 being the highest level of compression
-
-        //        // loops through the media items
-        //        foreach (var item in items)
-        //        {
-        //            var mediaItem = (MediaItem)item;
-        //            var media = MediaManager.GetMedia(mediaItem);
-        //            if (media == null) continue;
-        //            var mediaStream = media.GetStream();
-        //            if (mediaStream == null) continue;
-        //            var stream = mediaStream.Stream;
-        //            if (stream == null) continue;
-        //            var bytes = ReadFully(stream);
-
-        //            var filePath = ZipEntry.CleanName(mediaItem.MediaPath) + "." + mediaItem.Extension;
-
-        //            var newEntry = new ZipEntry(filePath);
-        //            newEntry.DateTime = DateTime.Now;
-
-        //            zipStream.PutNextEntry(newEntry);
-
-        //            MemoryStream inStream = new MemoryStream(bytes);
-        //            StreamUtils.Copy(inStream, zipStream, new byte[4096]);
-        //            inStream.Close();
-        //            zipStream.CloseEntry();
-        //        }
-
-        //        zipStream.IsStreamOwner = false;    // False stops the Close also Closing the underlying stream.
-        //        zipStream.Close();          // Must finish the ZipOutputStream before using outputMemStream.
-
-        //        outputMemStream.Position = 0;
-
-        //        Response.Clear();
-        //        Response.BufferOutput = false;
-        //        Response.AddHeader("content-disposition", string.Format("attachment;filename={0}", "MediaExport.zip"));
-        //        Response.ContentType = "application/zip";
-        //        var downloadToken = txtDownloadToken.Value;
-        //        var responseCookie = new HttpCookie("DownloadToken");
-        //        responseCookie.Value = downloadToken;
-        //        responseCookie.HttpOnly = false;
-        //        responseCookie.Expires = DateTime.Now.AddDays(1);
-        //        Response.Cookies.Add(responseCookie);
-        //        Response.BinaryWrite(outputMemStream.ToArray());
-        //        Response.Flush();
-        //        Response.End();
-        //    }
-        //    catch(Exception ex)
-        //    {
-        //        litFeedback.Text = ex.ToString();
-        //        return;
-        //    }
-        //}
-
         public byte[] ReadFully(Stream input)
         {
             byte[] buffer = new byte[16 * 1024];
@@ -3658,7 +3583,7 @@ namespace ContentExportTool
             }
         }
 
-        protected string PackageProjectPath = ApplicationContext.PackageProjectPath;
+        protected string PackageProjectPath = Sitecore.Shell.Applications.Install.ApplicationContext.PackageProjectPath;
 
         public string FullPackageProjectPath(string packageFileName)
         {
@@ -3667,6 +3592,12 @@ namespace ContentExportTool
 
         protected void btnMediaSummary_OnClick(object sender, EventArgs e)
         {
+            PhBrowseFields.Visible = false;
+            PhBrowseModal.Visible = false;
+            phScrollToImport.Visible = false;
+            phScrollToRenderingImport.Visible = false;
+            phScrollToMediaExport.Visible = true;
+
             if (!SetDatabase())
             {
                 litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
@@ -4479,6 +4410,54 @@ namespace ContentExportTool
 
                 SetCookieAndResponse(sw.ToString());
             }
+        }
+
+        protected void ButtonExportMedia_Click(object sender, EventArgs e)
+        {
+            var db = Database.GetDatabase("master");
+
+            var downloadPath = txtDownloadPath.Text;
+
+            if (String.IsNullOrEmpty(downloadPath))
+            {
+                litMediaExportOutput.Text = "You must set a download path (e.g. '\"C:\\\")";
+            }
+
+            if (!downloadPath.EndsWith("MediaExport"))
+            {
+
+                downloadPath += (downloadPath.EndsWith("\\") ? "" : "\\") + "MediaExport";
+            }
+
+            bool exists = System.IO.Directory.Exists(downloadPath);
+
+            if (!exists)
+                System.IO.Directory.CreateDirectory(downloadPath);
+          
+            var imageItems = GetItems(!chkNoChildren.Checked, mediaItems: true).Where(x => x.Paths.IsMediaItem);
+            var imagesDownloaded = 0;
+
+            foreach (var image in imageItems)
+            {
+                try
+                {
+                    var mediaItem = (MediaItem)image;
+                    var media = MediaManager.GetMedia(mediaItem);
+                    var stream = media.GetStream();
+
+                    var extension = mediaItem.Extension;
+                    if (String.IsNullOrEmpty(extension)) continue;
+
+                    using (var targetStream = File.OpenWrite(Path.Combine(downloadPath, image.Name + "." + extension)))
+                    {
+                        stream.CopyTo(targetStream);
+                        targetStream.Flush();
+                        imagesDownloaded++;
+                    }
+                }catch(Exception ex) { }
+            }
+
+            litMediaExportOutput.Text = imagesDownloaded + " images downloaded";
         }
     }
 

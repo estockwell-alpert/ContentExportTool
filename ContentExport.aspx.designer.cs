@@ -49,6 +49,15 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.PlaceHolder phScrollToRenderingImport;
         
         /// <summary>
+        /// phScrollToMediaExport control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder phScrollToMediaExport;
+        
+        /// <summary>
         /// form1 control.
         /// </summary>
         /// <remarks>
@@ -598,15 +607,6 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.CheckBox chkPublishedItems;
         
         /// <summary>
-        /// chkVersionPublished control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox chkVersionPublished;
-        
-        /// <summary>
         /// chkVersionUpToDate control.
         /// </summary>
         /// <remarks>
@@ -1127,5 +1127,32 @@ namespace ContentExportTool {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnDownloadRenderingParamsSample;
+        
+        /// <summary>
+        /// litMediaExportOutput control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal litMediaExportOutput;
+        
+        /// <summary>
+        /// txtDownloadPath control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtDownloadPath;
+        
+        /// <summary>
+        /// ButtonExportMedia control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button ButtonExportMedia;
     }
 }

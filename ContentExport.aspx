@@ -715,6 +715,13 @@
             });
         </script>
     </asp:PlaceHolder>
+    <asp:PlaceHolder runat="server" ID="phScrollToMediaExport" Visible="False">
+        <script>
+            $(document).ready(function () {
+                location.href = "#mediaExport";
+            });
+        </script>
+    </asp:PlaceHolder>
     <form id="form1" runat="server">
         <div class="loading-modal">
             <div class="loading-box">
@@ -764,6 +771,7 @@
                         <a class="navButton" href="#packageExport">Package Export</a>
                         <a class="navButton" href="#contentImport">Content Import</a>
                         <a class="navButton" href="#renderingParamsImport">Rendering Parameters Import</a>
+                        <a class="navButton" href="#mediaExport">Media Export</a>
                         <a class="navButton" href="javascript:void(0)" onclick="window.scrollTo(0,0);">Back to Top</a>
                     </div>
                 </div>
@@ -830,7 +838,7 @@
                     </div>
 
                     <div class="row">
-                        <span class="header">Start Item(s)</span>
+                        <span class="header" id="startitems">Start Item(s)</span>
                         <a class="clear-btn" data-id="inputStartitem">clear</a>
                         <textarea runat="server" id="inputStartitem" /><asp:Button runat="server" ID="btnBrowse" OnClick="btnBrowse_OnClick" CssClass="browse-btn" Text="Browse" />
                         <span class="border-notes">Enter the path or ID of each starting node, or use Browse to select.<br />
@@ -1530,6 +1538,35 @@
                                             </ul>
                                         </li>
                                     </ul>
+
+                                </div>
+
+                            </div>
+                        </div>
+                                               <br />
+                        <br />
+                        <div class="advanced open open-default" id="mediaExport">
+                            <a class="advanced-btn">Media Export</a>
+                            <div class="advanced-inner">
+                                <div class="row advanced-search">
+                                    <h3>Media Export</h3>
+                                    <span style="color: red" class="uploadResponse">
+                                        <asp:Literal runat="server" ID="litMediaExportOutput"></asp:Literal></span>
+
+                                    <span class="header"><b>Download Path (defaults to Downloads):</b></span>
+                                    <asp:TextBox runat="server" ID="txtDownloadPath"></asp:TextBox>
+
+                                    <span class="" style="display: block; margin-top: 10px;">
+
+                                        Export the attached image files of media items. <br /><br />
+
+                                        Use the <a href="#startitems">Start Item(s)</a> field to select media items; use No Children if you only want specific items<br /><br />
+
+
+                                    </span>
+                                    <br />
+
+                                    <asp:Button runat="server" ID="ButtonExportMedia" CssClass="spinner-btn" Text="Export Media Items" OnClick="ButtonExportMedia_Click" />
 
                                 </div>
 
