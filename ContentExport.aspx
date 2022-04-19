@@ -1553,18 +1553,12 @@
                                     <span style="color: red" class="uploadResponse">
                                         <asp:Literal runat="server" ID="litMediaExportOutput"></asp:Literal></span>
 
-                                    <span class="header"><b>Download Path:</b></span>
-                                    <asp:TextBox runat="server" ID="txtDownloadPath"></asp:TextBox>
 
                                     <span class="" style="display: block; margin-top: 10px;">
 
                                         Export the attached image files of media items. <br /><br />
 
                                         Use the <a href="#startitems">Start Item(s)</a> field to select media items; use No Children if you only want specific items<br /><br />
-
-                                        <br />
-                                        <br />
-                                        <b>Note: </b> This feature exports media files to the <b>application server</b>. It is recommended to use on your <b>local</b> Sitecore instance, or by users who have access to the application server
 
                                     </span>
                                     <br />

@@ -4420,50 +4420,63 @@ namespace ContentExportTool
             phScrollToRenderingImport.Visible = false;
             phScrollToMediaExport.Visible = true;
 
-            var db = Database.GetDatabase("master");
-
-            var downloadPath = txtDownloadPath.Text;
-
-            if (String.IsNullOrEmpty(downloadPath))
+            if (String.IsNullOrEmpty(inputStartitem.Value))
             {
-                litMediaExportOutput.Text = "You must set a download path (e.g. '\"C:\\\")";
+                litMediaExportOutput.Text = "Start path is empty! Do you really want to export the entire media library? If so, set the start path to /sitecore/Media Library; otherwise, select a path";
+                return;
             }
 
-            if (!downloadPath.EndsWith("MediaExport"))
-            {
-
-                downloadPath += (downloadPath.EndsWith("\\") ? "" : "\\") + "MediaExport";
-            }
-
-            bool exists = System.IO.Directory.Exists(downloadPath);
-
-            if (!exists)
-                System.IO.Directory.CreateDirectory(downloadPath);
+            var dbName = (!String.IsNullOrEmpty(ddDatabase.SelectedValue) ? ddDatabase.SelectedValue : "master");
+            _db = Sitecore.Configuration.Factory.GetDatabase(dbName);
           
             var imageItems = GetItems(!chkNoChildren.Checked, mediaItems: true).Where(x => x.Paths.IsMediaItem);
             var imagesDownloaded = 0;
 
-            foreach (var image in imageItems)
+            // create a working memory stream
+            using (System.IO.MemoryStream zipStream = new System.IO.MemoryStream())
             {
-                try
+                using (System.IO.Compression.ZipArchive zip = new System.IO.Compression.ZipArchive(zipStream, System.IO.Compression.ZipArchiveMode.Create, true))
                 {
-                    var mediaItem = (MediaItem)image;
-                    var media = MediaManager.GetMedia(mediaItem);
-                    var stream = media.GetStream();
-
-                    var extension = mediaItem.Extension;
-                    if (String.IsNullOrEmpty(extension)) continue;
-
-                    using (var targetStream = File.OpenWrite(Path.Combine(downloadPath, image.Name + "." + extension)))
+                    foreach (var image in imageItems)
                     {
-                        stream.CopyTo(targetStream);
-                        targetStream.Flush();
-                        imagesDownloaded++;
-                    }
-                }catch(Exception ex) { }
-            }
+                        try
+                        {
+                            var mediaItem = (MediaItem)image;
+                            var media = MediaManager.GetMedia(mediaItem);
+                            var stream = media.GetStream().Stream;
 
-            litMediaExportOutput.Text = imagesDownloaded + " images downloaded";
+                            var extension = mediaItem.Extension;
+                            if (String.IsNullOrEmpty(extension)) continue;
+
+                            System.IO.Compression.ZipArchiveEntry zipItem = zip.CreateEntry(image.Name + "." + extension);
+                            using (System.IO.Stream entryStream = zipItem.Open())
+                            {
+                                stream.CopyTo(entryStream);
+                                imagesDownloaded++;
+                            }
+
+                        }
+                        catch (Exception ex) { }
+                    }
+                }
+
+                zipStream.Position = 0;
+                litMediaExportOutput.Text = imagesDownloaded + " images downloaded";
+
+                var downloadToken = txtDownloadToken.Value;
+                var responseCookie = new HttpCookie("DownloadToken");
+                responseCookie.Value = downloadToken;
+                responseCookie.HttpOnly = false;
+                responseCookie.Expires = DateTime.Now.AddDays(1);
+                Response.Cookies.Add(responseCookie);
+
+                Response.Clear();
+                Response.ContentType = "application/x-zip-compressed";
+                Response.AddHeader("Content-Disposition", "attachment; filename=SitecoreMediaDownload.zip");
+                Response.BinaryWrite(zipStream.ToArray());
+                Response.Flush();
+                Response.Close();
+            }
         }
     }
 
