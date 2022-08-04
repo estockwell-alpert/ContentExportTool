@@ -527,6 +527,28 @@ namespace ContentExportTool
 
         protected void btnRunExport_OnClick(object sender, EventArgs e)
         {
+            if (!SetDatabase())
+            {
+                litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
+                return;
+            }
+
+            if (_db == null)
+            {
+                litFeedback.Text = "Invalid database. Selected database does not exist.";
+                return;
+            }
+
+            StartResponse(!string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "ContentExport");
+
+            var task = Task.Run(async () => await GetExportOutput());
+            var fileString = task.GetAwaiter().GetResult();
+
+            SetCookieAndResponse(fileString);
+        }
+
+        public async Task<string> GetExportOutput()
+        {
             litFastQueryTest.Text = "";
 
             try
@@ -534,20 +556,7 @@ namespace ContentExportTool
                 var fieldString = inputFields.Value;
 
                 var includeWorkflowState = chkWorkflowState.Checked;
-                var includeworkflowName = chkWorkflowName.Checked;
-
-                if (!SetDatabase())
-                {
-                    litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
-                    return;
-                }
-
-
-                if (_db == null)
-                {
-                    litFeedback.Text = "Invalid database. Selected database does not exist.";
-                    return;
-                }
+                var includeworkflowName = chkWorkflowName.Checked;            
 
                 var includeIds = chkIncludeIds.Checked;
                 var includeLinkedIds = chkIncludeLinkedIds.Checked;
@@ -585,8 +594,6 @@ namespace ContentExportTool
                 {
                     fields = new List<string>();
                 }
-
-                StartResponse(!string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "ContentExport");
 
                 using (StringWriter sw = new StringWriter())
                 {
@@ -876,12 +883,13 @@ namespace ContentExportTool
                         sw.WriteLine(newLine);
                     }
 
-                    SetCookieAndResponse(sw.ToString());
+                    return sw.ToString();
                 }
             }
             catch (Exception ex)
             {
                 litFeedback.Text = "<span style='color:red'>" + ex + "</span>";
+                return "ERROR";
             }
         }
 
