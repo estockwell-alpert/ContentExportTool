@@ -561,6 +561,7 @@ namespace ContentExportTool
                 var includeIds = chkIncludeIds.Checked;
                 var includeLinkedIds = chkIncludeLinkedIds.Checked;
                 var includeName = chkIncludeName.Checked;
+                var includeUrl = chkIncludeUrl.Checked;
                 var includeRawHtml = chkIncludeRawHtml.Checked;
                 var includeTemplate = chkIncludeTemplate.Checked;
 
@@ -599,6 +600,7 @@ namespace ContentExportTool
                 {
                     var headingString = "Item Path,"
                                         + (includeName ? "Name," : string.Empty)
+                                        + (includeUrl ? "URL," : string.Empty)
                                         + (includeIds ? "Item ID," : string.Empty)
                                         + (includeTemplate ? "Template," : string.Empty)
                                         +
@@ -668,6 +670,25 @@ namespace ContentExportTool
                             if (includeName)
                             {
                                 itemLine += item.Name + ",";
+                            }
+
+                            if (includeUrl)
+                            {
+                                if (DoesItemHasPresentationDetails(item))
+                                {
+                                    var website = Sitecore.Configuration.Factory.GetSite("website");
+                                    using (new SiteContextSwitcher(website))
+                                    {
+                                        var options = LinkManager.GetDefaultUrlOptions();
+                                        options.AlwaysIncludeServerUrl = true;
+                                        options.SiteResolving = true;
+                                        itemLine += Sitecore.Links.LinkManager.GetItemUrl(item, options) + ",";
+                                    }
+                                }
+                                else
+                                {
+                                    itemLine += ",";
+                                }
                             }
 
                             if (includeIds)
@@ -2470,6 +2491,7 @@ namespace ContentExportTool
                 SelectedLanguage = ddLanguages.SelectedValue,
                 GetAllLanguages = chkAllLanguages.Checked,
                 IncludeName = chkIncludeName.Checked,
+                IncludeUrl = chkIncludeUrl.Checked,
                 IncludeInheritance = chkIncludeInheritance.Checked,
                 DateCreated = chkDateCreated.Checked,
                 DateModified = chkDateModified.Checked,
@@ -2607,6 +2629,7 @@ namespace ContentExportTool
             }
             chkAllLanguages.Checked = settings.GetAllLanguages;
             chkIncludeName.Checked = settings.IncludeName;
+            chkIncludeUrl.Checked = settings.IncludeUrl;
             chkIncludeInheritance.Checked = settings.IncludeInheritance;
             chkDateCreated.Checked = settings.DateCreated;
             chkDateModified.Checked = settings.DateModified;
@@ -2717,6 +2740,7 @@ namespace ContentExportTool
             chkCreatedBy.Checked = false;
             chkModifiedBy.Checked = false;
             chkIncludeName.Checked = false;
+            chkIncludeUrl.Checked = false;
             chkReferrers.Checked = false;
             chkRelateItems.Checked = false;
             chkIncludeRelatedItems.Checked = false;
@@ -2775,6 +2799,7 @@ namespace ContentExportTool
                 SelectedLanguage = ddLanguages.SelectedValue,
                 GetAllLanguages = chkAllLanguages.Checked,
                 IncludeName = chkIncludeName.Checked,
+                IncludeUrl = chkIncludeUrl.Checked,
                 IncludeInheritance = chkIncludeInheritance.Checked,
                 DateCreated = chkDateCreated.Checked,
                 DateModified = chkDateModified.Checked,
@@ -3935,6 +3960,7 @@ namespace ContentExportTool
                 }
 
                 var includeName = chkIncludeName.Checked;
+                var includeUrl = chkIncludeUrl.Checked;
                 var includeTemplate = chkIncludeTemplate.Checked;
                 var includeIds = chkIncludeIds.Checked;
 
@@ -4547,6 +4573,7 @@ namespace ContentExportTool
         public string SelectedLanguage;
         public bool GetAllLanguages;
         public bool IncludeName;
+        public bool IncludeUrl;
         public string MultipleStartPaths;
         public bool IncludeInheritance;
         public bool NeverPublish;

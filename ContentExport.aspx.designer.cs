@@ -553,6 +553,15 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.CheckBox chkIncludeName;
         
         /// <summary>
+        /// chkIncludeUrl control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkIncludeUrl;
+        
+        /// <summary>
         /// chkIncludeIds control.
         /// </summary>
         /// <remarks>
