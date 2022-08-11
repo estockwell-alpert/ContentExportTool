@@ -39,6 +39,8 @@
     }
 
     var continueDownload = function(){
+        closeTemplatesModal();
+        $(".loading-modal").hide();
         console.log("Continuing to try to download...");
         $(".loading-modal").show();
         var downloadToken = $("#txtDownloadToken").val();
@@ -274,6 +276,10 @@ function checkIfFileWritten(downloadToken) {
 
     console.log("token: " + token);
 
+    // close everything until next reload
+    $(".loading-modal").hide();
+    $("#idExporting").val("");
+
     // if the file has been written and is downloading, we can stop trying to download it;
     if ((token == downloadToken)) {    
         console.log("finished download");   
@@ -282,7 +288,7 @@ function checkIfFileWritten(downloadToken) {
     } else {
         setTimeout(function () {
             $(".btnDownloadFile").click();
-        }, 10000)
+        }, 3000)
     }    
 }
 

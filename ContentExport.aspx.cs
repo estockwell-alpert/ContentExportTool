@@ -576,7 +576,7 @@ namespace ContentExportTool
             get
             {
                 var applicationRoot = HttpRuntime.AppDomainAppPath;
-                var folderPath = applicationRoot + "sitecore\\applications\\contentexport\\exports";
+                var folderPath = applicationRoot + "sitecore\\shell\\applications\\contentexport\\exports";
                 return folderPath;
             }
         }
@@ -603,7 +603,12 @@ namespace ContentExportTool
         private void DownloadFile()
         {
             // check if file exists. if not, return; if it does, set cookie
-            if (!File.Exists(filePath)) return;
+            if (!File.Exists(filePath))
+            {
+                // turn the loading modal back on
+                idExporting.Value = "true";
+                return;
+            }
 
             // clear out the input so that we will stop trying to download
             idExporting.Value = "";
