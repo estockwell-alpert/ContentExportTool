@@ -25,19 +25,28 @@
         showModal();
     });
 
+    $(".content-export-btn").on("click", function(){
+        $("#idExporting").val("true");
+        continueDownload();
+    });
+
     var showModal = function () {
         $(".feedback").empty();
         $(".loading-modal").show();
         //$("#loading-text").html(loadingModalHtml);
         var downloadToken = new Date().getTime();
         $("#txtDownloadToken").val(downloadToken)
-        checkIfFileWritten(downloadToken);
     }
 
     var continueDownload = function(){
         console.log("Continuing to try to download...");
         $(".loading-modal").show();
+        var downloadToken = $("#txtDownloadToken").val();
         checkIfFileWritten(downloadToken);
+    }
+
+    if ($("#idExporting").val() === "true"){
+        continueDownload();
     }
 
     $(".advanced-btn").on("click", function () {
@@ -260,27 +269,21 @@ function loadChildren(id, parentNode) {
     });
 }
 
-function checkIfFileWritten(downloadToken) {
-    // click the button to download the file
-    $(".btnDownloadFile").click();
+function checkIfFileWritten(downloadToken) {    
+    var token = getCookie("DownloadToken");
 
-    setTimeout(function () {
-        var token = getCookie("DownloadToken");
+    console.log("token: " + token);
 
-        console.log("token: " + token);
+    // if the file has been written and is downloading, we can stop trying to download it;
+    if ((token == downloadToken)) {    
+        console.log("finished download");   
+        $(".loading-modal").hide();
 
-        // if the file has been written and is downloading, we can close the modal; otherwise, try again
-        if ((token == downloadToken)) {    
-            console.log("finished download");   
-            $(".loading-modal").hide();
-
-        } else {
-            setTimeout(function () {
-                checkIfFileWritten(downloadToken)
-            }, 10000)
-        }
-    }, 1000)
-    
+    } else {
+        setTimeout(function () {
+            $(".btnDownloadFile").click();
+        }, 10000)
+    }    
 }
 
 function getCookie(name) {

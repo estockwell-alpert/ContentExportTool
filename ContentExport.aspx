@@ -722,13 +722,6 @@
             });
         </script>
     </asp:PlaceHolder>
-    <asp:PlaceHolder runat="server" ID="phRunDownloadScript" Visible="False">
-        <script>
-            $(document).ready(function () {
-                continueDownload();
-            });
-        </script>
-    </asp:PlaceHolder>
     <form id="form1" runat="server">
         <div class="loading-modal">
             <div class="loading-box">
@@ -773,7 +766,7 @@
                 <div class="fixed-export-btn">
                     <span class="header"><b>Quick Links</b></span>
                     <div class="row">
-                        <asp:Button class="spinner-btn" runat="server" ID="btnRunExportDupe" OnClick="btnRunExport_OnClick" Text="Run Content Export" />
+                        <asp:Button class="spinner-btn content-export-btn" runat="server" ID="btnRunExportDupe" OnClick="btnRunExport_OnClick" Text="Run Content Export" />
                         <a class="navButton" href="#divFilters">Filters</a>
                         <a class="navButton" href="#divExportData">Fields and Data</a>
                         <a class="navButton" href="#divAudits">Special Audits & Search</a>
@@ -835,7 +828,7 @@
                     </asp:PlaceHolder>
 
                     <div class="row">
-                        <asp:Button class="spinner-btn" runat="server" ID="btnRunExport" OnClick="btnRunExport_OnClick" Text="Run Content Export" /><br />
+                        <asp:Button class="spinner-btn content-export-btn" runat="server" ID="btnRunExport" OnClick="btnRunExport_OnClick" Text="Run Content Export" /><br />
                         <asp:Button runat="server" ID="btnClearAll" Text="Clear All" OnClick="btnClearAll_OnClick" CssClass="btn-clear-all" />
                     </div>
 
@@ -1178,7 +1171,7 @@
                         </div>
                         <br />
 
-                        <asp:Button class="spinner-btn" runat="server" ID="btnExport2" OnClick="btnRunExport_OnClick" Text="Run Content Export" /><br />
+                        <asp:Button class="spinner-btn content-export-btn" runat="server" ID="btnExport2" OnClick="btnRunExport_OnClick" Text="Run Content Export" /><br />
                         <br />
                         <br />
                         <br />

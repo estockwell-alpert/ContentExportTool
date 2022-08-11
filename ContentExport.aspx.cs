@@ -86,11 +86,6 @@ namespace ContentExportTool
             if (idExporting.Value == "true")
             {
                 HideModals(true, true, true);
-                phRunDownloadScript.Visible = true;
-            }
-            else
-            {
-                phRunDownloadScript.Visible = false;
             }
         }
 
@@ -547,6 +542,8 @@ namespace ContentExportTool
         protected void btnRunExport_OnClick(object sender, EventArgs e)
         {
             idExporting.Value = "true";
+            HideModals(true, true, true);
+
             if (!SetDatabase())
             {
                 litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
@@ -608,6 +605,7 @@ namespace ContentExportTool
             // check if file exists. if not, return; if it does, set cookie
             if (!File.Exists(filePath)) return;
 
+            // clear out the input so that we will stop trying to download
             idExporting.Value = "";
 
             var fileName = !string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "ContentExport";
