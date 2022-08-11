@@ -722,6 +722,13 @@
             });
         </script>
     </asp:PlaceHolder>
+    <asp:PlaceHolder runat="server" ID="phRunDownloadScript" Visible="False">
+        <script>
+            $(document).ready(function () {
+                continueDownload();
+            });
+        </script>
+    </asp:PlaceHolder>
     <form id="form1" runat="server">
         <div class="loading-modal">
             <div class="loading-box">
@@ -730,6 +737,8 @@
         </div>
         <input runat="server" id="txtDownloadToken" style="display: none;" />
 
+        <asp:Button runat="server" ID="btnDownloadFile" OnClick="btnDownloadFile_Click" CssClass="btnDownloadFile" />
+        <input runat="server" id="idExporting" />
 
         <%--  <input runat="server" id="txtStoreContentTree"/>
         <input runat="server" id="txtStoreTemplatesTree"/>

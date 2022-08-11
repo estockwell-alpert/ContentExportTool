@@ -35,6 +35,14 @@ using System.Web.Security;
 using Sitecore.Security.Accounts;
 using Sitecore.Resources.Media;
 
+using System;
+using Sitecore;
+using Sitecore.Data.Items;
+using Sitecore.Diagnostics;
+using Sitecore.Jobs;
+using Sitecore.Pipelines;
+using Sitecore.SecurityModel;
+
 namespace ContentExportTool
 {
     public partial class ContentExport : Page
@@ -61,6 +69,7 @@ namespace ContentExportTool
             litFastQueryTest.Text = String.Empty;
             if (!IsPostBack)
             {
+                idExporting.Value = "";
                 if (!String.IsNullOrEmpty(Request.QueryString["getitems"]) &&
                     !String.IsNullOrEmpty(Request.QueryString["startitem"]))
                 {
@@ -72,6 +81,16 @@ namespace ContentExportTool
                     GetFieldsAsync(Request.QueryString["startitem"]);
                 }
                 SetupForm();
+            }
+
+            if (idExporting.Value == "true")
+            {
+                HideModals(true, true, true);
+                phRunDownloadScript.Visible = true;
+            }
+            else
+            {
+                phRunDownloadScript.Visible = false;
             }
         }
 
@@ -527,6 +546,7 @@ namespace ContentExportTool
 
         protected void btnRunExport_OnClick(object sender, EventArgs e)
         {
+            idExporting.Value = "true";
             if (!SetDatabase())
             {
                 litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
@@ -539,16 +559,102 @@ namespace ContentExportTool
                 return;
             }
 
-            StartResponse(!string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "ContentExport");
+            StartJob();
 
-            var task = Task.Run(async () => await GetExportOutput());
-            var fileString = task.GetAwaiter().GetResult();
+            //var fileName = !string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "ContentExport";
+            //Response.Clear();
+            //Response.Buffer = true;
+            //Response.AddHeader("content-disposition", string.Format("attachment;filename={0}.csv", fileName));
+            //Response.Charset = "";
+            //Response.ContentType = "text/csv";
+            //Response.ContentEncoding = System.Text.Encoding.UTF8;
 
-            SetCookieAndResponse(fileString);
+            // keep alive and wait for output
+
+            // no need to keep alive if we're doing a background task and waiting on the file to exist         
         }
 
-        public async Task<string> GetExportOutput()
+        private string exportFolder
         {
+            get
+            {
+                var applicationRoot = HttpRuntime.AppDomainAppPath;
+                var folderPath = applicationRoot + "sitecore\\applications\\contentexport\\exports";
+                return folderPath;
+            }
+        }
+
+        private string filePath
+        {
+            get
+            {
+                return $"{exportFolder}\\{txtDownloadToken.Value}.csv";
+            }
+        }
+
+        private void WriteExportToServer(string str)
+        {
+            bool exists = System.IO.Directory.Exists(exportFolder);
+
+            if (!exists)
+                System.IO.Directory.CreateDirectory(exportFolder);
+
+            
+            File.AppendAllText(filePath, str);
+        }
+
+        private void DownloadFile()
+        {
+            // check if file exists. if not, return; if it does, set cookie
+            if (!File.Exists(filePath)) return;
+
+            idExporting.Value = "";
+
+            var fileName = !string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "ContentExport";
+
+            var fileContents = File.ReadAllText(filePath);
+
+            StartResponse(fileName);
+            SetCookieAndResponse(fileContents);
+        }
+
+        private void KeepAlive()
+        {
+            var response = this.Response;
+            try
+            {
+                response.Write("\r\n");
+                response.Flush();
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        private string _jobName = "ExportJob";
+        public Job ExportJob
+        {
+            get
+            {
+                return JobManager.GetJob(_jobName);
+            }
+        }
+
+        public void StartJob()
+        {
+            JobOptions options = new JobOptions(_jobName, "ExportJob", Sitecore.Context.Site.Name, this, "RunExport");
+            JobManager.Start(options);
+            if (ExportJob != null)
+            {
+                ExportJob.Status.State = JobState.Running;
+            }
+        }
+
+        private string exportOutput;
+        public void RunExport()
+        {
+            exportOutput = "";
             litFastQueryTest.Text = "";
 
             try
@@ -904,13 +1010,20 @@ namespace ContentExportTool
                         sw.WriteLine(newLine);
                     }
 
-                    return sw.ToString();
+                    exportOutput = sw.ToString();
+                    WriteExportToServer(exportOutput);
                 }
             }
             catch (Exception ex)
             {
                 litFeedback.Text = "<span style='color:red'>" + ex + "</span>";
-                return "ERROR";
+                exportOutput = "ERROR";
+                WriteExportToServer(exportOutput);
+            }
+
+            if (ExportJob != null)
+            {
+                ExportJob.Status.State = JobState.Finished;
             }
         }
 
@@ -4511,6 +4624,11 @@ namespace ContentExportTool
                 Response.Flush();
                 Response.Close();
             }
+        }
+
+        protected void btnDownloadFile_Click(object sender, EventArgs e)
+        {
+            DownloadFile();
         }
     }
 

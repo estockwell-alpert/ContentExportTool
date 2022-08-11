@@ -31,7 +31,13 @@
         //$("#loading-text").html(loadingModalHtml);
         var downloadToken = new Date().getTime();
         $("#txtDownloadToken").val(downloadToken)
-        checkIfFileDownloaded(downloadToken);
+        checkIfFileWritten(downloadToken);
+    }
+
+    var continueDownload = function(){
+        console.log("Continuing to try to download...");
+        $(".loading-modal").show();
+        checkIfFileWritten(downloadToken);
     }
 
     $(".advanced-btn").on("click", function () {
@@ -254,18 +260,27 @@ function loadChildren(id, parentNode) {
     });
 }
 
-function checkIfFileDownloaded(downloadToken) {
-    var token = getCookie("DownloadToken");
+function checkIfFileWritten(downloadToken) {
+    // click the button to download the file
+    $(".btnDownloadFile").click();
 
-    if ((token == downloadToken)) {
-        //$("#loading-text").html("");
-        $(".loading-modal").hide();
-        expireCookie("DownloadToken");
-    } else {
-        setTimeout(function () {
-            checkIfFileDownloaded(downloadToken)
-        }, 1000)
-    }
+    setTimeout(function () {
+        var token = getCookie("DownloadToken");
+
+        console.log("token: " + token);
+
+        // if the file has been written and is downloading, we can close the modal; otherwise, try again
+        if ((token == downloadToken)) {    
+            console.log("finished download");   
+            $(".loading-modal").hide();
+
+        } else {
+            setTimeout(function () {
+                checkIfFileWritten(downloadToken)
+            }, 10000)
+        }
+    }, 1000)
+    
 }
 
 function getCookie(name) {
@@ -346,7 +361,7 @@ function downloadSample() {
     $("#btnDownloadCSVTemplate").click();
     $(".loading-modal").show();
 
-    checkIfFileDownloaded(downloadToken);
+    checkIfFileWritten(downloadToken);
 }
 
 function removeTemplate() {
