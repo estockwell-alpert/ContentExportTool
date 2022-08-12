@@ -728,10 +728,10 @@
                 <img class="scSpinner" src="/sitecore/shell/themes/standard/Images/ProgressIndicator/sc-spinner32.gif" border="0" alt="" width="40px" />
             </div>
         </div>
-        <input runat="server" id="txtDownloadToken"/>
+        <input runat="server" id="txtDownloadToken" style="display:none"/>
 
-        <asp:Button runat="server" ID="btnDownloadFile" OnClick="btnDownloadFile_Click" CssClass="btnDownloadFile" />
-        <input runat="server" id="idExporting" />
+        <asp:Button runat="server" ID="btnDownloadFile" OnClick="btnDownloadFile_Click" CssClass="btnDownloadFile" style="display:none"/>
+        <input runat="server" id="idExporting" style="display:none;"/>
 
         <%--  <input runat="server" id="txtStoreContentTree"/>
         <input runat="server" id="txtStoreTemplatesTree"/>

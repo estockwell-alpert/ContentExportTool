@@ -27,6 +27,7 @@
 
     $(".content-export-btn").on("click", function(){
         $("#idExporting").val("true");
+        console.log("export button clicked");
         continueDownload();
     });
 
@@ -40,14 +41,36 @@
 
     var continueDownload = function(){
         closeTemplatesModal();
-        $(".loading-modal").hide();
         console.log("Continuing to try to download...");
-        $(".loading-modal").show();
         var downloadToken = $("#txtDownloadToken").val();
         checkIfFileWritten(downloadToken);
     }
 
+    var checkForDownloadToken = function(){
+        var downloadToken = $("#txtDownloadToken").val();
+        console.log("check for download token");
+        if (downloadToken !== ""){ 
+            console.log("download token: " + downloadToken);          
+            var token = getCookie("DownloadToken");
+            if ((token == downloadToken)) {  
+                console.log("match found, download is complete");  
+                $("#idExporting").val("");
+                console.log("finished download");   
+                $(".loading-modal").hide();
+                $("#txtDownloadToken").val("");
+            }else{
+                console.log("not found... waiting 3 seconds before trying again");
+                setTimeout(function () {
+                    checkForDownloadToken();  
+                }, 3000) 
+            }
+        }
+    }
+
+    checkForDownloadToken();
+
     if ($("#idExporting").val() === "true"){
+        console.log("download in progress");
         continueDownload();
     }
 
@@ -272,24 +295,27 @@ function loadChildren(id, parentNode) {
 }
 
 function checkIfFileWritten(downloadToken) {    
-    var token = getCookie("DownloadToken");
+    console.log("checking if file is written");
+    $(".loading-modal").show();
 
-    console.log("token: " + token);
+    // wait a few seconds to see if the cookie gets generated
+    setTimeout(function () {
+        // if the file has been written and is downloading, we can stop trying to download it;
+        var token = getCookie("DownloadToken");
+        console.log("token: " + token);
 
-    // close everything until next reload
-    $(".loading-modal").hide();
-    $("#idExporting").val("");
+        if ((token == downloadToken)) {    
+            $(".loading-modal").hide();
+            $("#idExporting").val("");
+            console.log("finished download");   
+            $(".loading-modal").hide();
+            $("#txtDownloadToken").val("");
 
-    // if the file has been written and is downloading, we can stop trying to download it;
-    if ((token == downloadToken)) {    
-        console.log("finished download");   
-        $(".loading-modal").hide();
-
-    } else {
-        setTimeout(function () {
+        } else {
+            console.log("download token doesn't match");            
             $(".btnDownloadFile").click();
-        }, 3000)
-    }    
+        }   
+    }, 3000) 
 }
 
 function getCookie(name) {

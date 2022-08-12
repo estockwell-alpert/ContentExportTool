@@ -69,7 +69,6 @@ namespace ContentExportTool
             litFastQueryTest.Text = String.Empty;
             if (!IsPostBack)
             {
-                idExporting.Value = "";
                 if (!String.IsNullOrEmpty(Request.QueryString["getitems"]) &&
                     !String.IsNullOrEmpty(Request.QueryString["startitem"]))
                 {
@@ -81,11 +80,6 @@ namespace ContentExportTool
                     GetFieldsAsync(Request.QueryString["startitem"]);
                 }
                 SetupForm();
-            }
-
-            if (idExporting.Value == "true")
-            {
-                HideModals(true, true, true);
             }
         }
 
@@ -542,7 +536,7 @@ namespace ContentExportTool
         protected void btnRunExport_OnClick(object sender, EventArgs e)
         {
             idExporting.Value = "true";
-            HideModals(true, true, true);
+            HideModals(false, false, false);
 
             if (!SetDatabase())
             {
@@ -602,16 +596,18 @@ namespace ContentExportTool
 
         private void DownloadFile()
         {
-            // check if file exists. if not, return; if it does, set cookie
-            if (!File.Exists(filePath))
+            // if cookie already exists, then the file has already been downloaded
+            if (Request.Cookies["DownloadToken"] != null && Request.Cookies["DownloadToken"].Value == txtDownloadToken.Value)
             {
-                // turn the loading modal back on
-                idExporting.Value = "true";
+                // cookie is already downloaded, return
                 return;
             }
 
-            // clear out the input so that we will stop trying to download
-            idExporting.Value = "";
+            // check if file exists. if not, return; if it does, set cookie
+            if (!File.Exists(filePath))
+            {
+                return;
+            }
 
             var fileName = !string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "ContentExport";
 
