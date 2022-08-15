@@ -579,7 +579,7 @@ namespace ContentExportTool
         {
             get
             {
-                return $"{exportFolder}\\{txtDownloadToken.Value}.csv";
+                return String.Format("{0}\\{1}.csv", exportFolder, txtDownloadToken.Value);
             }
         }
 
@@ -596,25 +596,32 @@ namespace ContentExportTool
 
         private void DownloadFile()
         {
-            // if cookie already exists, then the file has already been downloaded
-            if (Request.Cookies["DownloadToken"] != null && Request.Cookies["DownloadToken"].Value == txtDownloadToken.Value)
+            try
             {
-                // cookie is already downloaded, return
+                // if cookie already exists, then the file has already been downloaded
+                if (Request.Cookies["DownloadToken"] != null && Request.Cookies["DownloadToken"].Value == txtDownloadToken.Value)
+                {
+                    // cookie is already downloaded, return
+                    return;
+                }
+
+                // check if file exists. if not, return; if it does, set cookie
+                if (!File.Exists(filePath))
+                {
+                    return;
+                }
+
+                var fileName = !string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "ContentExport";
+
+                var fileContents = File.ReadAllText(filePath);
+
+                StartResponse(fileName);
+                SetCookieAndResponse(fileContents);
+            }
+            catch(Exception ex)
+            {
                 return;
             }
-
-            // check if file exists. if not, return; if it does, set cookie
-            if (!File.Exists(filePath))
-            {
-                return;
-            }
-
-            var fileName = !string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "ContentExport";
-
-            var fileContents = File.ReadAllText(filePath);
-
-            StartResponse(fileName);
-            SetCookieAndResponse(fileContents);
         }
 
         private void KeepAlive()
