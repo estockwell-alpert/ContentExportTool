@@ -34,14 +34,8 @@ using System.Text.RegularExpressions;
 using System.Web.Security;
 using Sitecore.Security.Accounts;
 using Sitecore.Resources.Media;
-
-using System;
-using Sitecore;
-using Sitecore.Data.Items;
-using Sitecore.Diagnostics;
 using Sitecore.Jobs;
-using Sitecore.Pipelines;
-using Sitecore.SecurityModel;
+using Sitecore.Abstractions;
 
 namespace ContentExportTool
 {
@@ -579,7 +573,7 @@ namespace ContentExportTool
         {
             get
             {
-                return $"{exportFolder}\\{txtDownloadToken.Value}.csv";
+                return String.Format("{0}\\{1}.csv", exportFolder, txtDownloadToken.Value);
             }
         }
 
@@ -590,31 +584,39 @@ namespace ContentExportTool
             if (!exists)
                 System.IO.Directory.CreateDirectory(exportFolder);
 
-            
+
             File.AppendAllText(filePath, str);
         }
 
         private void DownloadFile()
         {
-            // if cookie already exists, then the file has already been downloaded
-            if (Request.Cookies["DownloadToken"] != null && Request.Cookies["DownloadToken"].Value == txtDownloadToken.Value)
+            try
             {
-                // cookie is already downloaded, return
+                // if cookie already exists, then the file has already been downloaded
+                if (Request.Cookies["DownloadToken"] != null && Request.Cookies["DownloadToken"].Value == txtDownloadToken.Value)
+                {
+                    // cookie is already downloaded, return
+                    return;
+                }
+
+                // check if file exists. if not, return; if it does, set cookie
+                if (!File.Exists(filePath))
+                {
+                    return;
+                }
+
+                var fileName = !string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "ContentExport";
+
+                var fileContents = File.ReadAllText(filePath);
+
+                StartResponse(fileName);
+                SetCookieAndResponse(fileContents);
+            }
+            catch(Exception ex)
+            {
+                // in case the file is still in use, return and keep trying
                 return;
             }
-
-            // check if file exists. if not, return; if it does, set cookie
-            if (!File.Exists(filePath))
-            {
-                return;
-            }
-
-            var fileName = !string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "ContentExport";
-
-            var fileContents = File.ReadAllText(filePath);
-
-            StartResponse(fileName);
-            SetCookieAndResponse(fileContents);
         }
 
         private void KeepAlive()
@@ -632,7 +634,7 @@ namespace ContentExportTool
         }
 
         private string _jobName = "ExportJob";
-        public Job ExportJob
+        public BaseJob ExportJob
         {
             get
             {
@@ -642,7 +644,7 @@ namespace ContentExportTool
 
         public void StartJob()
         {
-            JobOptions options = new JobOptions(_jobName, "ExportJob", Sitecore.Context.Site.Name, this, "RunExport");
+            DefaultJobOptions options = new DefaultJobOptions(_jobName, "ExportJob", Sitecore.Context.Site.Name, this, "RunExport");
             JobManager.Start(options);
             if (ExportJob != null)
             {
@@ -661,7 +663,7 @@ namespace ContentExportTool
                 var fieldString = inputFields.Value;
 
                 var includeWorkflowState = chkWorkflowState.Checked;
-                var includeworkflowName = chkWorkflowName.Checked;            
+                var includeworkflowName = chkWorkflowName.Checked;
 
                 var includeIds = chkIncludeIds.Checked;
                 var includeLinkedIds = chkIncludeLinkedIds.Checked;
@@ -732,7 +734,7 @@ namespace ContentExportTool
                     var createdByAuthors = txtCreatedByFilter.Value.Split(',');
                     var modifiedByAuthors = txtModifiedByFilter.Value.Split(',');
 
-                    var webDb = Sitecore.Configuration.Factory.GetDatabase("web"); 
+                    var webDb = Sitecore.Configuration.Factory.GetDatabase("web");
 
                     foreach (var baseItem in items)
                     {
@@ -939,7 +941,7 @@ namespace ContentExportTool
                             if (upToDate)
                             {
                                 var languageItem = webDb.GetItem(item.ID, item.Language);
-                                
+
                                 if (languageItem == null || languageItem.Versions.Count == 0)
                                 {
                                     var message = "n/a";
@@ -1297,22 +1299,22 @@ namespace ContentExportTool
                 else
                 {
                     if (linkField.TargetItem != null)
-					{
-						var targetItem = linkField.TargetItem;
-						if (targetItem != null)
-						{							
-							var itemUrl = targetItem.Paths.Path.Replace("/sitecore/content", "");
-							itemLine += itemUrl + ",";													
-						}
-						else
-						{
-							itemLine += ",";
-						}
-					}
-					else
-					{
-						itemLine += linkField.Url + ",";
-					}
+                    {
+                        var targetItem = linkField.TargetItem;
+                        if (targetItem != null)
+                        {
+                            var itemUrl = targetItem.Paths.Path.Replace("/sitecore/content", "");
+                            itemLine += itemUrl + ",";
+                        }
+                        else
+                        {
+                            itemLine += ",";
+                        }
+                    }
+                    else
+                    {
+                        itemLine += linkField.Url + ",";
+                    }
                 }
 
                 if (includeRawHtml)
@@ -2193,10 +2195,10 @@ namespace ContentExportTool
                         }
                         else // treat as a direct url
                         {
-                        linkField.Url = value;
+                            linkField.Url = value;
                         }
 
-                        
+
 
                     }
                     else if (itemOfType is ReferenceField || itemOfType is GroupedDroplistField || itemOfType is LookupField)
@@ -4211,7 +4213,8 @@ namespace ContentExportTool
                                     }
 
                                     dataLines.Add(itemLine);
-                                }catch(Exception ex)
+                                }
+                                catch (Exception ex)
                                 {
                                     var itemLine = "Error for " + item.Paths.Path + ": " + ex.StackTrace;
                                     dataLines.Add(itemLine);
@@ -4501,7 +4504,7 @@ namespace ContentExportTool
                             }
                         }
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
 
                     }
@@ -4574,7 +4577,7 @@ namespace ContentExportTool
 
             var dbName = (!String.IsNullOrEmpty(ddDatabase.SelectedValue) ? ddDatabase.SelectedValue : "master");
             _db = Sitecore.Configuration.Factory.GetDatabase(dbName);
-          
+
             var imageItems = GetItems(!chkNoChildren.Checked, mediaItems: true).Where(x => x.Paths.IsMediaItem);
             var imagesDownloaded = 0;
 

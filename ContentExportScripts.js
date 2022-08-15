@@ -59,10 +59,10 @@
                 $(".loading-modal").hide();
                 $("#txtDownloadToken").val("");
             }else{
-                console.log("not found... waiting 3 seconds before trying again");
+                console.log("not found... waiting 5 seconds before trying again");
                 setTimeout(function () {
                     checkForDownloadToken();  
-                }, 3000) 
+                }, 5000) 
             }
         }
     }
@@ -315,7 +315,7 @@ function checkIfFileWritten(downloadToken) {
             console.log("download token doesn't match");            
             $(".btnDownloadFile").click();
         }   
-    }, 3000) 
+    }, 5000) 
 }
 
 function getCookie(name) {
