@@ -3737,47 +3737,47 @@ namespace ContentExportTool
             return Path.GetFullPath(Path.Combine(PackageProjectPath, packageFileName));
         }
 
-        //protected void btnMediaSummary_OnClick(object sender, EventArgs e)
-        //{
-        //    PhBrowseFields.Visible = false;
-        //    PhBrowseModal.Visible = false;
-        //    phScrollToImport.Visible = false;
-        //    phScrollToRenderingImport.Visible = false;
-        //    phScrollToMediaExport.Visible = false;
+        protected void btnMediaSummary_OnClick(object sender, EventArgs e)
+        {
+            PhBrowseFields.Visible = false;
+            PhBrowseModal.Visible = false;
+            phScrollToImport.Visible = false;
+            phScrollToRenderingImport.Visible = false;
+            phScrollToMediaExport.Visible = false;
 
-        //    if (!SetDatabase())
-        //    {
-        //        litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
-        //        return;
-        //    }
+            if (!SetDatabase())
+            {
+                litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
+                return;
+            }
 
 
-        //    if (_db == null)
-        //    {
-        //        litFeedback.Text = "Invalid database. Selected database does not exist.";
-        //        return;
-        //    }
+            if (_db == null)
+            {
+                litFeedback.Text = "Invalid database. Selected database does not exist.";
+                return;
+            }
 
-        //    List<Item> items = GetItems(!chkNoChildren.Checked, chkIncludeRelatedItems.Checked, chkIncludeSubitems.Checked);
+            List<Item> items = GetItems(!chkNoChildren.Checked, chkIncludeRelatedItems.Checked, chkIncludeSubitems.Checked);
 
-        //    // only media items
-        //    items = items.Where(x => x.Paths.IsMediaItem && (x.TemplateID != TemplateIDs.MediaFolder)).ToList();
+            // only media items
+            items = items.Where(x => x.Paths.IsMediaItem && (x.TemplateID != TemplateIDs.MediaFolder)).ToList();
 
-        //    StartResponse(!string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value + " - Media Summary" : "ContentExportPackage - Media Summary");
+            StartResponse(!string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value + " - Media Summary" : "ContentExportPackage - Media Summary");
 
-        //    using (StringWriter sw = new StringWriter())
-        //    {
-        //        var headingString = "Item Path";
+            using (StringWriter sw = new StringWriter())
+            {
+                var headingString = "Item Path";
 
-        //        sw.WriteLine(headingString);
-        //        foreach (var item in items)
-        //        {
-        //            sw.WriteLine(String.Format("{0}", item.Paths.FullPath));
-        //        }
+                sw.WriteLine(headingString);
+                foreach (var item in items)
+                {
+                    sw.WriteLine(String.Format("{0}", item.Paths.FullPath));
+                }
 
-        //        SetCookieAndResponse(sw.ToString());
-        //    }
-        //}
+                SetCookieAndResponse(sw.ToString());
+            }
+        }
 
         protected void btnPackageSummary_OnClick(object sender, EventArgs e)
         {
@@ -4561,72 +4561,72 @@ namespace ContentExportTool
             }
         }
 
-        protected void ButtonExportMedia_Click(object sender, EventArgs e)
-        {
-            PhBrowseFields.Visible = false;
-            PhBrowseModal.Visible = false;
-            phScrollToImport.Visible = false;
-            phScrollToRenderingImport.Visible = false;
-            phScrollToMediaExport.Visible = true;
+        //protected void ButtonExportMedia_Click(object sender, EventArgs e)
+        //{
+        //    PhBrowseFields.Visible = false;
+        //    PhBrowseModal.Visible = false;
+        //    phScrollToImport.Visible = false;
+        //    phScrollToRenderingImport.Visible = false;
+        //    phScrollToMediaExport.Visible = true;
 
-            if (String.IsNullOrEmpty(inputStartitem.Value))
-            {
-                litMediaExportOutput.Text = "Start path is empty! Do you really want to export the entire media library? If so, set the start path to /sitecore/Media Library; otherwise, select a path";
-                return;
-            }
+        //    if (String.IsNullOrEmpty(inputStartitem.Value))
+        //    {
+        //        litMediaExportOutput.Text = "Start path is empty! Do you really want to export the entire media library? If so, set the start path to /sitecore/Media Library; otherwise, select a path";
+        //        return;
+        //    }
 
-            var dbName = (!String.IsNullOrEmpty(ddDatabase.SelectedValue) ? ddDatabase.SelectedValue : "master");
-            _db = Sitecore.Configuration.Factory.GetDatabase(dbName);
+        //    var dbName = (!String.IsNullOrEmpty(ddDatabase.SelectedValue) ? ddDatabase.SelectedValue : "master");
+        //    _db = Sitecore.Configuration.Factory.GetDatabase(dbName);
 
-            var imageItems = GetItems(!chkNoChildren.Checked, mediaItems: true).Where(x => x.Paths.IsMediaItem);
-            var imagesDownloaded = 0;
+        //    var imageItems = GetItems(!chkNoChildren.Checked, mediaItems: true).Where(x => x.Paths.IsMediaItem);
+        //    var imagesDownloaded = 0;
 
-            // create a working memory stream
-            using (System.IO.MemoryStream zipStream = new System.IO.MemoryStream())
-            {
-                using (System.IO.Compression.ZipArchive zip = new System.IO.Compression.ZipArchive(zipStream, System.IO.Compression.ZipArchiveMode.Create, true))
-                {
-                    foreach (var image in imageItems)
-                    {
-                        try
-                        {
-                            var mediaItem = (MediaItem)image;
-                            var media = MediaManager.GetMedia(mediaItem);
-                            var stream = media.GetStream().Stream;
+        //    // create a working memory stream
+        //    using (System.IO.MemoryStream zipStream = new System.IO.MemoryStream())
+        //    {
+        //        using (System.IO.Compression.ZipArchive zip = new System.IO.Compression.ZipArchive(zipStream, System.IO.Compression.ZipArchiveMode.Create, true))
+        //        {
+        //            foreach (var image in imageItems)
+        //            {
+        //                try
+        //                {
+        //                    var mediaItem = (MediaItem)image;
+        //                    var media = MediaManager.GetMedia(mediaItem);
+        //                    var stream = media.GetStream().Stream;
 
-                            var extension = mediaItem.Extension;
-                            if (String.IsNullOrEmpty(extension)) continue;
+        //                    var extension = mediaItem.Extension;
+        //                    if (String.IsNullOrEmpty(extension)) continue;
 
-                            System.IO.Compression.ZipArchiveEntry zipItem = zip.CreateEntry(image.Name + "." + extension);
-                            using (System.IO.Stream entryStream = zipItem.Open())
-                            {
-                                stream.CopyTo(entryStream);
-                                imagesDownloaded++;
-                            }
+        //                    System.IO.Compression.ZipArchiveEntry zipItem = zip.CreateEntry(image.Name + "." + extension);
+        //                    using (System.IO.Stream entryStream = zipItem.Open())
+        //                    {
+        //                        stream.CopyTo(entryStream);
+        //                        imagesDownloaded++;
+        //                    }
 
-                        }
-                        catch (Exception ex) { }
-                    }
-                }
+        //                }
+        //                catch (Exception ex) { }
+        //            }
+        //        }
 
-                zipStream.Position = 0;
-                litMediaExportOutput.Text = imagesDownloaded + " images downloaded";
+        //        zipStream.Position = 0;
+        //        litMediaExportOutput.Text = imagesDownloaded + " images downloaded";
 
-                var downloadToken = txtDownloadToken.Value;
-                var responseCookie = new HttpCookie("DownloadToken");
-                responseCookie.Value = downloadToken;
-                responseCookie.HttpOnly = false;
-                responseCookie.Expires = DateTime.Now.AddDays(1);
-                Response.Cookies.Add(responseCookie);
+        //        var downloadToken = txtDownloadToken.Value;
+        //        var responseCookie = new HttpCookie("DownloadToken");
+        //        responseCookie.Value = downloadToken;
+        //        responseCookie.HttpOnly = false;
+        //        responseCookie.Expires = DateTime.Now.AddDays(1);
+        //        Response.Cookies.Add(responseCookie);
 
-                Response.Clear();
-                Response.ContentType = "application/x-zip-compressed";
-                Response.AddHeader("Content-Disposition", "attachment; filename=SitecoreMediaDownload.zip");
-                Response.BinaryWrite(zipStream.ToArray());
-                Response.Flush();
-                Response.Close();
-            }
-        }
+        //        Response.Clear();
+        //        Response.ContentType = "application/x-zip-compressed";
+        //        Response.AddHeader("Content-Disposition", "attachment; filename=SitecoreMediaDownload.zip");
+        //        Response.BinaryWrite(zipStream.ToArray());
+        //        Response.Flush();
+        //        Response.Close();
+        //    }
+        //}
 
         protected void btnDownloadFile_Click(object sender, EventArgs e)
         {
