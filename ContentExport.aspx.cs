@@ -550,19 +550,7 @@ namespace ContentExportTool
                 return;
             }
 
-            StartJob();
-
-            //var fileName = !string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "ContentExport";
-            //Response.Clear();
-            //Response.Buffer = true;
-            //Response.AddHeader("content-disposition", string.Format("attachment;filename={0}.csv", fileName));
-            //Response.Charset = "";
-            //Response.ContentType = "text/csv";
-            //Response.ContentEncoding = System.Text.Encoding.UTF8;
-
-            // keep alive and wait for output
-
-            // no need to keep alive if we're doing a background task and waiting on the file to exist         
+            StartJob();         
         }
 
         private string exportFolder
@@ -647,6 +635,15 @@ namespace ContentExportTool
             }
         }
 
+        private string _importJobName = "ImportJob";
+        public Job ImportJob
+        {
+            get
+            {
+                return JobManager.GetJob(_importJobName);
+            }
+        }
+
         public void StartJob()
         {
             JobOptions options = new JobOptions(_jobName, "ExportJob", Sitecore.Context.Site.Name, this, "RunExport");
@@ -654,6 +651,16 @@ namespace ContentExportTool
             if (ExportJob != null)
             {
                 ExportJob.Status.State = JobState.Running;
+            }
+        }
+
+        public void StartImportJob()
+        {
+            JobOptions options = new JobOptions(_jobName, "ImportJob", Sitecore.Context.Site.Name, this, "ProcessImport");
+            JobManager.Start(options);
+            if (ImportJob != null)
+            {
+                ImportJob.Status.State = JobState.Running;
             }
         }
 
@@ -2112,10 +2119,20 @@ namespace ContentExportTool
 
 
                 litUploadResponse.Text = output;
+
+                if (ImportJob != null)
+                {
+                    ImportJob.Status.State = JobState.Finished;
+                }
             }
             catch (Exception ex)
             {
                 litUploadResponse.Text = "Oops! An error occurred while importing: <br/>" + ex;
+
+                if (ImportJob != null)
+                {
+                    ImportJob.Status.State = JobState.Finished;
+                }
             }
         }
 
@@ -3543,7 +3560,16 @@ namespace ContentExportTool
 
         protected void btnBeginImport_OnClick(object sender, EventArgs e)
         {
-            ProcessImport();
+            // begin import
+            StartImportJob();
+            while (ImportJob.Status.State != JobState.Finished)
+            {
+                var response = this.Response;
+                response.Write("\r\n");
+                response.Flush();
+                System.Threading.Thread.Sleep(3000);
+            }
+
         }
 
         protected void btnComponentAudit_OnClick(object sender, EventArgs e)
