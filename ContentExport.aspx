@@ -1553,30 +1553,7 @@
                         </div>
                                                <br />
                         <br />
-                        <div class="advanced open open-default" id="mediaExport">
-                            <a class="advanced-btn">Media Export</a>
-                            <div class="advanced-inner">
-                                <div class="row advanced-search">
-                                    <h3>Media Export</h3>
-                                    <span style="color: red" class="uploadResponse">
-                                        <asp:Literal runat="server" ID="litMediaExportOutput"></asp:Literal></span>
-
-
-                                    <span class="" style="display: block; margin-top: 10px;">
-
-                                        Export the attached image files of media items. <br /><br />
-
-                                        Use the <a href="#startitems">Start Item(s)</a> field to select media items; use No Children if you only want specific items<br /><br />
-
-                                    </span>
-                                    <br />
-
-                                    <asp:Button runat="server" ID="ButtonExportMedia" CssClass="spinner-btn" Text="Export Media Items" OnClick="ButtonExportMedia_Click" />
-
-                                </div>
-
-                            </div>
-                        </div>
+                       
 
                     </div>
                 </div>
