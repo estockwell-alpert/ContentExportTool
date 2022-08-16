@@ -3737,47 +3737,47 @@ namespace ContentExportTool
             return Path.GetFullPath(Path.Combine(PackageProjectPath, packageFileName));
         }
 
-        protected void btnMediaSummary_OnClick(object sender, EventArgs e)
-        {
-            PhBrowseFields.Visible = false;
-            PhBrowseModal.Visible = false;
-            phScrollToImport.Visible = false;
-            phScrollToRenderingImport.Visible = false;
-            phScrollToMediaExport.Visible = false;
+        //protected void btnMediaSummary_OnClick(object sender, EventArgs e)
+        //{
+        //    PhBrowseFields.Visible = false;
+        //    PhBrowseModal.Visible = false;
+        //    phScrollToImport.Visible = false;
+        //    phScrollToRenderingImport.Visible = false;
+        //    phScrollToMediaExport.Visible = false;
 
-            if (!SetDatabase())
-            {
-                litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
-                return;
-            }
+        //    if (!SetDatabase())
+        //    {
+        //        litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
+        //        return;
+        //    }
 
 
-            if (_db == null)
-            {
-                litFeedback.Text = "Invalid database. Selected database does not exist.";
-                return;
-            }
+        //    if (_db == null)
+        //    {
+        //        litFeedback.Text = "Invalid database. Selected database does not exist.";
+        //        return;
+        //    }
 
-            List<Item> items = GetItems(!chkNoChildren.Checked, chkIncludeRelatedItems.Checked, chkIncludeSubitems.Checked);
+        //    List<Item> items = GetItems(!chkNoChildren.Checked, chkIncludeRelatedItems.Checked, chkIncludeSubitems.Checked);
 
-            // only media items
-            items = items.Where(x => x.Paths.IsMediaItem && (x.TemplateID != TemplateIDs.MediaFolder)).ToList();
+        //    // only media items
+        //    items = items.Where(x => x.Paths.IsMediaItem && (x.TemplateID != TemplateIDs.MediaFolder)).ToList();
 
-            StartResponse(!string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value + " - Media Summary" : "ContentExportPackage - Media Summary");
+        //    StartResponse(!string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value + " - Media Summary" : "ContentExportPackage - Media Summary");
 
-            using (StringWriter sw = new StringWriter())
-            {
-                var headingString = "Item Path";
+        //    using (StringWriter sw = new StringWriter())
+        //    {
+        //        var headingString = "Item Path";
 
-                sw.WriteLine(headingString);
-                foreach (var item in items)
-                {
-                    sw.WriteLine(String.Format("{0}", item.Paths.FullPath));
-                }
+        //        sw.WriteLine(headingString);
+        //        foreach (var item in items)
+        //        {
+        //            sw.WriteLine(String.Format("{0}", item.Paths.FullPath));
+        //        }
 
-                SetCookieAndResponse(sw.ToString());
-            }
-        }
+        //        SetCookieAndResponse(sw.ToString());
+        //    }
+        //}
 
         protected void btnPackageSummary_OnClick(object sender, EventArgs e)
         {
