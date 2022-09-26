@@ -536,22 +536,23 @@ namespace ContentExportTool
                 var includeWorkflowState = chkWorkflowState.Checked;
                 var includeworkflowName = chkWorkflowName.Checked;
 
-                if (!SetDatabase())
-                {
-                    litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
-                    return;
-                }
+            if (!SetDatabase())
+            {
+                litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
+                return;
+            }
 
 
-                if (_db == null)
-                {
-                    litFeedback.Text = "Invalid database. Selected database does not exist.";
-                    return;
-                }
+            if (_db == null)
+            {
+                litFeedback.Text = "Invalid database. Selected database does not exist.";
+                return;
+            }
 
                 var includeIds = chkIncludeIds.Checked;
                 var includeLinkedIds = chkIncludeLinkedIds.Checked;
                 var includeName = chkIncludeName.Checked;
+                var includeUrl = chkIncludeUrl.Checked;
                 var includeRawHtml = chkIncludeRawHtml.Checked;
                 var includeTemplate = chkIncludeTemplate.Checked;
 
@@ -592,6 +593,7 @@ namespace ContentExportTool
                 {
                     var headingString = "Item Path,"
                                         + (includeName ? "Name," : string.Empty)
+                                        + (includeUrl ? "URL," : string.Empty)
                                         + (includeIds ? "Item ID," : string.Empty)
                                         + (includeTemplate ? "Template," : string.Empty)
                                         +
@@ -618,7 +620,7 @@ namespace ContentExportTool
                     var createdByAuthors = txtCreatedByFilter.Value.Split(',');
                     var modifiedByAuthors = txtModifiedByFilter.Value.Split(',');
 
-                    var webDb = Sitecore.Configuration.Factory.GetDatabase("web"); 
+                    var webDb = Sitecore.Configuration.Factory.GetDatabase("web");
 
                     foreach (var baseItem in items)
                     {
@@ -661,6 +663,25 @@ namespace ContentExportTool
                             if (includeName)
                             {
                                 itemLine += item.Name + ",";
+                            }
+
+                            if (includeUrl)
+                            {
+                                if (DoesItemHasPresentationDetails(item))
+                                {
+                                    var website = Sitecore.Configuration.Factory.GetSite("website");
+                                    using (new SiteContextSwitcher(website))
+                                    {
+                                        var options = LinkManager.GetDefaultUrlOptions();
+                                        options.AlwaysIncludeServerUrl = true;
+                                        options.SiteResolving = true;
+                                        itemLine += Sitecore.Links.LinkManager.GetItemUrl(item, options) + ",";
+                                    }
+                                }
+                                else
+                                {
+                                    itemLine += ",";
+                                }
                             }
 
                             if (includeIds)
@@ -806,7 +827,7 @@ namespace ContentExportTool
                             if (upToDate)
                             {
                                 var languageItem = webDb.GetItem(item.ID, item.Language);
-                                
+
                                 if (languageItem == null || languageItem.Versions.Count == 0)
                                 {
                                     var message = "n/a";
@@ -1156,22 +1177,22 @@ namespace ContentExportTool
                 else
                 {
                     if (linkField.TargetItem != null)
-					{
-						var targetItem = linkField.TargetItem;
-						if (targetItem != null)
-						{							
-							var itemUrl = targetItem.Paths.Path.Replace("/sitecore/content", "");
-							itemLine += itemUrl + ",";													
-						}
-						else
-						{
-							itemLine += ",";
-						}
-					}
-					else
-					{
-						itemLine += linkField.Url + ",";
-					}
+                    {
+                        var targetItem = linkField.TargetItem;
+                        if (targetItem != null)
+                        {
+                            var itemUrl = targetItem.Paths.Path.Replace("/sitecore/content", "");
+                            itemLine += itemUrl + ",";
+                        }
+                        else
+                        {
+                            itemLine += ",";
+                        }
+                    }
+                    else
+                    {
+                        itemLine += linkField.Url + ",";
+                    }
                 }
 
                 if (includeRawHtml)
@@ -2052,10 +2073,10 @@ namespace ContentExportTool
                         }
                         else // treat as a direct url
                         {
-                        linkField.Url = value;
+                            linkField.Url = value;
                         }
 
-                        
+
 
                     }
                     else if (itemOfType is ReferenceField || itemOfType is GroupedDroplistField || itemOfType is LookupField)
@@ -2462,6 +2483,7 @@ namespace ContentExportTool
                 SelectedLanguage = ddLanguages.SelectedValue,
                 GetAllLanguages = chkAllLanguages.Checked,
                 IncludeName = chkIncludeName.Checked,
+                IncludeUrl = chkIncludeUrl.Checked,
                 IncludeInheritance = chkIncludeInheritance.Checked,
                 DateCreated = chkDateCreated.Checked,
                 DateModified = chkDateModified.Checked,
@@ -2599,6 +2621,7 @@ namespace ContentExportTool
             }
             chkAllLanguages.Checked = settings.GetAllLanguages;
             chkIncludeName.Checked = settings.IncludeName;
+            chkIncludeUrl.Checked = settings.IncludeUrl;
             chkIncludeInheritance.Checked = settings.IncludeInheritance;
             chkDateCreated.Checked = settings.DateCreated;
             chkDateModified.Checked = settings.DateModified;
@@ -2709,6 +2732,7 @@ namespace ContentExportTool
             chkCreatedBy.Checked = false;
             chkModifiedBy.Checked = false;
             chkIncludeName.Checked = false;
+            chkIncludeUrl.Checked = false;
             chkReferrers.Checked = false;
             chkRelateItems.Checked = false;
             chkIncludeRelatedItems.Checked = false;
@@ -2767,6 +2791,7 @@ namespace ContentExportTool
                 SelectedLanguage = ddLanguages.SelectedValue,
                 GetAllLanguages = chkAllLanguages.Checked,
                 IncludeName = chkIncludeName.Checked,
+                IncludeUrl = chkIncludeUrl.Checked,
                 IncludeInheritance = chkIncludeInheritance.Checked,
                 DateCreated = chkDateCreated.Checked,
                 DateModified = chkDateModified.Checked,
@@ -3927,6 +3952,7 @@ namespace ContentExportTool
                 }
 
                 var includeName = chkIncludeName.Checked;
+                var includeUrl = chkIncludeUrl.Checked;
                 var includeTemplate = chkIncludeTemplate.Checked;
                 var includeIds = chkIncludeIds.Checked;
 
@@ -4355,7 +4381,7 @@ namespace ContentExportTool
                             }
                         }
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
 
                     }
@@ -4428,7 +4454,7 @@ namespace ContentExportTool
 
             var dbName = (!String.IsNullOrEmpty(ddDatabase.SelectedValue) ? ddDatabase.SelectedValue : "master");
             _db = Sitecore.Configuration.Factory.GetDatabase(dbName);
-          
+
             var imageItems = GetItems(!chkNoChildren.Checked, mediaItems: true).Where(x => x.Paths.IsMediaItem);
             var imagesDownloaded = 0;
 
@@ -4539,6 +4565,7 @@ namespace ContentExportTool
         public string SelectedLanguage;
         public bool GetAllLanguages;
         public bool IncludeName;
+        public bool IncludeUrl;
         public string MultipleStartPaths;
         public bool IncludeInheritance;
         public bool NeverPublish;

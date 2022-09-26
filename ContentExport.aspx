@@ -1028,6 +1028,12 @@
                                     </div>
 
                                     <div class="row">
+                                        <span class="header">Item URL</span>
+                                        <asp:CheckBox runat="server" ID="chkIncludeUrl" />
+                                        <span class="notes">Export the full URL of each item</span>
+                                    </div>
+
+                                    <div class="row">
                                         <span class="header">Item ID</span>
                                         <asp:CheckBox runat="server" ID="chkIncludeIds" />
                                         <span class="notes">Export the ID of each item</span>
