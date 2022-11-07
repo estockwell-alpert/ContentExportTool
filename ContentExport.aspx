@@ -1028,6 +1028,12 @@
                                     </div>
 
                                     <div class="row">
+                                        <span class="header">Item URL</span>
+                                        <asp:CheckBox runat="server" ID="chkIncludeUrl" />
+                                        <span class="notes">Export the full URL of each item</span>
+                                    </div>
+
+                                    <div class="row">
                                         <span class="header">Item ID</span>
                                         <asp:CheckBox runat="server" ID="chkIncludeIds" />
                                         <span class="notes">Export the ID of each item</span>
@@ -1255,6 +1261,20 @@
                                     <asp:CheckBox runat="server" ID="chkAdmins" /><span>Admins only</span>
                                     <br /><br />
                                     <asp:Button class="spinner-btn" runat="server" ID="btnUsersAudit" OnClick="btnUsersAudit_Click" Text="Run User Audit" />
+                                </div>
+                                 <div class="row advanced-search">
+                                    <span class="header"><b>Obsolete Content Audit</b></span>
+                                    <span class="notes">Run this export to get a CSV of all NON-page items that do not have any referrers.<br />
+                                        <br />
+                                        This audits excludes page items, and items with children that have referrers <br /><br />
+                                        <b>Note:</b> Just because an item has no referrers does not mean it is not needed! 
+                                        There may be content with no referrers that is referenced directly in the code.
+                                        This export provides a guideline for which items MIGHT be obsolete, but all content should be reviewed before deleting.
+                                    </span>
+                                    <br /><br />
+                                   <span class="notes">Note: You can use the Start Path and Template filters to only scan specific content</span>                                                
+                                    <br /><br />
+                                    <asp:Button class="spinner-btn obsolete-content-btn" runat="server" ID="btnObsoleteContentAudit" OnClick="btnObsoleteContentAudit_Click" Text="Run Obsolete Content Audit" />
                                 </div>
                                 <div class="row advanced-search">
                                     <span class="header"><b>Advanced Search:</b></span>
@@ -1545,30 +1565,7 @@
                         </div>
                                                <br />
                         <br />
-                        <div class="advanced open open-default" id="mediaExport">
-                            <a class="advanced-btn">Media Export</a>
-                            <div class="advanced-inner">
-                                <div class="row advanced-search">
-                                    <h3>Media Export</h3>
-                                    <span style="color: red" class="uploadResponse">
-                                        <asp:Literal runat="server" ID="litMediaExportOutput"></asp:Literal></span>
 
-
-                                    <span class="" style="display: block; margin-top: 10px;">
-
-                                        Export the attached image files of media items. <br /><br />
-
-                                        Use the <a href="#startitems">Start Item(s)</a> field to select media items; use No Children if you only want specific items<br /><br />
-
-                                    </span>
-                                    <br />
-
-                                    <asp:Button runat="server" ID="ButtonExportMedia" CssClass="spinner-btn" Text="Export Media Items" OnClick="ButtonExportMedia_Click" />
-
-                                </div>
-
-                            </div>
-                        </div>
 
                     </div>
                 </div>
