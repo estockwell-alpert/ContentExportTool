@@ -552,6 +552,7 @@ namespace ContentExportTool
                 var includeIds = chkIncludeIds.Checked;
                 var includeLinkedIds = chkIncludeLinkedIds.Checked;
                 var includeName = chkIncludeName.Checked;
+                var includeUrl = chkIncludeUrl.Checked;
                 var includeRawHtml = chkIncludeRawHtml.Checked;
                 var includeTemplate = chkIncludeTemplate.Checked;
 
@@ -592,6 +593,7 @@ namespace ContentExportTool
                 {
                     var headingString = "Item Path,"
                                         + (includeName ? "Name," : string.Empty)
+                                        + (includeUrl ? "URL," : string.Empty)
                                         + (includeIds ? "Item ID," : string.Empty)
                                         + (includeTemplate ? "Template," : string.Empty)
                                         +
@@ -661,6 +663,25 @@ namespace ContentExportTool
                             if (includeName)
                             {
                                 itemLine += item.Name + ",";
+                            }
+
+                            if (includeUrl)
+                            {
+                                if (DoesItemHasPresentationDetails(item))
+                                {
+                                    var website = Sitecore.Configuration.Factory.GetSite("website");
+                                    using (new SiteContextSwitcher(website))
+                                    {
+                                        var options = LinkManager.GetDefaultUrlOptions();
+                                        options.AlwaysIncludeServerUrl = true;
+                                        options.SiteResolving = true;
+                                        itemLine += Sitecore.Links.LinkManager.GetItemUrl(item, options) + ",";
+                                    }
+                                }
+                                else
+                                {
+                                    itemLine += ",";
+                                }
                             }
 
                             if (includeIds)
@@ -2462,6 +2483,7 @@ namespace ContentExportTool
                 SelectedLanguage = ddLanguages.SelectedValue,
                 GetAllLanguages = chkAllLanguages.Checked,
                 IncludeName = chkIncludeName.Checked,
+                IncludeUrl = chkIncludeUrl.Checked,
                 IncludeInheritance = chkIncludeInheritance.Checked,
                 DateCreated = chkDateCreated.Checked,
                 DateModified = chkDateModified.Checked,
@@ -2599,6 +2621,7 @@ namespace ContentExportTool
             }
             chkAllLanguages.Checked = settings.GetAllLanguages;
             chkIncludeName.Checked = settings.IncludeName;
+            chkIncludeUrl.Checked = settings.IncludeUrl;
             chkIncludeInheritance.Checked = settings.IncludeInheritance;
             chkDateCreated.Checked = settings.DateCreated;
             chkDateModified.Checked = settings.DateModified;
@@ -2709,6 +2732,7 @@ namespace ContentExportTool
             chkCreatedBy.Checked = false;
             chkModifiedBy.Checked = false;
             chkIncludeName.Checked = false;
+            chkIncludeUrl.Checked = false;
             chkReferrers.Checked = false;
             chkRelateItems.Checked = false;
             chkIncludeRelatedItems.Checked = false;
@@ -2767,6 +2791,7 @@ namespace ContentExportTool
                 SelectedLanguage = ddLanguages.SelectedValue,
                 GetAllLanguages = chkAllLanguages.Checked,
                 IncludeName = chkIncludeName.Checked,
+                IncludeUrl = chkIncludeUrl.Checked,
                 IncludeInheritance = chkIncludeInheritance.Checked,
                 DateCreated = chkDateCreated.Checked,
                 DateModified = chkDateModified.Checked,
@@ -3927,6 +3952,7 @@ namespace ContentExportTool
                 }
 
                 var includeName = chkIncludeName.Checked;
+                var includeUrl = chkIncludeUrl.Checked;
                 var includeTemplate = chkIncludeTemplate.Checked;
                 var includeIds = chkIncludeIds.Checked;
 
@@ -4439,6 +4465,9 @@ namespace ContentExportTool
                     var itemPath = item.Paths.ContentPath;
                     if (String.IsNullOrEmpty(itemPath)) continue;
 
+                    if (ItemHasChildrenWithReferrers(item))
+                        continue;
+
                     var itemLine = itemPath;
                     sw.WriteLine(itemLine);
                 }
@@ -4447,73 +4476,89 @@ namespace ContentExportTool
             }
         }
 
-    //protected void ButtonExportMedia_Click(object sender, EventArgs e)
-    //{
-    //    PhBrowseFields.Visible = false;
-    //    PhBrowseModal.Visible = false;
-    //    phScrollToImport.Visible = false;
-    //    phScrollToRenderingImport.Visible = false;
-    //    phScrollToMediaExport.Visible = true;
+        public bool ItemHasChildrenWithReferrers(Item item)
+        {
+            var itemHasReferrers = Globals.LinkDatabase.GetReferrers(item).Any();
 
-    //    if (String.IsNullOrEmpty(inputStartitem.Value))
-    //    {
-    //        litMediaExportOutput.Text = "Start path is empty! Do you really want to export the entire media library? If so, set the start path to /sitecore/Media Library; otherwise, select a path";
-    //        return;
-    //    }
+            // return true if item has referrers OR is page item
+            if (itemHasReferrers || DoesItemHasPresentationDetails(item)) return true;
 
-    //    var dbName = (!String.IsNullOrEmpty(ddDatabase.SelectedValue) ? ddDatabase.SelectedValue : "master");
-    //    _db = Sitecore.Configuration.Factory.GetDatabase(dbName);
+            foreach (Item child in item.GetChildren())
+            {
+                if (ItemHasChildrenWithReferrers(child)) return true;
+            }
 
-    //    var imageItems = GetItems(!chkNoChildren.Checked, mediaItems: true).Where(x => x.Paths.IsMediaItem);
-    //    var imagesDownloaded = 0;
+            return false;
+        }
 
-    //    // create a working memory stream
-    //    using (System.IO.MemoryStream zipStream = new System.IO.MemoryStream())
-    //    {
-    //        using (System.IO.Compression.ZipArchive zip = new System.IO.Compression.ZipArchive(zipStream, System.IO.Compression.ZipArchiveMode.Create, true))
-    //        {
-    //            foreach (var image in imageItems)
-    //            {
-    //                try
-    //                {
-    //                    var mediaItem = (MediaItem)image;
-    //                    var media = MediaManager.GetMedia(mediaItem);
-    //                    var stream = media.GetStream().Stream;
 
-    //                    var extension = mediaItem.Extension;
-    //                    if (String.IsNullOrEmpty(extension)) continue;
+        //protected void ButtonExportMedia_Click(object sender, EventArgs e)
+        //{
+        //    PhBrowseFields.Visible = false;
+        //    PhBrowseModal.Visible = false;
+        //    phScrollToImport.Visible = false;
+        //    phScrollToRenderingImport.Visible = false;
+        //    phScrollToMediaExport.Visible = true;
 
-    //                    System.IO.Compression.ZipArchiveEntry zipItem = zip.CreateEntry(image.Name + "." + extension);
-    //                    using (System.IO.Stream entryStream = zipItem.Open())
-    //                    {
-    //                        stream.CopyTo(entryStream);
-    //                        imagesDownloaded++;
-    //                    }
+        //    if (String.IsNullOrEmpty(inputStartitem.Value))
+        //    {
+        //        litMediaExportOutput.Text = "Start path is empty! Do you really want to export the entire media library? If so, set the start path to /sitecore/Media Library; otherwise, select a path";
+        //        return;
+        //    }
 
-    //                }
-    //                catch (Exception ex) { }
-    //            }
-    //        }
+        //    var dbName = (!String.IsNullOrEmpty(ddDatabase.SelectedValue) ? ddDatabase.SelectedValue : "master");
+        //    _db = Sitecore.Configuration.Factory.GetDatabase(dbName);
 
-    //        zipStream.Position = 0;
-    //        litMediaExportOutput.Text = imagesDownloaded + " images downloaded";
+        //    var imageItems = GetItems(!chkNoChildren.Checked, mediaItems: true).Where(x => x.Paths.IsMediaItem);
+        //    var imagesDownloaded = 0;
 
-    //        var downloadToken = txtDownloadToken.Value;
-    //        var responseCookie = new HttpCookie("DownloadToken");
-    //        responseCookie.Value = downloadToken;
-    //        responseCookie.HttpOnly = false;
-    //        responseCookie.Expires = DateTime.Now.AddDays(1);
-    //        Response.Cookies.Add(responseCookie);
+        //    // create a working memory stream
+        //    using (System.IO.MemoryStream zipStream = new System.IO.MemoryStream())
+        //    {
+        //        using (System.IO.Compression.ZipArchive zip = new System.IO.Compression.ZipArchive(zipStream, System.IO.Compression.ZipArchiveMode.Create, true))
+        //        {
+        //            foreach (var image in imageItems)
+        //            {
+        //                try
+        //                {
+        //                    var mediaItem = (MediaItem)image;
+        //                    var media = MediaManager.GetMedia(mediaItem);
+        //                    var stream = media.GetStream().Stream;
 
-    //        Response.Clear();
-    //        Response.ContentType = "application/x-zip-compressed";
-    //        Response.AddHeader("Content-Disposition", "attachment; filename=SitecoreMediaDownload.zip");
-    //        Response.BinaryWrite(zipStream.ToArray());
-    //        Response.Flush();
-    //        Response.Close();
-    //    }
-    //}
-}
+        //                    var extension = mediaItem.Extension;
+        //                    if (String.IsNullOrEmpty(extension)) continue;
+
+        //                    System.IO.Compression.ZipArchiveEntry zipItem = zip.CreateEntry(image.Name + "." + extension);
+        //                    using (System.IO.Stream entryStream = zipItem.Open())
+        //                    {
+        //                        stream.CopyTo(entryStream);
+        //                        imagesDownloaded++;
+        //                    }
+
+        //                }
+        //                catch (Exception ex) { }
+        //            }
+        //        }
+
+        //        zipStream.Position = 0;
+        //        litMediaExportOutput.Text = imagesDownloaded + " images downloaded";
+
+        //        var downloadToken = txtDownloadToken.Value;
+        //        var responseCookie = new HttpCookie("DownloadToken");
+        //        responseCookie.Value = downloadToken;
+        //        responseCookie.HttpOnly = false;
+        //        responseCookie.Expires = DateTime.Now.AddDays(1);
+        //        Response.Cookies.Add(responseCookie);
+
+        //        Response.Clear();
+        //        Response.ContentType = "application/x-zip-compressed";
+        //        Response.AddHeader("Content-Disposition", "attachment; filename=SitecoreMediaDownload.zip");
+        //        Response.BinaryWrite(zipStream.ToArray());
+        //        Response.Flush();
+        //        Response.Close();
+        //    }
+        //}
+    }
 
     #region Classes
 
@@ -4574,6 +4619,7 @@ namespace ContentExportTool
         public string SelectedLanguage;
         public bool GetAllLanguages;
         public bool IncludeName;
+        public bool IncludeUrl;
         public string MultipleStartPaths;
         public bool IncludeInheritance;
         public bool NeverPublish;
