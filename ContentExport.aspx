@@ -1264,6 +1264,18 @@
                                     <br /><br />
                                     <asp:Button class="spinner-btn" runat="server" ID="btnUsersAudit" OnClick="btnUsersAudit_Click" Text="Run User Audit" />
                                 </div>
+                                 <div class="row advanced-search">
+                                    <span class="header"><b>Obsolete Content Audit</b></span>
+                                    <span class="notes">Run this export to get a CSV of all NON-page items that do not have any referrers.<br />
+                                        Note: Just because an item has no referrers does not mean it is not needed! 
+                                        There may be content with no referrers that is referenced directly in the code.
+                                        This export provides a guideline for which items MIGHT be obsolete, but all content should be reviewed before deleting.
+                                    </span>
+                                    <br /><br />
+                                   <span class="notes">Note: You can use the Start Path and Template filters to only scan specific content</span>                                                
+                                    <br /><br />
+                                    <asp:Button class="spinner-btn" runat="server" ID="btnObsoleteContentAudit" OnClick="btnObsoleteContentAudit_Click" Text="Run Obsolete Content Audit" />
+                                </div>
                                 <div class="row advanced-search">
                                     <span class="header"><b>Advanced Search:</b></span>
                                     <input runat="server" id="txtAdvancedSearch" /><asp:Button class="spinner-btn" runat="server" ID="btnAdvancedSearch" OnClick="btnAdvancedSearch_OnClick" Text="Go" />
@@ -1553,7 +1565,7 @@
                         </div>
                                                <br />
                         <br />
-                       
+
 
                     </div>
                 </div>

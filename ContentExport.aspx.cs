@@ -4595,6 +4595,60 @@ namespace ContentExportTool
         {
             DownloadFile();
         }
+        protected void btnObsoleteContentAudit_Click(object sender, EventArgs e)
+        {
+            litFastQueryTest.Text = "";
+
+            try
+            {
+                if (!SetDatabase())
+                {
+                    litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
+                    return;
+                }
+
+
+                if (_db == null)
+                {
+                    litFeedback.Text = "Invalid database. Selected database does not exist.";
+                    return;
+                }
+                var items = GetItems(!chkNoChildren.Checked).Select(x => x);
+
+                // exclude page items
+                items = items.Where(x => !DoesItemHasPresentationDetails(x));
+
+                items = items.Where(item => !Globals.LinkDatabase.GetReferrers(item).Any());
+
+                StartResponse(!string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "ComponentAudit");
+
+                using (StringWriter sw = new StringWriter())
+                {
+                    var headingString = "Item Path";
+
+                    sw.WriteLine(headingString);
+
+
+                    foreach (var item in items)
+                    {
+                        if (item == null) continue;
+
+                        var itemPath = item.Paths.ContentPath;
+                        if (String.IsNullOrEmpty(itemPath)) continue;
+
+                        var itemLine = itemPath;
+                        sw.WriteLine(itemLine);
+                    }
+
+                    SetCookieAndResponse(sw.ToString());
+
+                }
+            }
+            catch (Exception ex)
+            {
+                litFeedback.Text = "<span style='color:red'>" + ex + "</span>";
+            }
+        }
     }
 
     #region Classes
