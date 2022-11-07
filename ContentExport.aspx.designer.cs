@@ -931,6 +931,15 @@ namespace ContentExportTool {
         protected global::System.Web.UI.WebControls.Button btnUsersAudit;
         
         /// <summary>
+        /// btnObsoleteContentAudit control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnObsoleteContentAudit;
+        
+        /// <summary>
         /// txtAdvancedSearch control.
         /// </summary>
         /// <remarks>
@@ -1154,23 +1163,5 @@ namespace ContentExportTool {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnDownloadRenderingParamsSample;
-        
-        /// <summary>
-        /// litMediaExportOutput control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal litMediaExportOutput;
-        
-        /// <summary>
-        /// ButtonExportMedia control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button ButtonExportMedia;
     }
 }

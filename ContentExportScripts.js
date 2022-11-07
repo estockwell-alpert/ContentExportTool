@@ -26,17 +26,29 @@
     });
 
     $(".content-export-btn").on("click", function(){
+        setDownloadToken("ContentExport");
+    });
+
+    $(".obsolete-content-btn").on("click", function(){
+        setDownloadToken("ObsoleteExport");
+    });
+
+    $(".content-export-btn, .obsolete-content-btn").on("click", function(){
         $("#idExporting").val("true");
         console.log("export button clicked");
         continueDownload();
     });
 
+    var setDownloadToken = function(downloadType){
+        var downloadToken = new Date().getTime() + downloadType;
+        $("#txtDownloadToken").val(downloadToken)
+    }
+
     var showModal = function () {
         $(".feedback").empty();
         $(".loading-modal").show();
         //$("#loading-text").html(loadingModalHtml);
-        var downloadToken = new Date().getTime();
-        $("#txtDownloadToken").val(downloadToken)
+
     }
 
     var continueDownload = function(){
@@ -294,29 +306,29 @@ function loadChildren(id, parentNode) {
     });
 }
 
-function checkIfFileWritten(downloadToken) {    
-    console.log("checking if file is written");
-    $(".loading-modal").show();
+    function checkIfFileWritten(downloadToken) {    
+        console.log("checking if file is written");
+        $(".loading-modal").show();
 
-    // wait a few seconds to see if the cookie gets generated
-    setTimeout(function () {
-        // if the file has been written and is downloading, we can stop trying to download it;
-        var token = getCookie("DownloadToken");
-        console.log("token: " + token);
+        // wait a few seconds to see if the cookie gets generated
+        setTimeout(function () {
+            // if the file has been written and is downloading, we can stop trying to download it;
+            var token = getCookie("DownloadToken");
+            console.log("token: " + token);
 
-        if ((token == downloadToken)) {    
-            $(".loading-modal").hide();
-            $("#idExporting").val("");
-            console.log("finished download");   
-            $(".loading-modal").hide();
-            $("#txtDownloadToken").val("");
+            if ((token == downloadToken)) {    
+                $(".loading-modal").hide();
+                $("#idExporting").val("");
+                console.log("finished download");   
+                $(".loading-modal").hide();
+                $("#txtDownloadToken").val("");
 
-        } else {
-            console.log("download token doesn't match");            
-            $(".btnDownloadFile").click();
-        }   
-    }, 5000) 
-}
+            } else {
+                console.log("download token doesn't match");            
+                $(".btnDownloadFile").click();
+            }   
+        }, 5000) 
+    }
 
 function getCookie(name) {
     var parts = document.cookie.split(name + "=");

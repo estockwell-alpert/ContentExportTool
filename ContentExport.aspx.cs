@@ -544,19 +544,7 @@ namespace ContentExportTool
                 return;
             }
 
-            StartJob();
-
-            //var fileName = !string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "ContentExport";
-            //Response.Clear();
-            //Response.Buffer = true;
-            //Response.AddHeader("content-disposition", string.Format("attachment;filename={0}.csv", fileName));
-            //Response.Charset = "";
-            //Response.ContentType = "text/csv";
-            //Response.ContentEncoding = System.Text.Encoding.UTF8;
-
-            // keep alive and wait for output
-
-            // no need to keep alive if we're doing a background task and waiting on the file to exist         
+            StartJob();         
         }
 
         private string exportFolder
@@ -605,7 +593,13 @@ namespace ContentExportTool
                     return;
                 }
 
-                var fileName = !string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "ContentExport";
+                var defaultFileName = "ContentExport";
+                if (txtDownloadToken.Value.Contains("Obsolete"))
+                {
+                    defaultFileName = "ObsoleteContentExport";
+                }
+
+                var fileName = !string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : defaultFileName;
 
                 var fileContents = File.ReadAllText(filePath);
 
@@ -642,6 +636,25 @@ namespace ContentExportTool
             }
         }
 
+
+        private string _obsoleteContentJobName = "Obsolete";
+        public BaseJob ObsoleteContentJob
+        {
+            get
+            {
+                return JobManager.GetJob(_obsoleteContentJobName);
+            }
+        }
+
+        private string _importJobName = "ImportJob";
+        public BaseJob ImportJob
+        {
+            get
+            {
+                return JobManager.GetJob(_importJobName);
+            }
+        }
+
         public void StartJob()
         {
             DefaultJobOptions options = new DefaultJobOptions(_jobName, "ExportJob", Sitecore.Context.Site.Name, this, "RunExport");
@@ -650,6 +663,72 @@ namespace ContentExportTool
             {
                 ExportJob.Status.State = JobState.Running;
             }
+        }
+
+        public void StartImportJob()
+        {
+            DefaultJobOptions options = new DefaultJobOptions(_jobName, "ImportJob", Sitecore.Context.Site.Name, this, "ProcessImport");
+            JobManager.Start(options);
+            if (ImportJob != null)
+            {
+                ImportJob.Status.State = JobState.Running;
+            }
+        }
+
+        public void StartObsoleteContentJob()
+        {
+            DefaultJobOptions options = new DefaultJobOptions(_obsoleteContentJobName, "ObsoleteContentJob", Sitecore.Context.Site.Name, this, "RunObsoleteContentAudit");
+            JobManager.Start(options);
+            if (ObsoleteContentJob != null)
+            {
+                ObsoleteContentJob.Status.State = JobState.Running;
+            }
+        }
+
+        public void RunObsoleteContentAudit()
+        {
+
+            var items = GetItems(!chkNoChildren.Checked).Select(x => x);
+
+            // exclude page items
+            items = items.Where(x => !DoesItemHasPresentationDetails(x));
+
+            items = items.Where(item => !Globals.LinkDatabase.GetReferrers(item).Any());
+
+            using (StringWriter sw = new StringWriter())
+            {
+                var headingString = "Item Path";
+
+                sw.WriteLine(headingString);
+
+                foreach (var item in items)
+                {
+                    if (item == null) continue;
+
+                    var itemPath = item.Paths.ContentPath;
+                    if (String.IsNullOrEmpty(itemPath)) continue;
+
+                    var itemLine = itemPath;
+                    sw.WriteLine(itemLine);
+                }
+
+                WriteExportToServer(sw.ToString());
+            }
+        }
+
+        public bool ItemHasChildrenWithReferrers(Item item)
+        {
+            var itemHasReferrers = Globals.LinkDatabase.GetReferrers(item).Any();
+
+            // return true if item has referrers OR is page item
+            if (itemHasReferrers || DoesItemHasPresentationDetails(item)) return true;
+
+            foreach (Item child in item.GetChildren())
+            {
+                if (ItemHasChildrenWithReferrers(child)) return true;
+            }
+
+            return false;
         }
 
         private string exportOutput;
@@ -2107,10 +2186,20 @@ namespace ContentExportTool
 
 
                 litUploadResponse.Text = output;
+
+                if (ImportJob != null)
+                {
+                    ImportJob.Status.State = JobState.Finished;
+                }
             }
             catch (Exception ex)
             {
                 litUploadResponse.Text = "Oops! An error occurred while importing: <br/>" + ex;
+
+                if (ImportJob != null)
+                {
+                    ImportJob.Status.State = JobState.Finished;
+                }
             }
         }
 
@@ -3538,7 +3627,16 @@ namespace ContentExportTool
 
         protected void btnBeginImport_OnClick(object sender, EventArgs e)
         {
-            ProcessImport();
+            // begin import
+            StartImportJob();
+            while (ImportJob.Status.State != JobState.Finished)
+            {
+                var response = this.Response;
+                response.Write("\r\n");
+                response.Flush();
+                System.Threading.Thread.Sleep(3000);
+            }
+
         }
 
         protected void btnComponentAudit_OnClick(object sender, EventArgs e)
@@ -4561,76 +4659,23 @@ namespace ContentExportTool
             }
         }
 
-        //protected void ButtonExportMedia_Click(object sender, EventArgs e)
-        //{
-        //    PhBrowseFields.Visible = false;
-        //    PhBrowseModal.Visible = false;
-        //    phScrollToImport.Visible = false;
-        //    phScrollToRenderingImport.Visible = false;
-        //    phScrollToMediaExport.Visible = true;
-
-        //    if (String.IsNullOrEmpty(inputStartitem.Value))
-        //    {
-        //        litMediaExportOutput.Text = "Start path is empty! Do you really want to export the entire media library? If so, set the start path to /sitecore/Media Library; otherwise, select a path";
-        //        return;
-        //    }
-
-        //    var dbName = (!String.IsNullOrEmpty(ddDatabase.SelectedValue) ? ddDatabase.SelectedValue : "master");
-        //    _db = Sitecore.Configuration.Factory.GetDatabase(dbName);
-
-        //    var imageItems = GetItems(!chkNoChildren.Checked, mediaItems: true).Where(x => x.Paths.IsMediaItem);
-        //    var imagesDownloaded = 0;
-
-        //    // create a working memory stream
-        //    using (System.IO.MemoryStream zipStream = new System.IO.MemoryStream())
-        //    {
-        //        using (System.IO.Compression.ZipArchive zip = new System.IO.Compression.ZipArchive(zipStream, System.IO.Compression.ZipArchiveMode.Create, true))
-        //        {
-        //            foreach (var image in imageItems)
-        //            {
-        //                try
-        //                {
-        //                    var mediaItem = (MediaItem)image;
-        //                    var media = MediaManager.GetMedia(mediaItem);
-        //                    var stream = media.GetStream().Stream;
-
-        //                    var extension = mediaItem.Extension;
-        //                    if (String.IsNullOrEmpty(extension)) continue;
-
-        //                    System.IO.Compression.ZipArchiveEntry zipItem = zip.CreateEntry(image.Name + "." + extension);
-        //                    using (System.IO.Stream entryStream = zipItem.Open())
-        //                    {
-        //                        stream.CopyTo(entryStream);
-        //                        imagesDownloaded++;
-        //                    }
-
-        //                }
-        //                catch (Exception ex) { }
-        //            }
-        //        }
-
-        //        zipStream.Position = 0;
-        //        litMediaExportOutput.Text = imagesDownloaded + " images downloaded";
-
-        //        var downloadToken = txtDownloadToken.Value;
-        //        var responseCookie = new HttpCookie("DownloadToken");
-        //        responseCookie.Value = downloadToken;
-        //        responseCookie.HttpOnly = false;
-        //        responseCookie.Expires = DateTime.Now.AddDays(1);
-        //        Response.Cookies.Add(responseCookie);
-
-        //        Response.Clear();
-        //        Response.ContentType = "application/x-zip-compressed";
-        //        Response.AddHeader("Content-Disposition", "attachment; filename=SitecoreMediaDownload.zip");
-        //        Response.BinaryWrite(zipStream.ToArray());
-        //        Response.Flush();
-        //        Response.Close();
-        //    }
-        //}
-
         protected void btnDownloadFile_Click(object sender, EventArgs e)
         {
             DownloadFile();
+        }
+
+        protected void btnObsoleteContentAudit_Click(object sender, EventArgs e)
+        {
+            litFastQueryTest.Text = "";
+
+            try
+            {
+                StartObsoleteContentJob();
+            }
+            catch (Exception ex)
+            {
+                litFeedback.Text = "<span style='color:red'>" + ex + "</span>";
+            }
         }
     }
 
