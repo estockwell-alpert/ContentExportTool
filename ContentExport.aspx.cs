@@ -708,6 +708,9 @@ namespace ContentExportTool
                     var itemPath = item.Paths.ContentPath;
                     if (String.IsNullOrEmpty(itemPath)) continue;
 
+                    if (ItemHasChildrenWithReferrers(item))
+                        continue;
+
                     var itemLine = itemPath;
                     sw.WriteLine(itemLine);
                 }
