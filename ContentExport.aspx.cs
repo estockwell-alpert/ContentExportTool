@@ -599,7 +599,13 @@ namespace ContentExportTool
                     return;
                 }
 
-                var fileName = !string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "ContentExport";
+                var defaultFileName = "ContentExport";
+                if (txtDownloadToken.Value.Contains("Obsolete"))
+                {
+                    defaultFileName = "ObsoleteContentExport";
+                }
+
+                var fileName = !string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : defaultFileName;
 
                 var fileContents = File.ReadAllText(filePath);
 
@@ -635,6 +641,16 @@ namespace ContentExportTool
             }
         }
 
+
+        private string _obsoleteContentJobName = "Obsolete";
+        public Job ObsoleteContentJob
+        {
+            get
+            {
+                return JobManager.GetJob(_obsoleteContentJobName);
+            }
+        }
+
         private string _importJobName = "ImportJob";
         public Job ImportJob
         {
@@ -662,6 +678,62 @@ namespace ContentExportTool
             {
                 ImportJob.Status.State = JobState.Running;
             }
+        }
+
+        public void StartObsoleteContentJob()
+        {
+            JobOptions options = new JobOptions(_obsoleteContentJobName, "ObsoleteContentJob", Sitecore.Context.Site.Name, this, "RunObsoleteContentAudit");
+            JobManager.Start(options);
+            if (ObsoleteContentJob != null)
+            {
+                ObsoleteContentJob.Status.State = JobState.Running;
+            }
+        }
+
+        public void RunObsoleteContentAudit()
+        {
+
+            var items = GetItems(!chkNoChildren.Checked).Select(x => x);
+
+            // exclude page items
+            items = items.Where(x => !DoesItemHasPresentationDetails(x));
+
+            items = items.Where(item => !Globals.LinkDatabase.GetReferrers(item).Any());
+
+            using (StringWriter sw = new StringWriter())
+            {
+                var headingString = "Item Path";
+
+                sw.WriteLine(headingString);
+
+                foreach (var item in items)
+                {
+                    if (item == null) continue;
+
+                    var itemPath = item.Paths.ContentPath;
+                    if (String.IsNullOrEmpty(itemPath)) continue;
+
+                    var itemLine = itemPath;
+                    sw.WriteLine(itemLine);
+                }
+
+                WriteExportToServer(sw.ToString());
+            }
+        }
+
+        public bool ItemHasChildrenWithReferrers(Item item)
+        {
+            var itemHasReferrers = Globals.LinkDatabase.GetReferrers(item).Any();
+
+            // return true if item has referrers OR is page item
+            if (itemHasReferrers || DoesItemHasPresentationDetails(item)) return true;
+
+            foreach (Item child in item.GetChildren())
+            {
+                if (ItemHasChildrenWithReferrers(child)) return true;
+            }
+
+            return false;
         }
 
         private string exportOutput;
@@ -4595,54 +4667,14 @@ namespace ContentExportTool
         {
             DownloadFile();
         }
+
         protected void btnObsoleteContentAudit_Click(object sender, EventArgs e)
         {
             litFastQueryTest.Text = "";
 
             try
             {
-                if (!SetDatabase())
-                {
-                    litFeedback.Text = "You must enter a custom database name, or select a database from the dropdown";
-                    return;
-                }
-
-
-                if (_db == null)
-                {
-                    litFeedback.Text = "Invalid database. Selected database does not exist.";
-                    return;
-                }
-                var items = GetItems(!chkNoChildren.Checked).Select(x => x);
-
-                // exclude page items
-                items = items.Where(x => !DoesItemHasPresentationDetails(x));
-
-                items = items.Where(item => !Globals.LinkDatabase.GetReferrers(item).Any());
-
-                StartResponse(!string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : "ComponentAudit");
-
-                using (StringWriter sw = new StringWriter())
-                {
-                    var headingString = "Item Path";
-
-                    sw.WriteLine(headingString);
-
-
-                    foreach (var item in items)
-                    {
-                        if (item == null) continue;
-
-                        var itemPath = item.Paths.ContentPath;
-                        if (String.IsNullOrEmpty(itemPath)) continue;
-
-                        var itemLine = itemPath;
-                        sw.WriteLine(itemLine);
-                    }
-
-                    SetCookieAndResponse(sw.ToString());
-
-                }
+                StartObsoleteContentJob();
             }
             catch (Exception ex)
             {
