@@ -4632,7 +4632,7 @@ namespace ContentExportTool
 
             using (StringWriter sw = new StringWriter())
             {
-                sw.WriteLine("Username,Domain,Email,Role,Admin,Status");
+                sw.WriteLine("Username,Domain,Email,Role,Admin,Status,Created");
 
                 IEnumerable<User> users;
 
@@ -4657,7 +4657,8 @@ namespace ContentExportTool
                     var roleString = String.Join(";\n", roles.Select(x => x.Name));
                     var membershipUser = System.Web.Security.Membership.Provider.GetUser(user.Name, false);
                     var status = membershipUser.IsLockedOut ? "Locked Out" : (membershipUser.IsApproved ? "" : "Disabled");
-                    sw.WriteLine(String.Format("{0},\"{1}\",{2},\"{3}\",{4},{5}", user.LocalName, user.Domain, membershipUser.Email, roleString, (user.IsAdministrator ? "Admin" : ""), status));
+                    var created = membershipUser.CreationDate.ToString("MM/dd/yyyy");
+                    sw.WriteLine(String.Format("{0},\"{1}\",{2},\"{3}\",{4},{5},{6}", user.LocalName, user.Domain, membershipUser.Email, roleString, (user.IsAdministrator ? "Admin" : ""), status, created));
                 }
 
                 var file = sw.ToString();

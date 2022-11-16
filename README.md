@@ -4,6 +4,13 @@ Custom tool to export, modify, and create Sitecore content
 # Installation:
 Use the Installation Wizard to install Content Export Tool.zip from the latest release
 
+<b>You can get the installation package from the Installation Packages folder, or from the Releases</b> 
+- If you are on Azure, choose one of the Content Export Tool for Azure packages. Choose 9.0 if you are on 9.0-9.1 or 9.2 if you are on 9.2+. 
+- If you are not on Azure, install Content Export Tool v8.8 (latest stable non-Azure build) or v8.9 - Media Export. 
+- If the Media Export version does not work, install v8.8 (for non-Azure) or the NoMediaExport package (for Azure)
+- The Azure versions CAN be installed on non-Azure instances, but is not recommended
+
+
 # Troubleshooting:
 If the Content Export Tool shows a compilation error when you open it, delete the method from the aspx.cs file (and the corresponding buttons from the aspx file) that is causing the problem. For example, older Sitecore versions may run into a compilation error with the Rendering Parameters Import feature. Files can be found in your Sitecore website under /sitecore/shell/Applications/ContentExport and edited in Notepad++, no build required
 
