@@ -571,6 +571,24 @@ namespace ContentExportTool
             }
         }
 
+        private string filePathImport
+        {
+            get
+            {
+                return String.Format("{0}\\{1}.txt", exportFolder, txtDownloadToken.Value);
+            }
+        }
+
+        private void WriteImportFileToServer(string str)
+        {
+            bool exists = System.IO.Directory.Exists(exportFolder);
+
+            if (!exists)
+                System.IO.Directory.CreateDirectory(exportFolder);
+
+            File.AppendAllText(filePathImport, str);
+        }
+
         private void WriteExportToServer(string str)
         {
             bool exists = System.IO.Directory.Exists(exportFolder);
@@ -592,25 +610,52 @@ namespace ContentExportTool
                     // cookie is already downloaded, return
                     return;
                 }
-
-                // check if file exists. if not, return; if it does, set cookie
-                if (!File.Exists(filePath))
+             
+                // if this is an import, instead of downloading a file, refresh the page and set the text
+                if (txtDownloadToken.Value.Contains("Import"))
                 {
-                    return;
-                }
+                    // check if file exists. if not, return; if it does, set cookie
+                    if (!File.Exists(filePathImport))
+                    {
+                        return;
+                    }
 
-                var defaultFileName = "ContentExport";
-                if (txtDownloadToken.Value.Contains("Obsolete"))
+                    var fileContents = File.ReadAllText(filePathImport);
+                    PhBrowseModal.Visible = false;
+                    PhBrowseFields.Visible = false;
+                    phScrollToRenderingImport.Visible = false;
+                    phScrollToMediaExport.Visible = false;
+                    phScrollToImport.Visible = true;
+
+                    litUploadResponse.Text = fileContents;
+
+                    File.Delete(filePathImport); // clean up after
+
+                    SetCookie();
+                }
+                else
                 {
-                    defaultFileName = "ObsoleteContentExport";
+                    // check if file exists. if not, return; if it does, set cookie
+                    if (!File.Exists(filePath))
+                    {
+                        return;
+                    }
+
+                    var defaultFileName = "ContentExport";
+                    if (txtDownloadToken.Value.Contains("Obsolete"))
+                    {
+                        defaultFileName = "ObsoleteContentExport";
+                    }
+
+                    var fileName = !string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : defaultFileName;
+
+                    var fileContents = File.ReadAllText(filePath);
+
+                    File.Delete(filePath); // clean up after
+
+                    StartResponse(fileName);
+                    SetCookieAndResponse(fileContents);
                 }
-
-                var fileName = !string.IsNullOrWhiteSpace(txtFileName.Value) ? txtFileName.Value : defaultFileName;
-
-                var fileContents = File.ReadAllText(filePath);
-
-                StartResponse(fileName);
-                SetCookieAndResponse(fileContents);
             }
             catch(Exception ex)
             {
@@ -1971,6 +2016,8 @@ namespace ContentExportTool
             phScrollToMediaExport.Visible = false;
             phScrollToImport.Visible = true;
 
+            var responseText = "";
+
             try
             {
                 var output = "";
@@ -1978,14 +2025,14 @@ namespace ContentExportTool
                 var file = btnFileUpload.PostedFile;
                 if (file == null || String.IsNullOrEmpty(file.FileName))
                 {
-                    litUploadResponse.Text = "You must select a file first<br/>";
+                    responseText = "You must select a file first<br/>";
                     return;
                 }
 
                 string extension = System.IO.Path.GetExtension(file.FileName);
                 if (extension.ToLower() != ".csv")
                 {
-                    litUploadResponse.Text = "Upload file must be in CSV format<br/>";
+                    responseText = "Upload file must be in CSV format<br/>";
                     return;
                 }
 
@@ -2193,12 +2240,12 @@ namespace ContentExportTool
                 btnFileUpload.Dispose();
 
 
-                litUploadResponse.Text = output;
+                responseText = output;
 
                 if (ImportJob != null)
                 {
                     ImportJob.Status.State = JobState.Finished;
-                }
+                }              
             }
             catch (Exception ex)
             {
@@ -2209,6 +2256,9 @@ namespace ContentExportTool
                     ImportJob.Status.State = JobState.Finished;
                 }
             }
+
+            // write file to server
+            WriteImportFileToServer(responseText);
         }
 
         protected bool PublishItem(Item item, Language lang, string targetDatabase)
@@ -3614,15 +3664,20 @@ namespace ContentExportTool
 
         protected void SetCookieAndResponse(string responseValue)
         {
+            SetCookie();
+            Response.Output.Write(responseValue);
+            Response.Flush();
+            Response.End();
+        }
+
+        protected void SetCookie()
+        {
             var downloadToken = txtDownloadToken.Value;
             var responseCookie = new HttpCookie("DownloadToken");
             responseCookie.Value = downloadToken;
             responseCookie.HttpOnly = false;
             responseCookie.Expires = DateTime.Now.AddDays(1);
             Response.Cookies.Add(responseCookie);
-            Response.Output.Write(responseValue);
-            Response.Flush();
-            Response.End();
         }
 
         #endregion
@@ -3636,15 +3691,8 @@ namespace ContentExportTool
         protected void btnBeginImport_OnClick(object sender, EventArgs e)
         {
             // begin import
+            idExporting.Value = "true";
             StartImportJob();
-            while (ImportJob.Status.State != JobState.Finished)
-            {
-                var response = this.Response;
-                response.Write("\r\n");
-                response.Flush();
-                System.Threading.Thread.Sleep(3000);
-            }
-
         }
 
         protected void btnComponentAudit_OnClick(object sender, EventArgs e)
