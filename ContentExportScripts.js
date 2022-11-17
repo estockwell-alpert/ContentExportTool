@@ -29,11 +29,15 @@
         setDownloadToken("ContentExport");
     });
 
+    $(".content-import-btn").on("click", function(){
+        setDownloadToken("ContentImport");
+    });
+
     $(".obsolete-content-btn").on("click", function(){
         setDownloadToken("ObsoleteExport");
     });
 
-    $(".content-export-btn, .obsolete-content-btn").on("click", function(){
+    $(".content-export-btn, .obsolete-content-btn, .content-import-btn").on("click", function(){
         $("#idExporting").val("true");
         console.log("export button clicked");
         continueDownload();
