@@ -2306,7 +2306,7 @@ namespace ContentExportTool
                     Field itemField = item.Fields[fieldName];
                     if (itemField == null)
                     {
-                        output += "Unable to set " + fieldName + ", line " + i + 1 + ": Field not found" + "<br/>";
+                        output += "Unable to set " + fieldName + ", line " + (line + 1) + ": Field not found" + "<br/>";
                         continue;
                     }
 
