@@ -1255,6 +1255,9 @@
                                     <span class="notes">Run this export to get a CSV of all users with their roles.
                                     </span>
                                     <br /><br />
+                                    <span class="heaer">Custom Fields</span><br />
+                                    <asp:TextBox runat="server" ID="txtCustomUserFields"></asp:TextBox>
+                                    <br /><br />
                                    <span class="header">Role (optional):</span>
                                     <asp:DropDownList runat="server" ID="ddRoles"></asp:DropDownList>
                                     <br /> <br />                                                   
