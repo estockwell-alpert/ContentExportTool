@@ -4436,6 +4436,8 @@ namespace ContentExportTool
 
                     foreach (var field in customFields)
                     {
+                        if (String.IsNullOrEmpty(field))
+                            continue;
                         var value = user.Profile.GetCustomProperty(field);
                         line += "," + value;
                     }
