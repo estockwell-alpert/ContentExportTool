@@ -28,10 +28,10 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
+    <ErrorReport>queue</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -115,7 +115,6 @@
     <Content Include="sitecore\shell\Applications\ContentExport\jquery-ui.min.js" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="sitecore\shell\Applications\ContentExport\ContentExport.aspx.cs">
       <DependentUpon>ContentExport.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -123,6 +122,7 @@
     <Compile Include="sitecore\shell\Applications\ContentExport\ContentExport.aspx.designer.cs">
       <DependentUpon>ContentExport.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="sitecore\shell\Applications\ContentExport\ContentExportPackageTool.aspx.cs">
       <DependentUpon>ContentExportPackageTool.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -133,6 +133,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="sitecore\admin\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -2067,7 +2067,11 @@ namespace ContentExportTool
                         var linkField = (LinkField)item.Fields[fieldName];
 
                         // set raw value
-                        if (value.Contains("<link"))
+                        if (String.IsNullOrEmpty(value))
+                        {
+                            linkField.Clear();
+                        }
+                        else if (value.Contains("<link"))
                         {
                             linkField.Value = value;
                         }
@@ -3608,7 +3612,7 @@ namespace ContentExportTool
             }
         }
 
-        protected string PackageProjectPath = ApplicationContext.PackageProjectPath;
+        protected string PackageProjectPath = Sitecore.Shell.Applications.Install.ApplicationContext.PackageProjectPath;
 
         public string FullPackageProjectPath(string packageFileName)
         {
