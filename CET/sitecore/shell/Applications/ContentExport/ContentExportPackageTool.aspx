@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="ContentExportPackageTool.aspx.cs" Inherits="ContentExportTool.ContentExportAdminPage" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="ContentExportPackageTool.aspx.cs" Inherits="ContentExportTool.ContentExportAdminPage" %>
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -7,7 +7,6 @@
 
 <body>
     <form id="form1" runat="server">
-        <h3>updated 08/10/2023</h3>
         Name: <input runat="server" id="txtFileName" /><br/>
         Version: <input runat="server" id="txtVersion"/><br/>
         <asp:Button runat="server" ID="btnGeneratePackage" OnClick="btnGeneratePackage_OnClick" Text="Create Package" />
