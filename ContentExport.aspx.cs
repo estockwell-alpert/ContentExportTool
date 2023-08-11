@@ -2331,7 +2331,11 @@ namespace ContentExportTool
                         var linkField = (LinkField)item.Fields[fieldName];
 
                         // set raw value
-                        if (value.Contains("<link"))
+                        if (String.IsNullOrEmpty(value))
+                        {
+                            linkField.Clear();
+                        }
+                        else if (value.Contains("<link"))
                         {
                             linkField.Value = value;
                         }
