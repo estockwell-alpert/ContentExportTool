@@ -6,8 +6,9 @@ Use the Installation Wizard to install Content Export Tool.zip from the latest r
 
 <b>You can get the installation package from the Installation Packages folder, or from the Releases</b> 
 - If you are on Azure, choose one of the Content Export Tool for Azure packages. Choose 9.0 if you are on 9.0-9.1 or 9.2 if you are on 9.2+. 
-- If you are not on Azure, install Content Export Tool v8.8 (latest stable non-Azure build) or v8.9 - Media Export. 
-- If the Media Export version does not work, install v8.8 (for non-Azure) or the NoMediaExport package (for Azure)
+- If you are not on Azure, install Content Export Tool v9.1 (latest stable non-Azure build) 
+- If you want the Media Export, use the v8.9 - Media Export release. This release is NOT up to date with the latest features, as the Media Export has known issues and is not supported at this time. However the package is still available for those who want to use it
+- If the Media Export version does not work, install the latest version that does not have the media export
 - The Azure versions CAN be installed on non-Azure instances, but is not recommended
 
 

@@ -1,0 +1,593 @@
+#OS junk files
+[Tt]humbs.db
+*.DS_Store
+
+WDP/
+
+#Visual Studio files
+*.[Oo]bj
+*.user
+*.aps
+*.pch
+*.vspscc
+*.vssscc
+*_i.c
+*_p.c
+*.ncb
+*.suo
+*.tlb
+*.tlh
+*.bak
+*.[Cc]ache
+*.ilk
+*.log
+*.lib
+*.sbr
+*.sdf
+*.opensdf
+*.unsuccessfulbuild
+ipch/
+obj/
+[Bb]in
+[Dd]ebug*/
+[Rr]elease*/
+Ankh.NoLoad
+_UpgradeReport_Files/
+Backup*/
+UpgradeLog*.XML
+UpgradeLog*.htm
+
+#MonoDevelop
+*.pidb
+*.userprefs
+
+#Tooling
+_ReSharper*/
+*.resharper
+[Tt]est[Rr]esult*
+Sitecore_BCS_2012.sln.ide/
+
+#Project files
+[Bb]uild/
+
+#Subversion files
+.svn
+
+# Office Temp Files
+~$*
+
+#NuGet
+#packages/
+
+#ncrunch
+*ncrunch*
+*crunch*.local.xml
+
+# visual studio database projects
+*.dbmdl
+
+#Test files
+*.testsettings
+Data/diagnostics/*
+Data/indexes/*
+Data/*
+!Data/Unicorn/*
+Website/Data/diagnostics/*
+Website/Data/indexes/*
+Website/Data/*
+!Website/Data/import
+!Website/Data/import/*
+!Website/Data/development certificates
+!Website/Data/development certificates/*
+!Data/import
+!Data/import/*
+!Data/development certificates
+!Data/development certificates/*
+Databases/*
+Website/App_Data/MediaCache/*
+Website/temp/*
+Website/sitecore/*
+!Website/sitecore/admin/
+Website/sitecore/admin/*
+!Website/sitecore/admin/BCSCA/
+!Website/sitecore/admin/iPlot/
+Website/App_Config/ConnectionStrings.config
+Website/Web.config
+Website/App_Config/Include/Country-Canada-Internet/App_Config.xml
+Website/App_Config/Include/Country-Canada-Internet/Country-Canada-Internet.config
+Website/App_Config/Include/Country-Canada-Internet/Sitecore.WebDAV.config
+Website/App_Config/Include/Country-Canada-Internet/SitecoreSettings.config
+Website/App_Config/Include/Country-Canada-Internet/Agents.config
+Website/App_Config/Include/Country-Canada-Internet/CustomItem.config
+Website/App_Config/Include/Country-Canada-Internet/ItemUrlHelper.config
+Website/App_Config/Include/Sitecore.VersionManager.config
+Website/App_Config/Include/SitemapXML.config
+Website/sitecore modules/Shell/VersionManager/UI/VersionManagerPage.aspx
+config/env/local.properties
+Website/App_Config/Include/Country-Canada-Internet/scSearchContrib.Crawler.config
+Website/robots.txt
+Website/sitemap.xml
+Website/!trash/*
+
+#TDS Files
+src/Bayer.CropScience.Ca.tds.master/IconCache/*
+src/Bayer.CropScience.Ca.tds.core/IconCache/*
+Website/_DEV/*
+src/Bayer.CropScience.Ca.tds.master/T4RenderCache/*
+BuiltFiles_Debug.txt
+
+#Minified Files
+Website/Styles/Bayer CropScience/Scope/Country-Canada-Internet/min/*
+
+#Include support patch folder for General Link
+!Website/sitecore/shell
+Website/sitecore/shell/*
+!Website/sitecore/shell/DefaultPage.cs
+!Website/sitecore/shell/Applications
+!Website/sitecore/shell/App
+Website/sitecore/shell/Applications/*
+!Website/sitecore/shell/Applications/Dialogs
+
+Website/sitecore/shell/Applications/Dialogs/*
+!Website/sitecore/shell/Applications/Dialogs/GeneralLink
+Website/sitecore/shell/Applications/Dialogs/GeneralLink/*
+!Website/sitecore/shell/Applications/Dialogs/GeneralLink/GeneralLink.css
+!Website/sitecore/shell/Applications/Dialogs/GeneralLink/GeneralLink.js
+!Website/sitecore/shell/Applications/Dialogs/GeneralLink/GeneralLink.xml
+!Website/sitecore/shell/Applications/Security
+Website/sitecore/shell/Applications/Security/*
+!Website/sitecore/shell/Applications/Security/SelectRoles
+Website/sitecore/shell/Applications/Security/SelectRoles/*
+!Website/sitecore/shell/Applications/Security/SelectRoles/SelectRoles.xaml.xml
+Website/App_Config/Include/XslExtension.config.example
+Website/App_Config/Include/DataFolder.config.example
+Website/Web.config.Oracle
+Website/Scripts/Bayer CropScience/Scope/Country-Canada-Internet/min/BCSCA*
+
+#Do not ignore custom bayer sitecore controls
+!Website/sitecore/shell/Applications/Dialogs/Bayer
+
+#Ignore all node_modules folders
+node_modules
+Website/Styles/Bayer CropScience/Scope/briefcase/*
+Website/Areas/briefcase/fonts/*
+Website/Areas/briefcase/*
+Website/Scripts/Bayer CropScience/Scope/briefcase/*
+Website/App_Config/Include/Country-Canada-Internet/CustomItem.config
+Website/Services/Bayer CropScience/Scope/Country-Canada-Internet/GeneratedPDFs/*.pdf
+Website/App_Config/Include/Country-Canada-Internet/Sitecore.Analytics.config
+
+# MyBayer
+Website/html_templates/MyBayer/*
+Backup*
+Website/sitemap_en.xml
+Website/sitemap_fr-CA.xml
+Website/App_Config/Include/zzzzz_Mindshift/*
+Website/App_Config/Sitecore.config
+Website/upload/*
+/Website/App_Config/Include/Z.SwitchMasterToWeb/SwitchMasterToWeb.config.example
+/Website/App_Config/Include/Z.SwitchMasterToWeb/important.txt
+/Website/App_Config/Include/Social/Sitecore.Social.Lucene.Index.Master.config
+/Website/App_Config/Include/Social/Sitecore.Social.ExperienceProfile.config
+/Website/App_Config/Include/Sitecore.Xdb.config
+/Website/App_Config/Include/Sitecore.WebDAV.config
+/Website/App_Config/Include/Sitecore.Speak.LaunchPad.config
+/Website/App_Config/Include/Sitecore.Speak.ItemWebApi.config
+/Website/App_Config/Include/Sitecore.Speak.ContentSearch.Lucene.config
+/Website/App_Config/Include/Sitecore.Speak.config
+/Website/App_Config/Include/Sitecore.Speak.Components.Mvc.config
+/Website/App_Config/Include/Sitecore.Speak.Components.config
+/Website/App_Config/Include/Sitecore.Speak.Components.AntiCsrf.config
+/Website/App_Config/Include/Sitecore.Speak.Applications.config
+/Website/App_Config/Include/Sitecore.Speak.AntiCsrf.SheerUI.config
+/Website/App_Config/Include/Sitecore.Shell.MarketingAutomation.config
+/Website/App_Config/Include/Sitecore.Processing.config
+/Website/App_Config/Include/Sitecore.PathAnalyzer.StorageProviders.config
+/Website/App_Config/Include/Sitecore.PathAnalyzer.Services.config
+/Website/App_Config/Include/Sitecore.PathAnalyzer.Processing.config
+/Website/App_Config/Include/Sitecore.PathAnalyzer.config
+/Website/App_Config/Include/Sitecore.PathAnalyzer.Client.config
+/Website/App_Config/Include/Sitecore.Marketing.Lucene.Index.Master.config
+/Website/App_Config/Include/Sitecore.Marketing.Definitions.MarketingAssets.Repositories.Lucene.Index.Master.config
+/Website/App_Config/Include/Sitecore.Marketing.Client.config
+/Website/App_Config/Include/Sitecore.ExperienceAnalytics.config
+/Website/App_Config/Include/Sitecore.EngagementAutomation.TimeoutProcessing.config
+/Website/App_Config/Include/Sitecore.EngagementAutomation.Processing.config
+/Website/App_Config/Include/Sitecore.EngagementAutomation.Processing.Aggregation.Services.config
+/Website/App_Config/Include/Sitecore.EngagementAutomation.Processing.Aggregation.config
+/Website/App_Config/Include/Sitecore.ContentSearch.Lucene.Index.Master.config
+/Website/App_Config/Include/Sitecore.Analytics.Reporting.config
+/Website/App_Config/Include/Sitecore.Analytics.Processing.Services.config
+/Website/App_Config/Include/Sitecore.Analytics.Processing.config
+/Website/App_Config/Include/Sitecore.Analytics.Processing.Aggregation.Services.config
+/Website/App_Config/Include/Sitecore.Analytics.Processing.Aggregation.config
+/Website/App_Config/Include/ListManagement/Sitecore.ListManagement.Solr.IndexConfiguration.config.disabled
+/Website/App_Config/Include/ListManagement/Sitecore.ListManagement.Solr.Index.List.config.disabled
+/Website/App_Config/Include/ListManagement/Sitecore.ListManagement.Services.config
+/Website/App_Config/Include/ListManagement/Sitecore.ListManagement.Lucene.IndexConfiguration.config
+/Website/App_Config/Include/ListManagement/Sitecore.ListManagement.Lucene.Index.List.config
+/Website/App_Config/Include/ListManagement/Sitecore.ListManagement.config
+/Website/App_Config/Include/ListManagement/Sitecore.ListManagement.Client.config
+/Website/App_Config/Include/ListManagement/Sitecore.ListManagement.Azure.IndexConfiguration.config.disabled
+/Website/App_Config/Include/ListManagement/Sitecore.ListManagement.Azure.Index.List.config.disabled
+/Website/App_Config/Include/FXM/Sitecore.FXM.Speak.config
+/Website/App_Config/Include/FXM/Sitecore.FXM.Lucene.DomainsSearch.Index.Web.config
+/Website/App_Config/Include/FXM/Sitecore.FXM.Lucene.DomainsSearch.Index.Master.config
+/Website/App_Config/Include/ExperienceProfile/Sitecore.ExperienceProfile.Reporting.config
+/Website/App_Config/Include/ExperienceProfile/Sitecore.ExperienceProfile.config
+/Website/App_Config/Include/ExperienceProfile/Sitecore.ExperienceProfile.Client.config
+/Website/App_Config/Include/ExperienceAnalytics/Sitecore.ExperienceAnalytics.WebAPI.config
+/Website/App_Config/Include/ExperienceAnalytics/Sitecore.ExperienceAnalytics.StorageProviders.config
+/Website/App_Config/Include/ExperienceAnalytics/Sitecore.ExperienceAnalytics.Reduce.config
+/Website/App_Config/Include/ExperienceAnalytics/Sitecore.ExperienceAnalytics.Client.config
+/Website/App_Config/Include/ExperienceAnalytics/Sitecore.ExperienceAnalytics.Aggregation.config
+/Website/App_Config/Include/ContentTesting/Sitecore.ContentTesting.Processing.Aggregation.config
+/Website/App_Config/Include/ContentTesting/Sitecore.ContentTesting.Lucene.IndexConfiguration.config
+/Website/App_Config/Include/ContentTesting/Sitecore.ContentTesting.Client.RulePerformance.config
+/Website/App_Config/Include/ContentTesting/Sitecore.ContentTesting.ApplicationDependencies.config
+/Website/App_Config/Include/001.Sitecore.Speak.Important.config
+/Website/Areas/Social/Views/Sharing/TweetButton.cshtml
+/Website/Areas/Social/Views/Sharing/LinkedInShareButton.cshtml
+/Website/Areas/Social/Views/Sharing/LikeButton.cshtml
+/Website/Areas/Social/Views/Sharing/GooglePlusOneButton.cshtml
+/Website/Areas/Social/Views/Connector/Login.cshtml
+/package-lock.json
+/Website/webedit.css
+/Website/package-lock.json
+/.vs/Sitecore_BCS_2012/v15/Server/sqlite3
+/.vs/VSWorkspaceState.json
+/.vs/slnx.sqlite
+/.vs/ProjectSettings.json
+/Website/App_Config/Include/z.MixItUp/Mixitup.config
+/packages
+/.vs/config/applicationhost.config
+/Website/build/*
+/Website/App_Config/Include/SumoLogic.config
+
+!Data/Unicorn/
+
+#/tools
+/Data/Unicorn/BayerCA.master/Templates/Bayer CropScience/Scope/Country-Canada-Internet/Calculator/Base/_BasicInfo/Data/Sort.yml
+/src/Bayer.CropScience.Ca.Models/Unicorn/master/sitecore/templates/Bayer CropScience/Scope/Country-Canada-Internet/Pages/IFullWidthPageBlank.gen.cs.orig
+/Website/App_Config/Include/Cognifide.PowerShell.config
+/Website/App_Config/Include/Cognifide.PowerShell.Events.config.disabled
+/Website/App_Config/Include/Cognifide.PowerShell.Minimal.config.disabled
+/Website/App_Config/Include/z.Cognifide.PowerShell.config
+/Website/Areas/Calculator/Services/CalculatorService.cs.orig
+/Website/Areas/Calculator/Views/CalculatorLayoutMVC.cshtml.orig
+/Website/BAYER_icons2020_SOY_CystNematode-NA.svg
+/Website/Scripts/Standard_07794C313E471A2220AE7D724D4CA815.js
+/Website/Scripts/Standard_7625907B87A9A6D44A64D54342CAAC9B.js
+/Website/Scripts/Standard_B564AE3E7020D5313998D34B2F428237.js
+/Website/Services/Bayer CropScience/Scope/Country-Canada-Internet/findarepjson.aspx.cs.orig
+/Website/sitecore modules/PowerShell/Assets/Cognifide.PowerShell.dll-Help.maml
+/Website/sitecore modules/PowerShell/Assets/Sitecore.Types.ps1xml
+/Website/sitecore modules/PowerShell/Assets/Sitecore.Views.ps1xml
+/Website/sitecore modules/PowerShell/Assets/Splitter.png
+/Website/sitecore modules/PowerShell/Assets/working.gif
+/Website/sitecore modules/PowerShell/Scripts/ace/ace.js
+/Website/sitecore modules/PowerShell/Scripts/ace/emmet-core/emmet.js
+/Website/sitecore modules/PowerShell/Scripts/ace/ext-beautify.js
+/Website/sitecore modules/PowerShell/Scripts/ace/ext-chromevox.js
+/Website/sitecore modules/PowerShell/Scripts/ace/ext-elastic_tabstops_lite.js
+/Website/sitecore modules/PowerShell/Scripts/ace/ext-emmet.js
+/Website/sitecore modules/PowerShell/Scripts/ace/ext-error_marker.js
+/Website/sitecore modules/PowerShell/Scripts/ace/ext-keybinding_menu.js
+/Website/sitecore modules/PowerShell/Scripts/ace/ext-language_tools.js
+/Website/sitecore modules/PowerShell/Scripts/ace/ext-linking.js
+/Website/sitecore modules/PowerShell/Scripts/ace/ext-modelist.js
+/Website/sitecore modules/PowerShell/Scripts/ace/ext-old_ie.js
+/Website/sitecore modules/PowerShell/Scripts/ace/ext-searchbox.js
+/Website/sitecore modules/PowerShell/Scripts/ace/ext-settings_menu.js
+/Website/sitecore modules/PowerShell/Scripts/ace/ext-spellcheck.js
+/Website/sitecore modules/PowerShell/Scripts/ace/ext-split.js
+/Website/sitecore modules/PowerShell/Scripts/ace/ext-static_highlight.js
+/Website/sitecore modules/PowerShell/Scripts/ace/ext-statusbar.js
+/Website/sitecore modules/PowerShell/Scripts/ace/ext-textarea.js
+/Website/sitecore modules/PowerShell/Scripts/ace/ext-themelist.js
+/Website/sitecore modules/PowerShell/Scripts/ace/ext-whitespace.js
+/Website/sitecore modules/PowerShell/Scripts/ace/mode-powershell.js
+/Website/sitecore modules/PowerShell/Scripts/ace/snippets/powershell.js
+/Website/sitecore modules/PowerShell/Scripts/ace/snippets/text.js
+/Website/sitecore modules/PowerShell/Scripts/ace/snippets-powershell.js
+/Website/sitecore modules/PowerShell/Scripts/ace/theme-powershellise.js
+/Website/sitecore modules/PowerShell/Scripts/c3.min.js
+/Website/sitecore modules/PowerShell/Scripts/clipboard.min.js
+/Website/sitecore modules/PowerShell/Scripts/console.js
+/Website/sitecore modules/PowerShell/Scripts/d3.min.js
+/Website/sitecore modules/PowerShell/Scripts/flexie.min.js
+/Website/sitecore modules/PowerShell/Scripts/ise.js
+/Website/sitecore modules/PowerShell/Scripts/jquery.min.js
+/Website/sitecore modules/PowerShell/Scripts/jquery.mousewheel-min.js
+/Website/sitecore modules/PowerShell/Scripts/jquery.qtip.js
+/Website/sitecore modules/PowerShell/Scripts/jquery.qtip.min.js
+/Website/sitecore modules/PowerShell/Scripts/jquery.terminal.js
+/Website/sitecore modules/PowerShell/Scripts/jquery-1.10.2.min.js
+/Website/sitecore modules/PowerShell/Scripts/jquery-migrate-1.2.1.min.js
+/Website/sitecore modules/PowerShell/Scripts/jquery-ui.js
+/Website/sitecore modules/PowerShell/Scripts/jquery-ui.min.js
+/Website/sitecore modules/PowerShell/Scripts/json2.js
+/Website/sitecore modules/PowerShell/Scripts/listview.js
+/Website/sitecore modules/PowerShell/Scripts/PsHSplitter.js
+/Website/sitecore modules/PowerShell/Scripts/reports.js
+/Website/sitecore modules/PowerShell/Scripts/Runner.js
+/Website/sitecore modules/PowerShell/Scripts/SpeShared.js
+/Website/sitecore modules/PowerShell/Scripts/split.js
+/Website/sitecore modules/PowerShell/Scripts/token_tooltip.js
+/Website/sitecore modules/PowerShell/Scripts/VariablePrompt.js
+/Website/sitecore modules/PowerShell/Services/PowerShellWebService.asmx
+/Website/sitecore modules/PowerShell/Services/RemoteAutomation.asmx
+/Website/sitecore modules/PowerShell/Services/RemoteScriptCall.ashx
+/Website/sitecore modules/PowerShell/Services/web.config
+/Website/sitecore modules/PowerShell/Styles/c3.min.css
+/Website/sitecore modules/PowerShell/Styles/Console.css
+/Website/sitecore modules/PowerShell/Styles/Dialogs.css
+/Website/sitecore modules/PowerShell/Styles/flex.css
+/Website/sitecore modules/PowerShell/Styles/Gallery.css
+/Website/sitecore modules/PowerShell/Styles/IFrame.css
+/Website/sitecore modules/PowerShell/Styles/ise.css
+/Website/sitecore modules/PowerShell/Styles/jquery.qtip.min.css
+/Website/sitecore modules/PowerShell/Styles/jquery.terminal.css
+/Website/sitecore modules/PowerShell/Styles/jquery.ui.all.css
+/Website/sitecore modules/PowerShell/Styles/jquery.ui.autocomplete.css
+/Website/sitecore modules/PowerShell/Styles/jquery.ui.base.css
+/Website/sitecore modules/PowerShell/Styles/jquery.ui.core.css
+/Website/sitecore modules/PowerShell/Styles/jquery.ui.theme.css
+/Website/sitecore modules/PowerShell/Styles/ListView.css
+/Website/sitecore modules/PowerShell/Styles/reports.css
+/Website/sitecore modules/PowerShell/Styles/Runner.css
+/Website/sitecore modules/PowerShell/Styles/ScriptBrowser.css
+/Website/sitecore modules/PowerShell/Styles/VariablePrompt.css
+/Website/sitecore modules/PowerShell/web.config
+/Website/sitecore modules/Shell/PowerShell/ConfirmChoice.xml
+/Website/sitecore modules/Shell/PowerShell/ContextGallery.xml
+/Website/sitecore modules/Shell/PowerShell/DownloadFile.xml
+/Website/sitecore modules/Shell/PowerShell/GetStringResponse.xml
+/Website/sitecore modules/Shell/PowerShell/LanguageGallery.Option.xml
+/Website/sitecore modules/Shell/PowerShell/LanguageGallery.xml
+/Website/sitecore modules/Shell/PowerShell/MruGallery.SearchItem.xml
+/Website/sitecore modules/Shell/PowerShell/MruGallery.xml
+/Website/sitecore modules/Shell/PowerShell/PowerShellConsole.xml
+/Website/sitecore modules/Shell/PowerShell/PowerShellExternalView.xml
+/Website/sitecore modules/Shell/PowerShell/PowerShellIse.xml
+/Website/sitecore modules/Shell/PowerShell/PowerShellMultiValuePrompt.xml
+/Website/sitecore modules/Shell/PowerShell/PowerShellReports.xml
+/Website/sitecore modules/Shell/PowerShell/PowerShellResultViewerList.xml
+/Website/sitecore modules/Shell/PowerShell/PowerShellResultViewerText.xml
+/Website/sitecore modules/Shell/PowerShell/PowerShellRunner.xml
+/Website/sitecore modules/Shell/PowerShell/PowerShellScriptBrowser.xml
+/Website/sitecore modules/Shell/PowerShell/PowerShellSessionElevation.xml
+/Website/sitecore modules/Shell/PowerShell/PsHSplitter.xml
+/Website/sitecore modules/Shell/PowerShell/SessionIDGallery.Option.xml
+/Website/sitecore modules/Shell/PowerShell/SessionIDGallery.xml
+/Website/sitecore modules/Shell/PowerShell/UploadFile/PowerShellUploadFile.aspx
+/Website/sitecore modules/Shell/PowerShell/UploadFile/PowerShellUploadFile.xml
+/Website/sitecore modules/Shell/PowerShell/UploadFile/PowerShellUploadFile2.aspx
+/Website/sitecore modules/Shell/PowerShell/UserGallery.Option.xml
+/Website/sitecore modules/Shell/PowerShell/UserGallery.xml
+/Website/sitecore/admin/BCSCA/FindARepSync.aspx.cs.orig
+/Website/Styles/Standard_05E689885A23A5D7695FEC9F78F94FA0.css
+/Website/Styles/Standard_087358ED1E3B58C43977CE4C456703D9.css
+/Website/Styles/Standard_0994E6D678608ECDDA19F868F04F5E0B.css
+/Website/Styles/Standard_09B384CEF2D22E41AD4B1116057B772E.css
+/Website/Styles/Standard_0EF2A1F6C6A0A6457A092AC3368B9F38.css
+/Website/Styles/Standard_142DD20D98C4334D00872786C891A55B.css
+/Website/Styles/Standard_149028663B1ED94F36FE7994D193386E.css
+/Website/Styles/Standard_17A11D17E2B5A43D1743B0918DF8C813.css
+/Website/Styles/Standard_1D3ABBAC75D205F1FC16A2021DB5F71C.css
+/Website/Styles/Standard_1DFBF63A4D21587EF984A27B3DD99276.css
+/Website/Styles/Standard_24441DC1D5C080257863966946698425.css
+/Website/Styles/Standard_2AEE95B98C903999AB287E8E12BBEA99.css
+/Website/Styles/Standard_3B1A3259749760AF8F83012DFCD63CF2.css
+/Website/Styles/Standard_3BDCAFC1D420CDB3C6C225B1E1272374.css
+/Website/Styles/Standard_3DDE1C2E9DF8AC6676D1D7B714B103CB.css
+/Website/Styles/Standard_3DF3EBA6010D799E6D124907A24A62D5.css
+/Website/Styles/Standard_43D8B11F68CAD206C5BB546CFA142159.css
+/Website/Styles/Standard_491F2A616032BC41733396B505D7E019.css
+/Website/Styles/Standard_4A6CC9CF0D8FE075DF3B88E32A2646E1.css
+/Website/Styles/Standard_4B7DE8158A190ECD8B1D9632AE8E3703.css
+/Website/Styles/Standard_5252B2B7C148EDC564A323AB599DAAA6.css
+/Website/Styles/Standard_5AE9910C39EEC6ED7733F30A08376F91.css
+/Website/Styles/Standard_5C754F004C0AF441A4E32E61D9182DC5.css
+/Website/Styles/Standard_5CE2FEA931DF5A95AF3359081B4F02FB.css
+/Website/Styles/Standard_5E029D03A6791B507C8D081D97D1A973.css
+/Website/Styles/Standard_5F714BCB05D84D7AACAA774A5B579AD0.css
+/Website/Styles/Standard_61971D4E160C556167E85057AE054223.css
+/Website/Styles/Standard_631D25383F212B689259A403CC9794D3.css
+/Website/Styles/Standard_635058DBCC922253205215F90BA117A6.css
+/Website/Styles/Standard_64165E1C8A9F38DEEDE9C7DB2C04ED9C.css
+/Website/Styles/Standard_68CBE8C826C732CFE459696ACACBDA87.css
+/Website/Styles/Standard_6B80DC5A486660D01A93CC0F12BEB66F.css
+/Website/Styles/Standard_6BC878AC3CD4BFF3054F8D9B4BDFF72F.css
+/Website/Styles/Standard_712147640A3D1F97F3D23AD628FF871A.css
+/Website/Styles/Standard_73142809CBD0B4EAB5364A4111CBD0DA.css
+/Website/Styles/Standard_73CACDCB2342D854B34A72B5C1F35452.css
+/Website/Styles/Standard_7CCD46B386847BC66764003486827136.css
+/Website/Styles/Standard_80AF9F305B3B2AA10FDBE31732F7F147.css
+/Website/Styles/Standard_858A373FDCBFE03D325B44A01D71DAF7.css
+/Website/Styles/Standard_881229187B9C54EF75893079D75FE510.css
+/Website/Styles/Standard_8D50D17BFB18F89C6E904EB907B301A7.css
+/Website/Styles/Standard_92C9D8FA33FD12641C1E17711342073D.css
+/Website/Styles/Standard_97BB312B808005D023281C222425C09F.css
+/Website/Styles/Standard_99473E026BA02CFC41733EEEA12DF567.css
+/Website/Styles/Standard_999DB637D6F9EF7EEC8423D41AF1E69D.css
+/Website/Styles/Standard_9FCFD48F2982CC041D736C2A15E2DA36.css
+/Website/Styles/Standard_A083F4BB82A9BC1E45C76B4C0968666A.css
+/Website/Styles/Standard_A1298A3B763801D1F437DBBD7CE00BD2.css
+/Website/Styles/Standard_A3E7B0B488360CAE88C73D3A1D1A10F0.css
+/Website/Styles/Standard_B0C9C83361E85454C363E1C065F74A79.css
+/Website/Styles/Standard_B2A9C73A7C97D812CE0DD7C44E98EE7E.css
+/Website/Styles/Standard_B4D5E91C13FB671D92192FD1FBC1FF6A.css
+/Website/Styles/Standard_B5C3B2040C93AFFF8FC793B4C8A8F883.css
+/Website/Styles/Standard_BB63712B06343C46DB6D7E845B092502.css
+/Website/Styles/Standard_C0A56E3CD95F99F0516AF605E3B3FC26.css
+/Website/Styles/Standard_C2F8E5353BB5F0CF988DAE62B9A820F0.css
+/Website/Styles/Standard_C3B64C435F1AE685CBCC76F98C11D282.css
+/Website/Styles/Standard_C616017BCEFB0474EF36B01CAF28FC81.css
+/Website/Styles/Standard_C8940B624FAF3F60E7B2178B2F5E8DB6.css
+/Website/Styles/Standard_CBF7C2C6AB6B05C858A6B2A9A0BE3ADA.css
+/Website/Styles/Standard_D4DF557E0D9767572D69D87A14CF3965.css
+/Website/Styles/Standard_D5AE0DCDB69865A08A1ACEE4FC295922.css
+/Website/Styles/Standard_D859423F50525B4BF897B34F13A2653A.css
+/Website/Styles/Standard_DF8149D3EEC06FEF7A1C0695878FA059.css
+/Website/Styles/Standard_E31182D641FF2BE69426D2895BC2553D.css
+/Website/Styles/Standard_E7AFD78A60CEDFA73A81963479357004.css
+/Website/Styles/Standard_E97C0C32F9C6B38C0AA6F9CB1D4FC838.css
+/Website/Styles/Standard_EBC613B835B762AD65EA54DE2A669FC7.css
+/Website/Styles/Standard_EE74E011072ECE5BC17DC4DEB3F09CB7.css
+/Website/Styles/Standard_F2AB2A0A0B1E9DAEF121442BFC0C909E.css
+/Website/Styles/Standard_F30439A9C76D0C8EC7C52BC02038EFA7.css
+/Website/Styles/Standard_F6C94E38AC79C982542F11567FFB4F74.css
+/Website/Styles/Standard_FB53FC3AF6F1530DB7EBD9762EA82463.css
+/Website/Styles/Standard_FB86AFC47288F39698AD4DDC63C1A5EB.css
+
+# VSCode
+.favorites.json
+/.vs
+/Website/App_Config/RewriteRules.config
+/Website/App_Config/Include/Unicorn/Unicorn.AutoPublish.config
+/Website/App_Config/Include/Unicorn/Unicorn.DataProvider.config
+/Website/App_Config/Include/Unicorn/Unicorn.UI .config
+
+# WFFM
+/Website/App_Config/Include/Captcha.config
+/Website/App_Config/Include/Sitecore.Forms.config
+/Website/App_Config/Include/Sitecore.Forms.Xtune.CD.config.disabled
+/Website/App_Config/Include/Sitecore.MvcForms.config
+/Website/App_Config/Include/Sitecore.WFFM.Analytics.config
+/Website/App_Config/Include/Sitecore.WFFM.Dependencies.config
+/Website/App_Config/Include/Sitecore.WFFM.Services.config
+/Website/App_Config/Include/Sitecore.WFFM.Speak.config
+/Website/sitecore modules/Shell/Web Forms for Marketers/Shell/OpenXamlModalDialog/OpenXamlModalDialog.aspx
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/autocomplete.htc
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Colors/Blue.css
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Colors/Brown.css
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Colors/Burgundy.css
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Colors/Default.css
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Colors/Green.css
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Colors/images/ui-bg_flat_0_aaaaaa_40x100.png
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Colors/images/ui-bg_flat_75_ffffff_40x100.png
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Colors/images/ui-bg_glass_55_fbf9ee_1x400.png
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Colors/images/ui-bg_glass_65_ffffff_1x400.png
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Colors/images/ui-bg_glass_75_dadada_1x400.png
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Colors/images/ui-bg_glass_75_e6e6e6_1x400.png
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Colors/images/ui-bg_glass_95_fef1ec_1x400.png
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Colors/images/ui-bg_highlight-soft_75_cccccc_1x100.png
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Colors/images/ui-icons_222222_256x240.png
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Colors/images/ui-icons_2e83ff_256x240.png
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Colors/images/ui-icons_454545_256x240.png
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Colors/images/ui-icons_888888_256x240.png
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Colors/images/ui-icons_cd0a0a_256x240.png
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Colors/jquery-ui.custom.default.css
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Colors/Pink.css
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Colors/Red.css
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Colors/Violet.css
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Colors/Yellow.css
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Custom.css
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Default.css
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Firefox/Right-Oriented.css
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Left-Oriented.css
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Right-Oriented.css
+/Website/sitecore modules/Shell/Web Forms for Marketers/Themes/Top-Oriented.css
+/Website/sitecore modules/Web/Web Forms for Marketers/Control/SitecoreSimpleFormAscx.ascx
+/Website/sitecore modules/Web/Web Forms for Marketers/export.aspx
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/bootstrap.min.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/bootstrap-theme.min.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/Fields.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/mscaptcha.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/accordion.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/all.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/autocomplete.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/base.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/button.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/core.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/datepicker.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/dialog.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/draggable.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/images/ui-bg_flat_0_aaaaaa_40x100.png
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/images/ui-bg_flat_75_ffffff_40x100.png
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/images/ui-bg_glass_55_fbf9ee_1x400.png
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/images/ui-bg_glass_65_ffffff_1x400.png
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/images/ui-bg_glass_75_dadada_1x400.png
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/images/ui-bg_glass_75_e6e6e6_1x400.png
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/images/ui-bg_glass_95_fef1ec_1x400.png
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/images/ui-bg_highlight-soft_75_cccccc_1x100.png
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/images/ui-icons_222222_256x240.png
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/images/ui-icons_2e83ff_256x240.png
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/images/ui-icons_454545_256x240.png
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/images/ui-icons_888888_256x240.png
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/images/ui-icons_cd0a0a_256x240.png
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/menu.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/progressbar.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/resizable.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/selectable.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/selectmenu.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/slider.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/sortable.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/spinner.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/tabs.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/theme.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/content/themes/base/tooltip.css
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/fonts/glyphicons-halflings-regular.eot
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/fonts/glyphicons-halflings-regular.svg
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/fonts/glyphicons-halflings-regular.ttf
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/fonts/glyphicons-halflings-regular.woff
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/fonts/glyphicons-halflings-regular.woff2
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/libs/bootstrap/bootstrap.js
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/libs/bootstrap/bootstrap.min.js
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/libs/bootstrap/bootstrap.min.js.map
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/libs/jquery/jquery.unobtrusive-ajax.js
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/libs/jquery/jquery.unobtrusive-ajax.min.js
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/libs/jquery/jquery.unobtrusive-ajax.min.js.map
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/libs/jquery/jquery.validate.js
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/libs/jquery/jquery.validate.min.js
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/libs/jquery/jquery.validate.min.js.map
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/libs/jquery/jquery.validate.unobtrusive.js
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/libs/jquery/jquery.validate.unobtrusive.min.js
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/libs/jquery/jquery.validate.unobtrusive.min.js.map
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/libs/jquery/jquery.validate-vsdoc.js
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/libs/jquery/jquery-2.1.3.intellisense.js
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/libs/jquery/jquery-2.1.3.js
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/libs/jquery/jquery-2.1.3.min.js
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/libs/jquery/jquery-2.1.3.min.js.map
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/libs/jquery/jquery-ui-1.11.3.js
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/libs/jquery/jquery-ui-1.11.3.min.js
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/libs/jquery/jquery-ui-1.11.3.min.js.map
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/libs/modernizr/modernizr-2.6.2.js
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/main.js
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/main.min.js
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/main.min.js.map
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/mscaptcha.js
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/wffm.js
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/wffm.min.js
+/Website/sitecore modules/Web/Web Forms for Marketers/mvc/wffm.min.js.map
+/Website/sitecore modules/Web/Web Forms for Marketers/scripts/head.load.min.js
+/Website/sitecore modules/Web/Web Forms for Marketers/scripts/jquery.js
+/Website/sitecore modules/Web/Web Forms for Marketers/scripts/jquery-ui.min.js
+/Website/sitecore modules/Web/Web Forms for Marketers/scripts/jquery-ui-i18n.js
+/Website/sitecore modules/Web/Web Forms for Marketers/scripts/JSON2.min.js
+/Website/sitecore modules/Web/Web Forms for Marketers/scripts/sc.webform.js
+/Website/sitecore modules/Web/Web Forms for Marketers/Tracking.aspx
+/Website/sitecore modules/Web/Web Forms for Marketers/UI/UserControl/Captcha.ascx
+/Website/sitecore modules/Web/Web Forms for Marketers/UI/UserControl/CreditCard.ascx
+/Website/sitecore modules/Web/Web Forms for Marketers/UI/UserControl/PasswordConfirmation.ascx
+/Website/Styles/Standard_EB27F63F2A7FA7F24EA4028C40B4F59F.css
+/Website/Views/Form/EditorTemplates/CaptchaField.cshtml
+/Website/Views/Form/EditorTemplates/CheckboxField.cshtml
+/Website/Views/Form/EditorTemplates/CheckboxListField.cshtml
+/Website/Views/Form/EditorTemplates/DateField.cshtml
+/Website/Views/Form/EditorTemplates/DatePickerField.cshtml
+/Website/Views/Form/EditorTemplates/DropListField.cshtml
+/Website/Views/Form/EditorTemplates/FieldViewModel.cshtml
+/Website/Views/Form/EditorTemplates/FileUploadField.cshtml
+/Website/Views/Form/EditorTemplates/FormViewModel.cshtml
+/Website/Views/Form/EditorTemplates/ListBoxField.cshtml
+/Website/Views/Form/EditorTemplates/MultipleLineTextField.cshtml
+/Website/Views/Form/EditorTemplates/PasswordConfirmationField.cshtml
+/Website/Views/Form/EditorTemplates/RadioListField.cshtml
+/Website/Views/Form/EditorTemplates/RecaptchaField.cshtml
+/Website/Views/Form/EditorTemplates/SectionViewModel.cshtml
+/Website/Views/Form/Index.cshtml
+/Website/Views/Form/SuccessRedirect.cshtml
+/Website/Views/Form/Web.config
+
