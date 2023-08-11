@@ -728,8 +728,10 @@
                 <img class="scSpinner" src="/sitecore/shell/themes/standard/Images/ProgressIndicator/sc-spinner32.gif" border="0" alt="" width="40px" />
             </div>
         </div>
-        <input runat="server" id="txtDownloadToken" style="display: none;" />
+        <input runat="server" id="txtDownloadToken" style="display:none"/>
 
+        <asp:Button runat="server" ID="btnDownloadFile" OnClick="btnDownloadFile_Click" CssClass="btnDownloadFile" style="display:none"/>
+        <input runat="server" id="idExporting" style="display:none;"/>
 
         <%--  <input runat="server" id="txtStoreContentTree"/>
         <input runat="server" id="txtStoreTemplatesTree"/>
@@ -764,7 +766,7 @@
                 <div class="fixed-export-btn">
                     <span class="header"><b>Quick Links</b></span>
                     <div class="row">
-                        <asp:Button class="spinner-btn" runat="server" ID="btnRunExportDupe" OnClick="btnRunExport_OnClick" Text="Run Content Export" />
+                        <asp:Button class="spinner-btn content-export-btn" runat="server" ID="btnRunExportDupe" OnClick="btnRunExport_OnClick" Text="Run Content Export" />
                         <a class="navButton" href="#divFilters">Filters</a>
                         <a class="navButton" href="#divExportData">Fields and Data</a>
                         <a class="navButton" href="#divAudits">Special Audits & Search</a>
@@ -826,7 +828,7 @@
                     </asp:PlaceHolder>
 
                     <div class="row">
-                        <asp:Button class="spinner-btn" runat="server" ID="btnRunExport" OnClick="btnRunExport_OnClick" Text="Run Content Export" /><br />
+                        <asp:Button class="spinner-btn content-export-btn" runat="server" ID="btnRunExport" OnClick="btnRunExport_OnClick" Text="Run Content Export" /><br />
                         <asp:Button runat="server" ID="btnClearAll" Text="Clear All" OnClick="btnClearAll_OnClick" CssClass="btn-clear-all" />
                     </div>
 
@@ -1169,7 +1171,7 @@
                         </div>
                         <br />
 
-                        <asp:Button class="spinner-btn" runat="server" ID="btnExport2" OnClick="btnRunExport_OnClick" Text="Run Content Export" /><br />
+                        <asp:Button class="spinner-btn content-export-btn" runat="server" ID="btnExport2" OnClick="btnRunExport_OnClick" Text="Run Content Export" /><br />
                         <br />
                         <br />
                         <br />
@@ -1396,7 +1398,7 @@
                                         <span class="notes">Select database to publish to</span>
                                     </div>
 
-                                    <asp:Button runat="server" ID="btnBeginImport" CssClass="spinner-btn" Text="Begin Import" OnClick="btnBeginImport_OnClick" />
+                                    <asp:Button runat="server" ID="btnBeginImport" CssClass="spinner-btn content-import-btn" Text="Begin Import" OnClick="btnBeginImport_OnClick" />
 
                                     <br />
                                     <br />
