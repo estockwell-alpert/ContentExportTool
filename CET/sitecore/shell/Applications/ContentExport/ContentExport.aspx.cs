@@ -269,7 +269,8 @@ namespace ContentExportTool
             var returnItems = fields.Select(x => new BrowseItem()
             {
                 Id = x.ID.ToString(),
-                Name = x.DisplayName,
+                Name = x.Name,
+                DisplayName = String.IsNullOrEmpty(x.Title) ? x.DisplayName : x.Title,
                 Path = "",
                 HasChildren = false,
                 Template = "Field"
@@ -4769,6 +4770,7 @@ namespace ContentExportTool
     {
         public string Id;
         public string Name;
+        public string DisplayName;
         public string Path;
         public bool HasChildren;
         public string Template;
