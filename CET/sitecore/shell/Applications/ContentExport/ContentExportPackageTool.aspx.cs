@@ -76,20 +76,19 @@ namespace ContentExportTool
             // files
             var fileSource = new ExplicitFileSource();
             fileSource.Name = "Files";
-
-            fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\BayerCA\\Website\\sitecore\\shell\\Applications\\ContentExport\\ContentExport.aspx"));
-            fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\BayerCA\\Website\\sitecore\\shell\\Applications\\ContentExport\\ContentExport.aspx.cs"));
-            fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\BayerCA\\Website\\sitecore\\shell\\Applications\\ContentExport\\ContentExport.aspx.designer.cs"));
-            fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\BayerCA\\Website\\sitecore\\shell\\Applications\\ContentExport\\jquery-2.2.4.min.js"));
-            fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\BayerCA\\Website\\sitecore\\shell\\Applications\\ContentExport\\jquery-ui.min.js"));
-            fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\BayerCA\\Website\\sitecore\\shell\\Applications\\ContentExport\\ContentExportScripts.js"));
+            fileSource.Entries.Add(MainUtil.MapPath("C:\\inetpub\\wwwroot\\CET.dev.local\\sitecore\\shell\\Applications\\ContentExport\\ContentExport.aspx"));
+            fileSource.Entries.Add(MainUtil.MapPath("C:\\inetpub\\wwwroot\\CET.dev.local\\sitecore\\shell\\Applications\\ContentExport\\ContentExport.aspx.cs"));
+            fileSource.Entries.Add(MainUtil.MapPath("C:\\inetpub\\wwwroot\\CET.dev.local\\sitecore\\shell\\Applications\\ContentExport\\ContentExport.aspx.designer.cs"));
+            fileSource.Entries.Add(MainUtil.MapPath("C:\\inetpub\\wwwroot\\CET.dev.local\\sitecore\\shell\\Applications\\ContentExport\\jquery-2.2.4.min.js"));
+            fileSource.Entries.Add(MainUtil.MapPath("C:\\inetpub\\wwwroot\\CET.dev.local\\sitecore\\shell\\Applications\\ContentExport\\jquery-ui.min.js"));
+            fileSource.Entries.Add(MainUtil.MapPath("C:\\inetpub\\wwwroot\\CET.dev.local\\sitecore\\shell\\Applications\\ContentExport\\ContentExportScripts.js"));
             fileSource.Entries.Add(
-                MainUtil.MapPath("C:\\Dev\\BayerCA\\Website\\temp\\IconCache\\Network\\16x16\\download.png"));
+                MainUtil.MapPath("C:\\inetpub\\wwwroot\\CET.dev.local\\temp\\IconCache\\Network\\16x16\\download.png"));
             fileSource.Entries.Add(
-                MainUtil.MapPath("C:\\Dev\\BayerCA\\Website\\temp\\IconCache\\Network\\32x32\\download.png"));
+                MainUtil.MapPath("C:\\inetpub\\wwwroot\\CET.dev.local\\temp\\IconCache\\Network\\32x32\\download.png"));
             fileSource.Entries.Add(
-                MainUtil.MapPath("C:\\Dev\\BayerCA\\Website\\temp\\IconCache\\Network\\24x24\\download.png"));
-            fileSource.Entries.Add(MainUtil.MapPath("C:\\Dev\\BayerCA\\Website\\sitecore\\shell\\Themes\\Standard\\Images\\ProgressIndicator\\sc-spinner32.gif"));
+                MainUtil.MapPath("C:\\inetpub\\wwwroot\\CET.dev.local\\temp\\IconCache\\Network\\24x24\\download.png"));
+            fileSource.Entries.Add(MainUtil.MapPath("C:\\inetpub\\wwwroot\\CET.dev.local\\sitecore\\shell\\Themes\\Standard\\Images\\ProgressIndicator\\sc-spinner32.gif"));
 
             packageProject.Sources.Add(fileSource);
 
