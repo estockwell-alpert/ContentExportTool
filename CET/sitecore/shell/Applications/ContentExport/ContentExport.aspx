@@ -1050,6 +1050,10 @@
                                         <span class="header">Raw HTML </span>
                                         <asp:CheckBox runat="server" ID="chkIncludeRawHtml" /><span class="notes">Export the raw HTML of applicable fields (images and links)</span>
                                     </div>
+                                    <div class="row">
+                                        <span class="header">Strip HTML</span>
+                                        <asp:CheckBox runat="server" ID="chkStripHtml" /><span class="notes">Strip HTML tags from rich text, export only plain text</span>
+                                    </div>
 
                                     <div class="row">
                                         <span class="header">Referrers</span>
