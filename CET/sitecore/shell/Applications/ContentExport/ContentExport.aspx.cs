@@ -137,6 +137,7 @@ namespace ContentExportTool
                     !String.IsNullOrEmpty(txtFileName.Value) ||
                     chkIncludeIds.Checked ||
                     chkIncludeRawHtml.Checked ||
+                    chkStripHtml.Checked ||
                     chkReferrers.Checked ||
                     chkRelateItems.Checked ||
                     chkDateCreated.Checked ||
@@ -1376,6 +1377,11 @@ namespace ContentExportTool
         {
             var fieldValue = RemoveLineEndings(itemField.Value);
 
+            if (chkStripHtml.Checked)
+            {
+                fieldValue = Regex.Replace(fieldValue, "<.*?>", String.Empty);
+            }
+
             if (fieldValue.Contains(","))
             {
                 if (fieldValue.Contains("\""))
@@ -2483,6 +2489,7 @@ namespace ContentExportTool
                 Fields = inputFields.Value,
                 IncludeLinkedIds = chkIncludeLinkedIds.Checked,
                 IncludeRaw = chkIncludeRawHtml.Checked,
+                StripHtml = chkStripHtml.Checked,
                 Workflow = chkWorkflowName.Checked,
                 WorkflowState = chkWorkflowState.Checked,
                 SelectedLanguage = ddLanguages.SelectedValue,
@@ -2615,6 +2622,7 @@ namespace ContentExportTool
             inputFields.Value = settings.Fields;
             chkIncludeLinkedIds.Checked = settings.IncludeLinkedIds;
             chkIncludeRawHtml.Checked = settings.IncludeRaw;
+            chkStripHtml.Checked = settings.StripHtml;
             chkWorkflowName.Checked = settings.Workflow;
             chkWorkflowState.Checked = settings.WorkflowState;
             chkDroplistName.Checked = settings.RefNameOnly;
@@ -2724,6 +2732,7 @@ namespace ContentExportTool
             inputFields.Value = string.Empty;
             chkIncludeLinkedIds.Checked = false;
             chkIncludeRawHtml.Checked = false;
+            chkStripHtml.Checked = false;
             chkWorkflowName.Checked = false;
             chkWorkflowState.Checked = false;
             ddLanguages.SelectedIndex = 0;
@@ -2791,6 +2800,7 @@ namespace ContentExportTool
                 Fields = inputFields.Value,
                 IncludeLinkedIds = chkIncludeLinkedIds.Checked,
                 IncludeRaw = chkIncludeRawHtml.Checked,
+                StripHtml = chkStripHtml.Checked,
                 Workflow = chkWorkflowName.Checked,
                 WorkflowState = chkWorkflowState.Checked,
                 SelectedLanguage = ddLanguages.SelectedValue,
@@ -4633,6 +4643,7 @@ namespace ContentExportTool
         public string Fields;
         public bool IncludeLinkedIds;
         public bool IncludeRaw;
+        public bool StripHtml;
         public bool Workflow;
         public bool WorkflowState;
         public string SelectedLanguage;
