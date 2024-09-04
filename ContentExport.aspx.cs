@@ -122,6 +122,11 @@ namespace ContentExportTool
             ddLanguages.DataSource = languages;
             ddLanguages.DataBind();
 
+            var workflows = GetWorkflowStates();
+            workflows.Insert(0, "");
+            ddWorkflow.DataSource = workflows;
+            ddWorkflow.DataBind();
+
             radDateRangeAnd.Checked = false;
             radDateRangeOr.Checked = true;
 
@@ -145,12 +150,14 @@ namespace ContentExportTool
                     !String.IsNullOrEmpty(txtFileName.Value) ||
                     chkIncludeIds.Checked ||
                     chkIncludeRawHtml.Checked ||
+                    chkStripHtml.Checked ||
                     chkReferrers.Checked ||
                     chkRelateItems.Checked ||
                     chkDateCreated.Checked ||
                     chkDateModified.Checked ||
                     chkCreatedBy.Checked ||
                     chkModifiedBy.Checked ||
+                    chkVersion.Checked ||
                     chkPublish.Checked ||
                     chkUnpublish.Checked ||
                     chkNeverPublish.Checked ||
@@ -158,6 +165,7 @@ namespace ContentExportTool
                     chkAllStandardFields.Checked ||
                     chkWorkflowName.Checked ||
                     chkWorkflowState.Checked ||
+                    ddWorkflow.SelectedIndex != 0 ||
                     chkAllLanguages.Checked ||
                     ddLanguages.SelectedIndex != 0
                 );
@@ -170,6 +178,25 @@ namespace ContentExportTool
             var installedLanguages = LanguageManager.GetLanguages(_db);
 
             return installedLanguages.ToList();
+        }
+
+        protected List<string> GetWorkflowStates()
+        {
+            List<string> workflowStates = new List<string>();
+            var workflows = Sitecore.Configuration.Factory.GetDatabase("master").WorkflowProvider.GetWorkflows();
+
+            foreach (var workflow in workflows)
+            {
+                var states = workflow.GetStates();
+                foreach (var state in states) {
+                    if (!workflowStates.Any(x => x.Equals(state.DisplayName)))
+                    {
+                        workflowStates.Add(state.DisplayName);
+                    }
+                }
+            }
+
+            return workflowStates;
         }
 
         protected void SetLanguageList()
@@ -269,7 +296,8 @@ namespace ContentExportTool
             var returnItems = fields.Select(x => new BrowseItem()
             {
                 Id = x.ID.ToString(),
-                Name = x.DisplayName,
+                Name = x.Name,
+                DisplayName = String.IsNullOrEmpty(x.Title) ? x.DisplayName : x.Title,
                 Path = "",
                 HasChildren = false,
                 Template = "Field"
@@ -794,7 +822,7 @@ namespace ContentExportTool
             {
                 var fieldString = inputFields.Value;
 
-                var includeWorkflowState = chkWorkflowState.Checked;
+                var includeWorkflowState = chkWorkflowState.Checked || ddWorkflow.SelectedIndex != 0; 
                 var includeworkflowName = chkWorkflowName.Checked;            
 
                 var includeIds = chkIncludeIds.Checked;
@@ -809,6 +837,7 @@ namespace ContentExportTool
                 var includeCreatedBy = chkCreatedBy.Checked;
                 var includeDateModified = chkDateModified.Checked || (!String.IsNullOrEmpty(txtStartDatePb.Value) && DateTime.TryParse(txtStartDatePb.Value, out dateVal)) || (!String.IsNullOrEmpty(txtEndDatePu.Value) && DateTime.TryParse(txtEndDatePu.Value, out dateVal));
                 var includeModifiedBy = chkModifiedBy.Checked;
+                var includeVersion = chkVersion.Checked;
                 var publish = chkPublish.Checked;
                 var unpublish = chkUnpublish.Checked;
                 var owner = chkOwner.Checked;
@@ -824,6 +853,7 @@ namespace ContentExportTool
 
                 var allLanguages = chkAllLanguages.Checked;
                 var selectedLanguage = ddLanguages.SelectedValue;
+                var selectedWorkflow = ddWorkflow.SelectedValue;
 
                 List<Item> items = GetItems(!chkNoChildren.Checked);
 
@@ -846,6 +876,7 @@ namespace ContentExportTool
                                         (allLanguages || !string.IsNullOrWhiteSpace(selectedLanguage)
                                             ? "Language,"
                                             : string.Empty)
+                                        + (includeVersion ? "Version," : string.Empty)
                                         + (includeDateCreated && !allStandardFields ? "__Created," : string.Empty)
                                         + (includeCreatedBy && !allStandardFields ? "__Created by," : string.Empty)
                                         + (includeDateModified && !allStandardFields ? "__Updated," : string.Empty)
@@ -944,6 +975,11 @@ namespace ContentExportTool
                             if (allLanguages || !string.IsNullOrWhiteSpace(selectedLanguage))
                             {
                                 itemLine += item.Language.Name + ",";
+                            }
+
+                            if (includeVersion)
+                            {
+                                itemLine += item.Version + ",";
                             }
 
                             // need to see what's included in standar fields
@@ -1198,7 +1234,25 @@ namespace ContentExportTool
             {
                 itemVersions.Add(item);
             }
+
+            if (!String.IsNullOrEmpty(ddWorkflow.SelectedValue))
+            {
+                itemVersions = itemVersions.Where(x => FilterByWorkflow(x)).ToList();
+            }
+
             return itemVersions;
+        }
+
+        private bool FilterByWorkflow(Item item)
+        {
+            var workflowProvider = item.Database.WorkflowProvider;
+            if (workflowProvider == null) return true;
+
+            var workflow = workflowProvider.GetWorkflow(item);
+            if (workflow == null) return false;
+
+            var state = workflow.GetState(item);
+            return state != null && state.DisplayName == ddWorkflow.SelectedValue;
         }
 
         private string AddWorkFlow(Item item, string itemLine, bool includeworkflowName, bool includeWorkflowState)
@@ -1628,6 +1682,11 @@ namespace ContentExportTool
         private Tuple<string, string> ParseDefaultField(Field itemField, string itemLine, string headingString, string fieldName)
         {
             var fieldValue = RemoveLineEndings(itemField.Value);
+
+            if (chkStripHtml.Checked)
+            {
+                fieldValue = Regex.Replace(fieldValue, "<.*?>", String.Empty);
+            }
 
             if (fieldValue.Contains(","))
             {
@@ -2751,8 +2810,10 @@ namespace ContentExportTool
                 Fields = inputFields.Value,
                 IncludeLinkedIds = chkIncludeLinkedIds.Checked,
                 IncludeRaw = chkIncludeRawHtml.Checked,
+                StripHtml = chkStripHtml.Checked,
                 Workflow = chkWorkflowName.Checked,
                 WorkflowState = chkWorkflowState.Checked,
+                SelectedWorkflow = ddWorkflow.SelectedValue,
                 SelectedLanguage = ddLanguages.SelectedValue,
                 GetAllLanguages = chkAllLanguages.Checked,
                 IncludeName = chkIncludeName.Checked,
@@ -2762,6 +2823,7 @@ namespace ContentExportTool
                 DateModified = chkDateModified.Checked,
                 CreatedBy = chkCreatedBy.Checked,
                 ModifiedBy = chkModifiedBy.Checked,
+                Version = chkVersion.Checked,
                 NeverPublish = chkNeverPublish.Checked,
                 Publish = chkPublish.Checked,
                 Unpublish = chkUnpublish.Checked,
@@ -2883,6 +2945,7 @@ namespace ContentExportTool
             inputFields.Value = settings.Fields;
             chkIncludeLinkedIds.Checked = settings.IncludeLinkedIds;
             chkIncludeRawHtml.Checked = settings.IncludeRaw;
+            chkStripHtml.Checked = settings.StripHtml;
             chkWorkflowName.Checked = settings.Workflow;
             chkWorkflowState.Checked = settings.WorkflowState;
             chkDroplistName.Checked = settings.RefNameOnly;
@@ -2892,6 +2955,13 @@ namespace ContentExportTool
             {
                 ddLanguages.SelectedValue = settings.SelectedLanguage;
             }
+
+            var workflows = GetWorkflowStates();
+            if (workflows.Any())
+            {
+                ddWorkflow.SelectedValue = settings.SelectedWorkflow;
+            }
+
             chkAllLanguages.Checked = settings.GetAllLanguages;
             chkIncludeName.Checked = settings.IncludeName;
             chkIncludeUrl.Checked = settings.IncludeUrl;
@@ -2900,6 +2970,7 @@ namespace ContentExportTool
             chkDateModified.Checked = settings.DateModified;
             chkCreatedBy.Checked = settings.CreatedBy;
             chkModifiedBy.Checked = settings.ModifiedBy;
+            chkVersion.Checked = settings.Version;
             chkNeverPublish.Checked = settings.NeverPublish;
             chkPublish.Checked = settings.Publish;
             chkUnpublish.Checked = settings.Unpublish;
@@ -2992,8 +3063,10 @@ namespace ContentExportTool
             inputFields.Value = string.Empty;
             chkIncludeLinkedIds.Checked = false;
             chkIncludeRawHtml.Checked = false;
+            chkStripHtml.Checked = false;
             chkWorkflowName.Checked = false;
             chkWorkflowState.Checked = false;
+            ddWorkflow.SelectedIndex = 0;
             ddLanguages.SelectedIndex = 0;
             chkAllLanguages.Checked = false;
             txtSaveSettingsName.Value = string.Empty;
@@ -3004,6 +3077,7 @@ namespace ContentExportTool
             chkDateModified.Checked = false;
             chkCreatedBy.Checked = false;
             chkModifiedBy.Checked = false;
+            chkVersion.Checked = false;
             chkIncludeName.Checked = false;
             chkIncludeUrl.Checked = false;
             chkReferrers.Checked = false;
@@ -3059,8 +3133,10 @@ namespace ContentExportTool
                 Fields = inputFields.Value,
                 IncludeLinkedIds = chkIncludeLinkedIds.Checked,
                 IncludeRaw = chkIncludeRawHtml.Checked,
+                StripHtml = chkStripHtml.Checked,
                 Workflow = chkWorkflowName.Checked,
                 WorkflowState = chkWorkflowState.Checked,
+                SelectedWorkflow = ddWorkflow.SelectedValue,
                 SelectedLanguage = ddLanguages.SelectedValue,
                 GetAllLanguages = chkAllLanguages.Checked,
                 IncludeName = chkIncludeName.Checked,
@@ -3070,6 +3146,7 @@ namespace ContentExportTool
                 DateModified = chkDateModified.Checked,
                 CreatedBy = chkCreatedBy.Checked,
                 ModifiedBy = chkModifiedBy.Checked,
+                Version = chkVersion.Checked,
                 NeverPublish = chkNeverPublish.Checked,
                 Publish = chkPublish.Checked,
                 Unpublish = chkUnpublish.Checked,
@@ -3320,7 +3397,7 @@ namespace ContentExportTool
         protected bool SetDatabase()
         {
             var databaseName = ddDatabase.SelectedValue;
-            if (chkWorkflowName.Checked || chkWorkflowState.Checked)
+            if (chkWorkflowName.Checked || chkWorkflowState.Checked || ddWorkflow.SelectedIndex != 0)
             {
                 databaseName = "master";
             }
@@ -4769,6 +4846,7 @@ namespace ContentExportTool
     {
         public string Id;
         public string Name;
+        public string DisplayName;
         public string Path;
         public bool HasChildren;
         public string Template;
@@ -4805,8 +4883,10 @@ namespace ContentExportTool
         public string Fields;
         public bool IncludeLinkedIds;
         public bool IncludeRaw;
+        public bool StripHtml;
         public bool Workflow;
         public bool WorkflowState;
+        public string SelectedWorkflow;
         public string SelectedLanguage;
         public bool GetAllLanguages;
         public bool IncludeName;
@@ -4822,6 +4902,7 @@ namespace ContentExportTool
         public bool DateModified;
         public bool CreatedBy;
         public bool ModifiedBy;
+        public bool Version;
         public bool RequireLayout;
         public bool Referrers;
         public bool Related;
