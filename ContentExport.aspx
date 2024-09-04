@@ -1159,6 +1159,11 @@
                                                     <asp:CheckBox runat="server" ID="chkModifiedBy" />
                                                     <span class="notes">Sitecore user who last published the item</span>
                                                 </div>
+                                                <div class="row">
+                                                    <span class="header">Version</span>
+                                                    <asp:CheckBox runat="server" ID="chkVersion" />
+                                                    <span class="notes">Latest version number</span>
+                                                </div>
 
                                                 <h3>Security</h3>
                                                 <div class="row">

@@ -149,6 +149,7 @@ namespace ContentExportTool
                     chkDateModified.Checked ||
                     chkCreatedBy.Checked ||
                     chkModifiedBy.Checked ||
+                    chkVersion.Checked ||
                     chkPublish.Checked ||
                     chkUnpublish.Checked ||
                     chkNeverPublish.Checked ||
@@ -588,6 +589,7 @@ namespace ContentExportTool
                 var includeCreatedBy = chkCreatedBy.Checked;
                 var includeDateModified = chkDateModified.Checked || (!String.IsNullOrEmpty(txtStartDatePb.Value) && DateTime.TryParse(txtStartDatePb.Value, out dateVal)) || (!String.IsNullOrEmpty(txtEndDatePu.Value) && DateTime.TryParse(txtEndDatePu.Value, out dateVal));
                 var includeModifiedBy = chkModifiedBy.Checked;
+                var includeVersion = chkVersion.Checked;
                 var publish = chkPublish.Checked;
                 var unpublish = chkUnpublish.Checked;
                 var owner = chkOwner.Checked;
@@ -628,6 +630,7 @@ namespace ContentExportTool
                                         (allLanguages || !string.IsNullOrWhiteSpace(selectedLanguage)
                                             ? "Language,"
                                             : string.Empty)
+                                        + (includeVersion ? "Version," : string.Empty)
                                         + (includeDateCreated && !allStandardFields ? "__Created," : string.Empty)
                                         + (includeCreatedBy && !allStandardFields ? "__Created by," : string.Empty)
                                         + (includeDateModified && !allStandardFields ? "__Updated," : string.Empty)
@@ -726,6 +729,11 @@ namespace ContentExportTool
                             if (allLanguages || !string.IsNullOrWhiteSpace(selectedLanguage))
                             {
                                 itemLine += item.Language.Name + ",";
+                            }
+
+                            if (includeVersion)
+                            {
+                                itemLine += item.Version + ",";
                             }
 
                             // need to see what's included in standar fields
@@ -2546,6 +2554,7 @@ namespace ContentExportTool
                 DateModified = chkDateModified.Checked,
                 CreatedBy = chkCreatedBy.Checked,
                 ModifiedBy = chkModifiedBy.Checked,
+                Version = chkVersion.Checked,
                 NeverPublish = chkNeverPublish.Checked,
                 Publish = chkPublish.Checked,
                 Unpublish = chkUnpublish.Checked,
@@ -2692,6 +2701,7 @@ namespace ContentExportTool
             chkDateModified.Checked = settings.DateModified;
             chkCreatedBy.Checked = settings.CreatedBy;
             chkModifiedBy.Checked = settings.ModifiedBy;
+            chkVersion.Checked = settings.Version;
             chkNeverPublish.Checked = settings.NeverPublish;
             chkPublish.Checked = settings.Publish;
             chkUnpublish.Checked = settings.Unpublish;
@@ -2798,6 +2808,7 @@ namespace ContentExportTool
             chkDateModified.Checked = false;
             chkCreatedBy.Checked = false;
             chkModifiedBy.Checked = false;
+            chkVersion.Checked = false;
             chkIncludeName.Checked = false;
             chkIncludeUrl.Checked = false;
             chkReferrers.Checked = false;
@@ -2866,6 +2877,7 @@ namespace ContentExportTool
                 DateModified = chkDateModified.Checked,
                 CreatedBy = chkCreatedBy.Checked,
                 ModifiedBy = chkModifiedBy.Checked,
+                Version = chkVersion.Checked,
                 NeverPublish = chkNeverPublish.Checked,
                 Publish = chkPublish.Checked,
                 Unpublish = chkUnpublish.Checked,
@@ -4716,6 +4728,7 @@ namespace ContentExportTool
         public bool DateModified;
         public bool CreatedBy;
         public bool ModifiedBy;
+        public bool Version;
         public bool RequireLayout;
         public bool Referrers;
         public bool Related;
