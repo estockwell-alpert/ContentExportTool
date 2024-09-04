@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="ContentExportPackageTool.aspx.cs" Inherits="ContentExportTool.ContentExportAdminPage" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="ContentExportPackageTool.aspx.cs" Inherits="ContentExportTool.ContentExportAdminPage" %>
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
