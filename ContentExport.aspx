@@ -1048,6 +1048,10 @@
                                         <span class="header">Raw HTML </span>
                                         <asp:CheckBox runat="server" ID="chkIncludeRawHtml" /><span class="notes">Export the raw HTML of applicable fields (images and links)</span>
                                     </div>
+                                    <div class="row">
+                                        <span class="header">Strip HTML</span>
+                                        <asp:CheckBox runat="server" ID="chkStripHtml" /><span class="notes">Strip HTML tags from rich text, export only plain text</span>
+                                    </div>
 
                                     <div class="row">
                                         <span class="header">Referrers</span>
@@ -1109,6 +1113,11 @@
                                                     <asp:CheckBox runat="server" CssClass="workflowBox" ID="chkWorkflowState" />
                                                     <span class="notes">Export the current workflow state (Workflow options require the database to be set to master)</span>
                                                 </div>
+                                                <div class="row">
+                                                    <span class="header">Workflow State (filter)</span>
+                                                    <asp:DropDownList runat="server" CssClass="workflowBox" ID="ddWorkflow" />
+                                                    <span class="notes">Export all items in the selected workflow state (other filters apply)</span>
+                                                </div>
 
                                                 <h3>Publishing</h3>
                                                 <div class="row">
@@ -1149,6 +1158,11 @@
                                                     <span class="header">Modified By</span>
                                                     <asp:CheckBox runat="server" ID="chkModifiedBy" />
                                                     <span class="notes">Sitecore user who last published the item</span>
+                                                </div>
+                                                <div class="row">
+                                                    <span class="header">Version</span>
+                                                    <asp:CheckBox runat="server" ID="chkVersion" />
+                                                    <span class="notes">Latest version number</span>
                                                 </div>
 
                                                 <h3>Security</h3>
