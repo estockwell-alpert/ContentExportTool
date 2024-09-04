@@ -114,6 +114,11 @@ namespace ContentExportTool
             ddLanguages.DataSource = languages;
             ddLanguages.DataBind();
 
+            var workflows = GetWorkflowStates();
+            workflows.Insert(0, "");
+            ddWorkflow.DataSource = workflows;
+            ddWorkflow.DataBind();
+
             radDateRangeAnd.Checked = false;
             radDateRangeOr.Checked = true;
 
@@ -151,6 +156,7 @@ namespace ContentExportTool
                     chkAllStandardFields.Checked ||
                     chkWorkflowName.Checked ||
                     chkWorkflowState.Checked ||
+                    ddWorkflow.SelectedIndex != 0 ||
                     chkAllLanguages.Checked ||
                     ddLanguages.SelectedIndex != 0
                 );
@@ -163,6 +169,25 @@ namespace ContentExportTool
             var installedLanguages = LanguageManager.GetLanguages(_db);
 
             return installedLanguages.ToList();
+        }
+
+        protected List<string> GetWorkflowStates()
+        {
+            List<string> workflowStates = new List<string>();
+            var workflows = Sitecore.Configuration.Factory.GetDatabase("master").WorkflowProvider.GetWorkflows();
+
+            foreach (var workflow in workflows)
+            {
+                var states = workflow.GetStates();
+                foreach (var state in states) {
+                    if (!workflowStates.Any(x => x.Equals(state.DisplayName)))
+                    {
+                        workflowStates.Add(state.DisplayName);
+                    }
+                }
+            }
+
+            return workflowStates;
         }
 
         protected void SetLanguageList()
@@ -535,7 +560,7 @@ namespace ContentExportTool
             {
                 var fieldString = inputFields.Value;
 
-                var includeWorkflowState = chkWorkflowState.Checked;
+                var includeWorkflowState = chkWorkflowState.Checked || ddWorkflow.SelectedIndex != 0;
                 var includeworkflowName = chkWorkflowName.Checked;
 
                 if (!SetDatabase())
@@ -578,6 +603,7 @@ namespace ContentExportTool
 
                 var allLanguages = chkAllLanguages.Checked;
                 var selectedLanguage = ddLanguages.SelectedValue;
+                var selectedWorkflow = ddWorkflow.SelectedValue;
 
                 List<Item> items = GetItems(!chkNoChildren.Checked);
 
@@ -946,7 +972,25 @@ namespace ContentExportTool
             {
                 itemVersions.Add(item);
             }
+
+            if (!String.IsNullOrEmpty(ddWorkflow.SelectedValue))
+            {
+                itemVersions = itemVersions.Where(x => FilterByWorkflow(x)).ToList();
+            }
+
             return itemVersions;
+        }
+
+        private bool FilterByWorkflow(Item item)
+        {
+            var workflowProvider = item.Database.WorkflowProvider;
+            if (workflowProvider == null) return true;
+
+            var workflow = workflowProvider.GetWorkflow(item);
+            if (workflow == null) return false;
+
+            var state = workflow.GetState(item);
+            return state != null && state.DisplayName == ddWorkflow.SelectedValue;
         }
 
         private string AddWorkFlow(Item item, string itemLine, bool includeworkflowName, bool includeWorkflowState)
@@ -2492,6 +2536,7 @@ namespace ContentExportTool
                 StripHtml = chkStripHtml.Checked,
                 Workflow = chkWorkflowName.Checked,
                 WorkflowState = chkWorkflowState.Checked,
+                SelectedWorkflow = ddWorkflow.SelectedValue,
                 SelectedLanguage = ddLanguages.SelectedValue,
                 GetAllLanguages = chkAllLanguages.Checked,
                 IncludeName = chkIncludeName.Checked,
@@ -2632,6 +2677,13 @@ namespace ContentExportTool
             {
                 ddLanguages.SelectedValue = settings.SelectedLanguage;
             }
+
+            var workflows = GetWorkflowStates();
+            if (workflows.Any())
+            {
+                ddWorkflow.SelectedValue = settings.SelectedWorkflow;
+            }
+
             chkAllLanguages.Checked = settings.GetAllLanguages;
             chkIncludeName.Checked = settings.IncludeName;
             chkIncludeUrl.Checked = settings.IncludeUrl;
@@ -2735,6 +2787,7 @@ namespace ContentExportTool
             chkStripHtml.Checked = false;
             chkWorkflowName.Checked = false;
             chkWorkflowState.Checked = false;
+            ddWorkflow.SelectedIndex = 0;
             ddLanguages.SelectedIndex = 0;
             chkAllLanguages.Checked = false;
             txtSaveSettingsName.Value = string.Empty;
@@ -2803,6 +2856,7 @@ namespace ContentExportTool
                 StripHtml = chkStripHtml.Checked,
                 Workflow = chkWorkflowName.Checked,
                 WorkflowState = chkWorkflowState.Checked,
+                SelectedWorkflow = ddWorkflow.SelectedValue,
                 SelectedLanguage = ddLanguages.SelectedValue,
                 GetAllLanguages = chkAllLanguages.Checked,
                 IncludeName = chkIncludeName.Checked,
@@ -3062,7 +3116,7 @@ namespace ContentExportTool
         protected bool SetDatabase()
         {
             var databaseName = ddDatabase.SelectedValue;
-            if (chkWorkflowName.Checked || chkWorkflowState.Checked)
+            if (chkWorkflowName.Checked || chkWorkflowState.Checked || ddWorkflow.SelectedIndex != 0)
             {
                 databaseName = "master";
             }
@@ -4646,6 +4700,7 @@ namespace ContentExportTool
         public bool StripHtml;
         public bool Workflow;
         public bool WorkflowState;
+        public string SelectedWorkflow;
         public string SelectedLanguage;
         public bool GetAllLanguages;
         public bool IncludeName;

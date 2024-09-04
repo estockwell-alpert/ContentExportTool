@@ -1113,6 +1113,11 @@
                                                     <asp:CheckBox runat="server" CssClass="workflowBox" ID="chkWorkflowState" />
                                                     <span class="notes">Export the current workflow state (Workflow options require the database to be set to master)</span>
                                                 </div>
+                                                <div class="row">
+                                                    <span class="header">Workflow State (filter)</span>
+                                                    <asp:DropDownList runat="server" CssClass="workflowBox" ID="ddWorkflow" />
+                                                    <span class="notes">Export all items in the selected workflow state (other filters apply)</span>
+                                                </div>
 
                                                 <h3>Publishing</h3>
                                                 <div class="row">
