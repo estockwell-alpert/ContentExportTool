@@ -189,6 +189,13 @@ function loadFields(id, parentNode) {
                 var id = child.Id;
                 var name = child.Name;
                 var path = child.Path;
+                var displayName = child.DisplayName;
+
+                var title = name;
+
+                if (displayName !== "" && displayName !== name && displayName !== "__Standard Values") {
+                    title = displayName + " (" + name + ")";
+                }
 
                 var selected = false;
                 var selectedMatch = $(".selected-box a.addedTemplate[data-path='" + name + "']");
@@ -196,7 +203,7 @@ function loadFields(id, parentNode) {
                     selected = true;
                 }
 
-                var fieldNode = "<li data-name='" + name + "'><a class='field-node " + (selected ? "disabled" : "") + "' href='javascript:void(0)' onclick='selectBrowseNode($(this));' ondblclick='selectBrowseNode($(this));addTemplate();' data-id='" + id + "' data-path='" + name + "'>" + name + "</a></li>";
+                var fieldNode = "<li data-name='" + name + "'><a class='field-node " + (selected ? "disabled" : "") + "' href='javascript:void(0)' onclick='selectBrowseNode($(this));' ondblclick='selectBrowseNode($(this));addTemplate();' data-id='" + id + "' data-path='" + name + "' data-name='" + name + "'>" + title + "</a></li>";
 
                 innerHtml += fieldNode;
             }
@@ -255,17 +262,17 @@ function loadChildren(id, parentNode) {
 }
 
 function checkIfFileDownloaded(downloadToken) {
-    var token = getCookie("DownloadToken");
+        var token = getCookie("DownloadToken");
 
-    if ((token == downloadToken)) {
+        if ((token == downloadToken)) {
         //$("#loading-text").html("");
-        $(".loading-modal").hide();
+            $(".loading-modal").hide();
         expireCookie("DownloadToken");
-    } else {
+        } else {
         setTimeout(function () {
             checkIfFileDownloaded(downloadToken)
         }, 1000)
-    }
+        }
 }
 
 function getCookie(name) {
@@ -425,7 +432,7 @@ function selectAllFields(node) {
     var fields = $(node).next().find("li");
     for (var i = 0; i < fields.length; i++) {
         var fieldNode = $($(fields)[i]).find("a");
-        $(".temp-selected").html($(fieldNode).html());
+        $(".temp-selected").html($($(fieldNode)[0]).attr("data-name"));
         addTemplate();
     }
 }
