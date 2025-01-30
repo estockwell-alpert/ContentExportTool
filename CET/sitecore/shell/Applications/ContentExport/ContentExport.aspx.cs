@@ -58,6 +58,9 @@ namespace ContentExportTool
                 }
             }
 
+            // duplicate fields will cause errors
+            fields = fields.Distinct().ToList();
+
             var templatesFragment = "";
             foreach (var template in templates)
             {
