@@ -1,6 +1,11 @@
 # ContentExportTool
 Custom tool to export, modify, and create Sitecore content
 
+# Versions:
+All versions of Sitecore prior to XM Cloud
+
+**Unfortunatly the Content Export Tool is not compatible with XM Cloud**. Custom code is no longer allowed on XM Cloud. We are working on a new SaaS compatible version of the tool but it will be some time before anything can be released. Sorry!
+
 # Installation:
 Use the Installation Wizard to install Content Export Tool.zip from the latest release
 
@@ -16,7 +21,7 @@ Use the Installation Wizard to install Content Export Tool.zip from the latest r
 If the Content Export Tool shows a compilation error when you open it, delete the method from the aspx.cs file (and the corresponding buttons from the aspx file) that is causing the problem. For example, older Sitecore versions may run into a compilation error with the Rendering Parameters Import feature. Files can be found in your Sitecore website under /sitecore/shell/Applications/ContentExport and edited in Notepad++, no build required
 
 # Dependencies:
-LATEST VERSION: Sitecore 8+
+Sitecore 8 through Sitecore 10.4 (NON XM Cloud)
 
 For older versions of Sitecore, download https://github.com/estockwell-alpert/ContentExportTool/releases/download/8.3/Content.Export.Tool.for.Sitecore.6.zip 
 
