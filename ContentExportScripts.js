@@ -262,17 +262,17 @@ function loadChildren(id, parentNode) {
 }
 
 function checkIfFileDownloaded(downloadToken) {
-        var token = getCookie("DownloadToken");
+    var token = getCookie("DownloadToken");
 
-        if ((token == downloadToken)) {
+    if ((token == downloadToken)) {
         //$("#loading-text").html("");
-            $(".loading-modal").hide();
+        $(".loading-modal").hide();
         expireCookie("DownloadToken");
-        } else {
+    } else {
         setTimeout(function () {
             checkIfFileDownloaded(downloadToken)
         }, 1000)
-        }
+    }
 }
 
 function getCookie(name) {
@@ -429,10 +429,10 @@ function getSelectedString() {
 }
 
 function selectAllFields(node) {
-    var fields = $(node).next().find("li");
+    var fields = $(node).next().find("a");
     for (var i = 0; i < fields.length; i++) {
-        var fieldNode = $($(fields)[i]).find("a");
-        $(".temp-selected").html($($(fieldNode)[0]).attr("data-name"));
+        var fieldNode = $(fields)[i];
+        $(".temp-selected").html($(fieldNode).attr("data-path"));
         addTemplate();
     }
 }
