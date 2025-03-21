@@ -1500,7 +1500,7 @@
                                         Use this import method to modify the rendering parameters (FINAL LAYOUT) of the components on your Sitecore items.
                                         <br />
                                         <br />
-                                        This import is recommended for when ou have a rendering(s) that exists on a large number of pages, and need to:
+                                        This import is recommended for when you have a rendering(s) that exists on a large number of pages, and need to:
                                         <ul>
                                             <li>
                                                 change the placeholder that it lives in on every page.
