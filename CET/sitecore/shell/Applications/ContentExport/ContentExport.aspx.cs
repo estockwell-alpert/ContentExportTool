@@ -3802,7 +3802,7 @@ namespace ContentExportTool
                                             : _db.GetItem(datasourceId);
 
                                         var itemLine = String.Format("{0},{1},{2},{3},{4},{5}", itemPath, name, rendering.UniqueId,
-                                            datasource == null ? "" : datasource.Paths.ContentPath,
+                                            datasource == null ? "" : datasource.Paths.Path,
                                             datasource == null ? "" : datasource.TemplateName, rendering.Placeholder
                                             );
                                         sw.WriteLine(itemLine);
