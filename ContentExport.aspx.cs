@@ -1043,94 +1043,99 @@ namespace ContentExportTool
         {
             if (!string.IsNullOrWhiteSpace(field))
             {
-                var fieldName = GetFieldNameIfGuid(field);
-                var itemField = item.Fields[field];
-                bool rawField = false;
-                bool idField = false;
-                if (itemField == null)
-                {
-                    if (_fieldsList.All(x => x.fieldName != field))
-                    {
-                        _fieldsList.Add(new FieldData()
-                        {
-                            field = null,
-                            fieldName = fieldName,
-                            fieldType = null,
-                            rawHtml = false,
-                            linkedId = false
-                        });
-                    }
-                    itemLine += String.Format("n/a,{0}-ID{0}-HTML", fieldName);
-                }
-                else
-                {
-                    Tuple<string, string> lineAndHeading = null;
-                    var itemOfType = FieldTypeManager.GetField(itemField);
-                    if (itemOfType is ImageField) // if image field
-                    {
-                        lineAndHeading = ParseImageField(itemField, itemLine, headingString, fieldName,
-                            includeLinkedIds, includeRawHtml);
-                        rawField = true;
-                        idField = true;
-                    }
-                    else if (itemOfType is LinkField)
-                    {
-                        lineAndHeading = ParseLinkField(itemField, itemLine, headingString, fieldName,
-                            includeLinkedIds, includeRawHtml);
-                        rawField = true;
-                    }
-                    else if (itemOfType is ReferenceField || itemOfType is GroupedDroplistField || itemOfType is LookupField)
-                    {
-                        lineAndHeading = ParseReferenceField(itemField, itemLine, headingString, fieldName,
-                            includeLinkedIds, includeRawHtml);
-                        idField = true;
-                    }
-                    else if (itemOfType is MultilistField)
-                    {
-                        lineAndHeading = ParseMultilistField(itemField, itemLine, headingString, fieldName,
-                            includeLinkedIds, includeRawHtml);
-                        idField = true;
-                    }
-                    else if (itemOfType is CheckboxField)
-                    {
-                        lineAndHeading = ParseCheckboxField(itemField, itemLine, headingString, fieldName);
-                    }
-                    else if (itemOfType is DateField)
-                    {
-                        lineAndHeading = ParseDateField(itemField, itemLine, headingString);
-                    }
-                    else // default text field
-                    {
-                        lineAndHeading = ParseDefaultField(itemField, itemLine, headingString, fieldName);
-                    }
+				var fieldName = GetFieldNameIfGuid(field);
+				var itemField = item.Fields[field];
+				bool rawField = false;
+				bool idField = false;
+				try {
+					if (itemField == null)
+					{
+						if (_fieldsList.All(x => x.fieldName != field))
+						{
+							_fieldsList.Add(new FieldData()
+							{
+								field = null,
+								fieldName = fieldName,
+								fieldType = null,
+								rawHtml = false,
+								linkedId = false
+							});
+						}
+						itemLine += String.Format("n/a,{0}-ID{0}-HTML", fieldName);
+					}
+					else
+					{
+						Tuple<string, string> lineAndHeading = null;
+						var itemOfType = FieldTypeManager.GetField(itemField);
+						if (itemOfType is ImageField) // if image field
+						{
+							lineAndHeading = ParseImageField(itemField, itemLine, headingString, fieldName,
+								includeLinkedIds, includeRawHtml);
+							rawField = true;
+							idField = true;
+						}
+						else if (itemOfType is LinkField)
+						{
+							lineAndHeading = ParseLinkField(itemField, itemLine, headingString, fieldName,
+								includeLinkedIds, includeRawHtml);
+							rawField = true;
+						}
+						else if (itemOfType is ReferenceField || itemOfType is GroupedDroplistField || itemOfType is LookupField)
+						{
+							lineAndHeading = ParseReferenceField(itemField, itemLine, headingString, fieldName,
+								includeLinkedIds, includeRawHtml);
+							idField = true;
+						}
+						else if (itemOfType is MultilistField)
+						{
+							lineAndHeading = ParseMultilistField(itemField, itemLine, headingString, fieldName,
+								includeLinkedIds, includeRawHtml);
+							idField = true;
+						}
+						else if (itemOfType is CheckboxField)
+						{
+							lineAndHeading = ParseCheckboxField(itemField, itemLine, headingString, fieldName);
+						}
+						else if (itemOfType is DateField)
+						{
+							lineAndHeading = ParseDateField(itemField, itemLine, headingString);
+						}
+						else // default text field
+						{
+							lineAndHeading = ParseDefaultField(itemField, itemLine, headingString, fieldName);
+						}
 
-                    if (_fieldsList.All(x => x.fieldName != fieldName))
-                    {
-                        _fieldsList.Add(new FieldData()
-                        {
-                            field = itemField,
-                            fieldName = fieldName,
-                            fieldType = itemField.Type,
-                            rawHtml = rawField,
-                            linkedId = idField
-                        });
-                    }
-                    else
-                    {
-                        // check for nulls
-                        var fieldItem = _fieldsList.FirstOrDefault(x => x.fieldName == fieldName && x.field == null);
-                        if (fieldItem != null)
-                        {
-                            fieldItem.field = itemField;
-                            fieldItem.fieldType = itemField.Type;
-                            fieldItem.rawHtml = rawField;
-                            fieldItem.linkedId = idField;
-                        }
-                    }
+						if (_fieldsList.All(x => x.fieldName != fieldName))
+						{
+							_fieldsList.Add(new FieldData()
+							{
+								field = itemField,
+								fieldName = fieldName,
+								fieldType = itemField.Type,
+								rawHtml = rawField,
+								linkedId = idField
+							});
+						}
+						else
+						{
+							// check for nulls
+							var fieldItem = _fieldsList.FirstOrDefault(x => x.fieldName == fieldName && x.field == null);
+							if (fieldItem != null)
+							{
+								fieldItem.field = itemField;
+								fieldItem.fieldType = itemField.Type;
+								fieldItem.rawHtml = rawField;
+								fieldItem.linkedId = idField;
+							}
+						}
 
-                    itemLine = lineAndHeading.Item1;
-                    headingString = lineAndHeading.Item2;
-                }
+						itemLine = lineAndHeading.Item1;
+						headingString = lineAndHeading.Item2;
+					}
+				}
+				catch (Exception ex) {
+					itemLine += String.Format("ERROR: {1},{0}-ID{0}-HTML", fieldName, ex.Message);
+				}
             }
 
             return new Tuple<string, string>(itemLine, headingString);
