@@ -868,7 +868,7 @@ namespace ContentExportTool
                     var createdByAuthors = txtCreatedByFilter.Value.Split(',');
                     var modifiedByAuthors = txtModifiedByFilter.Value.Split(',');
 
-                    var webDb = Sitecore.Configuration.Factory.GetDatabase("web"); 
+                    var webDb = Sitecore.Configuration.Factory.GetDatabase("web");
 
                     foreach (var baseItem in items)
                     {
@@ -1075,7 +1075,7 @@ namespace ContentExportTool
                             if (upToDate)
                             {
                                 var languageItem = webDb.GetItem(item.ID, item.Language);
-                                
+
                                 if (languageItem == null || languageItem.Versions.Count == 0)
                                 {
                                     var message = "n/a";
@@ -1433,22 +1433,22 @@ namespace ContentExportTool
                 else
                 {
                     if (linkField.TargetItem != null)
-					{
-						var targetItem = linkField.TargetItem;
-						if (targetItem != null)
-						{							
-							var itemUrl = targetItem.Paths.Path.Replace("/sitecore/content", "");
-							itemLine += itemUrl + ",";													
-						}
-						else
-						{
-							itemLine += ",";
-						}
-					}
-					else
-					{
-						itemLine += linkField.Url + ",";
-					}
+                    {
+                        var targetItem = linkField.TargetItem;
+                        if (targetItem != null)
+                        {
+                            var itemUrl = targetItem.Paths.Path.Replace("/sitecore/content", "");
+                            itemLine += itemUrl + ",";
+                        }
+                        else
+                        {
+                            itemLine += ",";
+                        }
+                    }
+                    else
+                    {
+                        itemLine += linkField.Url + ",";
+                    }
                 }
 
                 if (includeRawHtml)
@@ -1841,6 +1841,8 @@ namespace ContentExportTool
                 var fieldsMap = new List<String>();
                 var itemPathIndex = 0;
                 var componentNameIndex = 0;
+                var uidIndex = -1;
+                var datasourcePathIndex = -1;
                 var parameterNameIndex = -1;
                 var valueIndex = -1;
                 var placeholderIndex = -1;
@@ -1873,6 +1875,8 @@ namespace ContentExportTool
                             fieldsMap = cells.ToList();
                             itemPathIndex = fieldsMap.FindIndex(x => x.ToLower() == "item path");
                             componentNameIndex = fieldsMap.FindIndex(x => x.ToLower() == "component name");
+                            uidIndex = fieldsMap.FindIndex(x => x.ToLower() == "uid");
+                            datasourcePathIndex = fieldsMap.FindIndex(x => x.ToLower() == "datasource item");
                             parameterNameIndex = fieldsMap.FindIndex(x => x.ToLower() == "parameter name");
                             valueIndex = fieldsMap.FindIndex(x => x.ToLower() == "value");
                             placeholderIndex = fieldsMap.FindIndex(x => x.ToLower() == "placeholder");
@@ -1940,7 +1944,7 @@ namespace ContentExportTool
 
                                     if (editItem)
                                     {
-                                        var itemModified = EditRenderingParams(item, cells, componentNameIndex, parameterNameIndex, whenPlaceholderIndex, valueIndex, placeholderIndex, positionIndex, positionInPlacholderIndex, beforeIndex, afterIndex, nthOfTypeIndex, fieldsMap, line, deleteIndex, allIndex, ref output);
+                                        var itemModified = EditRenderingParams(item, cells, componentNameIndex, uidIndex, datasourcePathIndex, parameterNameIndex, whenPlaceholderIndex, valueIndex, placeholderIndex, positionIndex, positionInPlacholderIndex, beforeIndex, afterIndex, nthOfTypeIndex, fieldsMap, line, deleteIndex, allIndex, ref output);
 
                                         if (itemModified)
                                             itemsImported++;
@@ -1966,7 +1970,7 @@ namespace ContentExportTool
 
                                         foreach (var subItem in subItems)
                                         {
-                                            var itemModified = EditRenderingParams(subItem, cells, componentNameIndex, parameterNameIndex, whenPlaceholderIndex, valueIndex, placeholderIndex, positionIndex, positionInPlacholderIndex, beforeIndex, afterIndex, nthOfTypeIndex, fieldsMap, line, deleteIndex, allIndex, ref output);
+                                            var itemModified = EditRenderingParams(subItem, cells, componentNameIndex, uidIndex, datasourcePathIndex, parameterNameIndex, whenPlaceholderIndex, valueIndex, placeholderIndex, positionIndex, positionInPlacholderIndex, beforeIndex, afterIndex, nthOfTypeIndex, fieldsMap, line, deleteIndex, allIndex, ref output);
                                             if (publishChanges && itemModified)
                                             {
                                                 var published = PublishItem(subItem, language, ddRenderingParamPublishDatabase.SelectedValue);
@@ -2353,10 +2357,10 @@ namespace ContentExportTool
                         }
                         else // treat as a direct url
                         {
-                        linkField.Url = value;
+                            linkField.Url = value;
                         }
 
-                        
+
 
                     }
                     else if (itemOfType is ReferenceField || itemOfType is GroupedDroplistField || itemOfType is LookupField)
@@ -2433,11 +2437,13 @@ namespace ContentExportTool
             item.Editing.EndEdit();
         }
 
-        protected bool EditRenderingParams(Item item, string[] cells, int componentNameIndex, int parameterNameIndex, int whenPlaceholderEqualsIndex, int valueIndex, int placeholderIndex, int positionIndex, int positionInPlaceholderIndex, int beforeIndex, int afterIndex, int nthOfTypeIndex, List<string> fieldsMap, int line, int deleteIndex, int allIndex, ref string output)
+        protected bool EditRenderingParams(Item item, string[] cells, int componentNameIndex, int uidIndex, int datasourceIndex, int parameterNameIndex, int whenPlaceholderEqualsIndex, int valueIndex, int placeholderIndex, int positionIndex, int positionInPlaceholderIndex, int beforeIndex, int afterIndex, int nthOfTypeIndex, List<string> fieldsMap, int line, int deleteIndex, int allIndex, ref string output)
         {
             item.Editing.BeginEdit();
 
             var componentNameOrId = componentNameIndex > -1 ? cells[componentNameIndex] : "";
+            var uid = uidIndex > -1 ? cells[uidIndex] : "";
+            var datasource = datasourceIndex > -1 ? cells[datasourceIndex] : "";
             var paramName = parameterNameIndex > -1 ? cells[parameterNameIndex] : "";
             var value = valueIndex > -1 ? cells[valueIndex] : "";
             var placeholder = placeholderIndex > -1 ? cells[placeholderIndex] : "";
@@ -2447,7 +2453,7 @@ namespace ContentExportTool
             var after = afterIndex > -1 ? cells[afterIndex] : "";
             var whenPlaceholderEquals = whenPlaceholderEqualsIndex > -1 ? cells[whenPlaceholderEqualsIndex] : "";
             var nthOfType = nthOfTypeIndex > -1 ? cells[nthOfTypeIndex] : "";
-            var all = cells[allIndex] == "-1" || (allIndex > -1 ? cells[allIndex].ToLower() == "true" || cells[allIndex].ToLower() == "yes" || cells[allIndex] == "1" : false);
+            var all = (allIndex > -1 ? cells[allIndex].ToLower() == "true" || cells[allIndex].ToLower() == "yes" || cells[allIndex] == "1" : false);
             var delete = position == "-1" || (deleteIndex > -1 ? cells[deleteIndex].ToLower() == "true" || cells[deleteIndex].ToLower() == "yes" || cells[deleteIndex] == "1" : false);
 
             try
@@ -2465,6 +2471,11 @@ namespace ContentExportTool
                 var renderings = deviceDefinition.Renderings.Cast<RenderingDefinition>().ToList();
                 var matchingRenderings = renderings.Where(x => x != null &&
                             (x.ItemID.ToLower() == componentNameOrId.ToLower() || _db.GetItem(x.ItemID).Name.ToLower() == componentNameOrId.ToLower())).ToList();
+
+                if (!String.IsNullOrEmpty(uid))
+                {
+                    matchingRenderings = matchingRenderings.Where(x => x.UniqueId == uid).ToList();
+                }
 
                 if (!String.IsNullOrEmpty(whenPlaceholderEquals))
                 {
@@ -2492,6 +2503,15 @@ namespace ContentExportTool
                     {
                         output += "Line " + (line + 1) + ": " + componentNameOrId + " not found " + (String.IsNullOrEmpty(whenPlaceholderEquals) ? "" : "in " + whenPlaceholderEquals) + " on " + item.Paths.FullPath + "<br/>";
                         return false;
+                    }
+
+                    // 0. set datasource
+                    if (!String.IsNullOrEmpty(datasource) && datasource != rendering.Datasource)
+                    {
+                        Sitecore.Diagnostics.Log.Info("Updating datasource for " + componentNameOrId + " (" + rendering.UniqueId + ") on " + item.Paths.Path, this);
+                        Sitecore.Diagnostics.Log.Info("Current Datasource: " + rendering.Datasource, this);
+                        Sitecore.Diagnostics.Log.Info("New Datasource: " + datasource, this);
+                        rendering.Datasource = datasource;
                     }
 
                     // 1. set placeholder
@@ -3734,7 +3754,7 @@ namespace ContentExportTool
 
                 using (StringWriter sw = new StringWriter())
                 {
-                    var headingString = "Item Path,Component Name,Datasource Item, Datasource Template,Placeholder";
+                    var headingString = "Item Path,Component Name,UID,Datasource Item, Datasource Template,Placeholder";
 
                     sw.WriteLine(headingString);
 
@@ -3781,9 +3801,10 @@ namespace ContentExportTool
                                             ? null
                                             : _db.GetItem(datasourceId);
 
-                                        var itemLine = String.Format("{0},{1},{2},{3},{4}", itemPath, name,
+                                        var itemLine = String.Format("{0},{1},{2},{3},{4},{5}", itemPath, name, rendering.UniqueId,
                                             datasource == null ? "" : datasource.Paths.ContentPath,
-                                            datasource == null ? "" : datasource.TemplateName, rendering.Placeholder);
+                                            datasource == null ? "" : datasource.TemplateName, rendering.Placeholder
+                                            );
                                         sw.WriteLine(itemLine);
                                     }
                                     catch (Exception ex)
@@ -4382,7 +4403,8 @@ namespace ContentExportTool
                                     }
 
                                     dataLines.Add(itemLine);
-                                }catch(Exception ex)
+                                }
+                                catch (Exception ex)
                                 {
                                     var itemLine = "Error for " + item.Paths.Path + ": " + ex.StackTrace;
                                     dataLines.Add(itemLine);
@@ -4420,7 +4442,7 @@ namespace ContentExportTool
         {
             using (StringWriter sw = new StringWriter())
             {
-                var headingString = "Item Path,Apply to All Subitems,Template,Component Name,When Placeholder Equals,Nth of Type,All Matching Components,Parameter Name,Value,Placeholder,Position,Position in Placeholder,Before,After\n";
+                var headingString = "Item Path,Apply to All Subitems,Template,Component Name,UID,When Placeholder Equals,Nth of Type,All Matching Components,Parameter Name,Value,Placeholder,Position,Position in Placeholder,Before,After\n";
 
                 StartResponse("CSVRenderingParametersImportTemplate");
                 sw.WriteLine(headingString);
@@ -4672,7 +4694,7 @@ namespace ContentExportTool
                             }
                         }
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
 
                     }
